@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="90649c61-87d7-4e9b-a875-cf96ad68d30e" name="更改" comment="框架">
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README-页面原型汇总.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/HELP.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/test/java/com/common/CommonApplicationTests.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dashboard/02-主页大屏结构及功能说明.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dashboard/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dashboard/src/main/java/com/dashboard/DashboardApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dashboard/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dashboard/src/test/java/com/dashboard/DashboardApplicationTests.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/defectManager/04-缺陷管理结构及功能说明.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/defectManager/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/defectManager/src/main/java/com/defectmanager/DefectManagerApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/defectManager/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/defectManager/src/test/java/com/defectmanager/DefectManagerApplicationTests.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/01-登录页面结构及功能说明.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/java/com/login/LoginApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/login/src/test/java/com/login/LoginApplicationTests.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/systemManager/05-系统管理结构及功能说明.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/systemManager/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/systemManager/src/main/java/com/systemmanager/SystemManagerApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/systemManager/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/systemManager/src/test/java/com/systemmanager/SystemManagerApplicationTests.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/taskManager/03-任务管理结构及功能说明.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/taskManager/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/taskManager/src/main/java/com/taskmanager/TaskManagerApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/taskManager/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/taskManager/src/test/java/com/taskmanager/TaskManagerApplicationTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;archer945&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/archer945/SubTrackPlat.git&quot;,
+    &quot;accountId&quot;: &quot;fff1c7b3-afe5-4a41-a973-f78e481f183e&quot;
+  }
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="customMavenHome" value="D:\Maven\apache-maven-3.9.9-bin\apache-maven-3.9.9" />
+        <option name="localRepository" value="D:\Maven\repository" />
+        <option name="mavenHomeTypeForPersistence" value="CUSTOM" />
+        <option name="userSettingsFile" value="D:\Maven\apache-maven-3.9.9-bin\apache-maven-3.9.9\conf\settings.xml" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="MavenRunner">
+    <option name="jreName" value="17" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="2" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="2ydlodPVZyDgl04i5jKuDDRIOFM" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "yuyu",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/Java/SubTrackPlat/SubTrackPlat/dashboard",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "模块",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "MavenSettings",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="KtorApplicationConfigurationType" />
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.LoginApplication">
+    <configuration name="CommonApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="common" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.common.CommonApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DashboardApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="dashboard" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.dashboard.DashboardApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DefectManagerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="defectManager" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.defectmanager.DefectManagerApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LoginApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="login" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.login.LoginApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SystemManagerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="systemManager" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.systemmanager.SystemManagerApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TaskManagerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="taskManager" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.taskmanager.TaskManagerApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.218" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.218" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="90649c61-87d7-4e9b-a875-cf96ad68d30e" name="更改" comment="" />
+      <created>1750172507332</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1750172507332</updated>
+      <workItem from="1750172508553" duration="1478000" />
+      <workItem from="1750174006662" duration="1001000" />
+      <workItem from="1750175015706" duration="393000" />
+      <workItem from="1750175519747" duration="1458000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="框架" />
+    <option name="LAST_COMMIT_MESSAGE" value="框架" />
+  </component>
+</project>
