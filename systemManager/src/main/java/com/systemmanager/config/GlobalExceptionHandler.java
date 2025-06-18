@@ -1,7 +1,10 @@
-package com.zeroone.star.communityinfo.config;
+package com.systemmanager.config;
 
-import com.zeroone.star.project.vo.JsonVO;
-import com.zeroone.star.project.vo.ResultStatus;
+import com.common.domain.vo.JsonVO;
+import com.common.domain.vo.ResultStatus;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -11,9 +14,6 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -22,9 +22,7 @@ import java.util.stream.StreamSupport;
  * <p>
  * 描述：全局异常捕获处理
  * </p>
- * <p>版权：&copy;01星球</p>
- * <p>地址：01星球总部</p>
- * @author 阿伟学长
+ * @author yuyu
  * @version 1.0.0
  */
 @RestControllerAdvice
