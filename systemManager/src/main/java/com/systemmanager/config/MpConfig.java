@@ -1,7 +1,6 @@
 package com.systemmanager.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -25,8 +24,7 @@ public class MpConfig {
             @Override
             public void insertFill(MetaObject metaObject) {
                 // 插入时填充
-                this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());this.strictInsertFill(metaObject, "bId", String.class, String.valueOf(IdWorker.getId()));
-
+                this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
             }
 
             @Override
