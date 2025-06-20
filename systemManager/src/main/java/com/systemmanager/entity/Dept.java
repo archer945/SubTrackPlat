@@ -58,7 +58,7 @@ public class Dept implements Serializable {
     /**
      * 联系电话
      */
-    private String phone;
+    private String tel;
 
     /**
      * 部门邮箱

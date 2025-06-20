@@ -53,7 +53,7 @@ public class User implements Serializable {
     /**
      * 手机号
      */
-    private String mobile;
+    private String tel;
 
     /**
      * 部门ID
