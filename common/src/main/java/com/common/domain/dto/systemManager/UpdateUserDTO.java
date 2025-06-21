@@ -1,24 +1,23 @@
 package com.common.domain.dto.systemManager;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-@ApiModel("更新用户模型")
+@Schema(description = "更新用户模型")
 @Data
 public class UpdateUserDTO{
-    @ApiModelProperty(value = "用户ID", example = "1", required = true)
+    @Schema(description = "用户ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private String userId;
 
-    @ApiModelProperty(value = "真实姓名", example = "张三", required = true)
+    @Schema(description = "真实姓名", example = "张三", requiredMode = Schema.RequiredMode.REQUIRED)
     private String realName;
 
-    @ApiModelProperty(value = "邮箱", example = "zhangsan@qq.com", required = true)
+    @Schema(description = "邮箱", example = "zhangsan@qq.com", requiredMode = Schema.RequiredMode.REQUIRED)
     private String email;
 
-    @ApiModelProperty(value = "手机号", example = "13888888888", required = true)
+    @Schema(description = "手机号", example = "13888888888", requiredMode = Schema.RequiredMode.REQUIRED)
     private String phone;
 
-    @ApiModelProperty(value = "部门id", example = "1", required = true)
+    @Schema(description = "部门id", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long deptId;
 }

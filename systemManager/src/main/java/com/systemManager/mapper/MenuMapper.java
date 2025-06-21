@@ -12,7 +12,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @author yuyu
  * @since 2025-06-20
  */
-@Mapper
 public interface MenuMapper extends BaseMapper<Menu> {
 
 }

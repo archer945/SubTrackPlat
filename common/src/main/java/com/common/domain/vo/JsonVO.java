@@ -1,6 +1,6 @@
 package com.common.domain.vo;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,19 +19,19 @@ public class JsonVO<T> implements Serializable {
     /**
      * 状态码
      */
-    @ApiModelProperty(value = "状态码", example = "10000")
+    @Schema(description = "状态码", example = "10000")
     private Integer code;
 
     /**
      * 提示消息
      */
-    @ApiModelProperty(value = "提示消息", example = "提示消息内容")
+    @Schema(description = "提示消息", example = "提示消息内容")
     private String message;
 
     /**
      * 数据对象
      */
-    @ApiModelProperty(value = "数据对象")
+    @Schema(description = "数据对象")
     private T data;
 
     /**

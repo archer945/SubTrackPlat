@@ -16,7 +16,6 @@ import org.apache.ibatis.annotations.Param;
  * @author yuyu
  * @since 2025-06-20
  */
-@Mapper
 public interface UserMapper extends BaseMapper<User> {
 
     Page<UserVO> selectUser(@Param("query") UserQuery query, Page<UserVO> page);

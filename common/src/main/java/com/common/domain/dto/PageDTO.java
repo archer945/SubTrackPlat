@@ -1,7 +1,7 @@
 package com.common.domain.dto;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,31 +21,31 @@ public class PageDTO<T> implements Serializable {
     /**
      * 当前页码
      */
-    @ApiModelProperty(value = "当前页码", example = "1")
+    @Schema(description = "当前页码", example = "1")
     protected Long pageIndex;
 
     /**
      * 每页显示最大数据条数
      */
-    @ApiModelProperty(value = "每页显示最大数据条数", example = "10")
+    @Schema(description = "每页显示最大数据条数", example = "10")
     protected Long pageSize;
 
     /**
      * 数据的总条数
      */
-    @ApiModelProperty(value = "总条数", example = "100000")
+    @Schema(description = "总条数", example = "100000")
     protected Long total;
 
     /**
      * 数据的总页数
      */
-    @ApiModelProperty(value = "总页数", example = "100")
+    @Schema(description = "总页数", example = "100")
     protected Long pages;
 
     /**
      * 当前页数据列表
      */
-    @ApiModelProperty(value = "当前页数据列表")
+    @Schema(description = "当前页数据列表")
     protected List<T> rows;
 
     /**

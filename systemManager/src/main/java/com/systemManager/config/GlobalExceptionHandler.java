@@ -22,10 +22,8 @@ import java.util.stream.StreamSupport;
  * <p>
  * 描述：全局异常捕获处理
  * </p>
- * @author yuyu
- * @version 1.0.0
  */
-@RestControllerAdvice
+@RestControllerAdvice("com.systemManager.controller")
 public class GlobalExceptionHandler {
     /**
      * 系统通用异常处理

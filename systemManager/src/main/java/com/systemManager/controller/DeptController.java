@@ -1,6 +1,8 @@
 package com.systemManager.controller;
 
 
+import com.systemManager.mapper.DeptMapper;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/systemManager/dept")
 public class DeptController {
+    @Resource
+    private DeptMapper deptMapper;
 
 }
 

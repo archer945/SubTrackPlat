@@ -1,9 +1,10 @@
 package com.common.domain.dto.systemManager;
 
-import io.swagger.annotations.ApiModel;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-@ApiModel("菜单数据传输模型")
+@Schema(description = "菜单数据传输模型")
 @Data
 public class MenuDTO {
 }

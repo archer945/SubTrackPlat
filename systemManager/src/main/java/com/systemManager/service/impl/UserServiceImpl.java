@@ -10,6 +10,7 @@ import com.common.domain.vo.systemManager.UserVO;
 import com.systemManager.entity.User;
 import com.systemManager.mapper.UserMapper;
 import com.systemManager.service.IUserService;
+import com.systemManager.service.MsUserMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +28,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Resource
     private UserMapper userMapper;
 
+    @Resource
+    private MsUserMapper msMapper;
+
     @Override
     public String saveUser(AddUserDTO addUserDTO) {
-        return "";
+        User user = msMapper.addDtoToDo(addUserDTO);
+        user.setStatus(1);
+        if(userMapper.insert(user) != 1){
+            throw new RuntimeException("添加用户数据失败");
+        }
+
+        return user.getUserId().toString();
     }
 
     @Override
