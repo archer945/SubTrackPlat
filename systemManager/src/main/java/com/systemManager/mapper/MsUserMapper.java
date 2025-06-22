@@ -1,4 +1,4 @@
-package com.systemManager.service;
+package com.systemManager.mapper;
 
 import com.common.domain.dto.systemManager.AddUserDTO;
 import com.common.domain.dto.systemManager.UpdateUserDTO;

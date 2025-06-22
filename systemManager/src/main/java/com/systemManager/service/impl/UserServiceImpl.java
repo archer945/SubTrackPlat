@@ -8,10 +8,11 @@ import com.common.domain.dto.systemManager.AddUserDTO;
 import com.common.domain.query.systemManager.UserQuery;
 import com.common.domain.vo.systemManager.UserVO;
 import com.systemManager.entity.User;
+import com.systemManager.mapper.MsUserMapper;
 import com.systemManager.mapper.UserMapper;
 import com.systemManager.service.IUserService;
-import com.systemManager.service.MsUserMapper;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,7 +29,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Resource
     private UserMapper userMapper;
 
-    @Resource
+    @Autowired
     private MsUserMapper msMapper;
 
     @Override
