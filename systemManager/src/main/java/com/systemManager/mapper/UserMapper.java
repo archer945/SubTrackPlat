@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.common.domain.query.systemManager.UserQuery;
 import com.common.domain.vo.systemManager.UserVO;
 import com.systemManager.entity.User;
+import jakarta.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,4 +20,6 @@ import org.apache.ibatis.annotations.Param;
 public interface UserMapper extends BaseMapper<User> {
 
     Page<UserVO> selectUser(@Param("query") UserQuery query, Page<UserVO> page);
+
+    boolean selectUserByUsername(@NotBlank(message = "用户名不能为空") String username);
 }

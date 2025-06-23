@@ -22,6 +22,7 @@ logging:
   level:
     org.springframework: DEBUG
     com.baomidou.mybatisplus: TRACE
+    com.systemManager: DEBUG
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
