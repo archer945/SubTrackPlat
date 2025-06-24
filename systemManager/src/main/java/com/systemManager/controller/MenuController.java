@@ -1,19 +1,12 @@
 package com.systemManager.controller;
 
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.common.domain.dto.PageDTO;
-import com.common.domain.dto.systemManager.AddMenuDTO;
-import com.common.domain.dto.systemManager.AddUserDTO;
-import com.common.domain.dto.systemManager.UpdateMenuDTO;
-import com.common.domain.dto.systemManager.UpdateUserDTO;
+import com.common.domain.dto.systemManager.MenuDTO;
 import com.common.domain.query.systemManager.MenuQuery;
-import com.common.domain.query.systemManager.UserQuery;
 import com.common.domain.vo.JsonVO;
 import com.common.domain.vo.systemManager.MenuTreeVO;
-import com.common.domain.vo.systemManager.UserVO;
 import com.systemManager.service.IMenuService;
-import com.systemManager.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -45,13 +38,13 @@ public class MenuController {
 
     @Operation(summary = "添加菜单")
     @PostMapping
-    public JsonVO<String> addMenu(@Validated @RequestBody AddMenuDTO addMenuDTO) {
-        return JsonVO.success(menuService.saveMenu(addMenuDTO));
+    public JsonVO<String> addMenu(@Validated @RequestBody MenuDTO dto) {
+        return JsonVO.success(menuService.saveMenu(dto));
     }
 
     @Operation(summary = "更新菜单")
     @PutMapping("/{id}")
-    public JsonVO<String> updateMenu(@PathVariable Long id, @Validated @RequestBody UpdateMenuDTO dto) {
+    public JsonVO<String> updateMenu(@PathVariable Long id, @Validated @RequestBody MenuDTO dto) {
         return JsonVO.success(menuService.updateMenu(id, dto));
     }
 

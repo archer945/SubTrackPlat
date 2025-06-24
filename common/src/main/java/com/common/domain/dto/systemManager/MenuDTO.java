@@ -8,9 +8,9 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-@Schema(description = "添加菜单模型")
+@Schema(description = "菜单数据传输模型")
 @Data
-public class AddMenuDTO {
+public class MenuDTO {
     @Schema(description = "菜单名", example = "系统管理", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "菜单名不能为空")
     private String menuName;
@@ -24,7 +24,7 @@ public class AddMenuDTO {
 
     @Schema(description = "菜单类型", example = "M", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "菜单类型不能为空")
-    @Pattern(regexp = "M|C|F", message = "菜单类型必须是M(目录)、C(菜单)或F(按钮)")
+    @Pattern(regexp = "[MCF]", message = "菜单类型必须是M(目录)、C(菜单)或F(按钮)")
     private String menuType;
 
     @Schema(description = "路由地址（类型为M/C时必填）", example = "/system")
@@ -42,7 +42,7 @@ public class AddMenuDTO {
     @Schema(description = "权限标识（类型为F时必填）", example = "system:user:add")
     private String perms;
 
-    @Schema(description = "菜单图标", example = "", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "菜单图标", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "菜单图标不能为空")
     private String icon;
 
