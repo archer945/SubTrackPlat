@@ -8,11 +8,18 @@ import com.defectmanager.entity.DefectImage;
 import com.defectmanager.query.DefectQuery;
 import com.defectmanager.service.DefectService;
 import com.defectmanager.service.ImageService;
+import com.defectmanager.service.exportService;
 import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @CrossOrigin
@@ -24,6 +31,8 @@ public class DefectController {
     private DefectService defectService;
     @Resource
     private ImageService imageService;
+    @Resource
+    private exportService exportService;
 
     @PostMapping("/page")
     @ApiOperation("分页查询缺陷信息")
@@ -76,6 +85,27 @@ public class DefectController {
 
         return JsonVO.success(defect);
     }
+
+    @GetMapping("/export")
+    @ApiOperation("导出缺陷数据")
+    public void exportDefects(DefectQuery query, HttpServletResponse response) {
+        try {
+            // 1. 设置响应头
+            String fileName = "缺陷数据_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + ".xlsx";
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+
+            // 2. 生成Excel文件
+            ByteArrayOutputStream outputStream = exportService.exportDefectsToExcel(query,response);
+
+            // 3. 写入响应流
+            response.getOutputStream().write(outputStream.toByteArray());
+            response.flushBuffer();
+        } catch (IOException e) {
+            throw new RuntimeException("导出失败", e);
+        }
+    }
+
 
 
 }

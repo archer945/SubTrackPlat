@@ -10,8 +10,8 @@ spring:
     name: defectManager
 mybatis-plus:
   #mapper????
-  mapper-locations: classpath*:mapper/*.xml
-  type-aliases-package: com.systemManager.entity
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.defectManager.entity
   configuration:
     #??????
     map-underscore-to-camel-case: true
