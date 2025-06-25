@@ -45,7 +45,7 @@ public class Defect {
     private String foundMethod;           // "人工巡检"、"设备检测"、"例行检查"
     private BigDecimal location;          // 距离起点位置(m)
     private String status;                // "待确认"、"已确认"、"处理中"等
-    @JsonProperty("confirme_by")
+    @JsonProperty("confirm_by")
     private Long confirmBy;               // 确认人员ID
     @JsonProperty("confirm_time")
     private LocalDateTime confirmTime;    // 确认时间

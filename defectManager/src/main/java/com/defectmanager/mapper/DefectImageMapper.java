@@ -13,6 +13,6 @@ import java.util.List;
 public interface DefectImageMapper extends BaseMapper<DefectImage> {
 
     // 根据缺陷ID查询图片列表
-//    @Select("SELECT * FROM defect_image WHERE defect_id = #{defectId} ORDER BY uploaded_at DESC")
-//    List<DefectImage> selectByDefectId(@Param("defectId") Long defectId);
+    @Select("SELECT * FROM defect_image WHERE defect_id = #{defectId} ORDER BY uploaded_at DESC")
+    List<DefectImage> selectByDefectId(@Param("defectId") Long defectId);
 }

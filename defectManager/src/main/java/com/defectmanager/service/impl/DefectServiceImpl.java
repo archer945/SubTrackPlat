@@ -126,6 +126,15 @@ public class DefectServiceImpl implements DefectService {
         }
     }
 
+    /*
+    * 根据id获取图片信息
+    * */
+
+    @Override
+    public Defect getById(Long id) {
+        return defectMapper.selectById(id);
+    }
+
 
 }
 

@@ -20,7 +20,7 @@ public interface ImageService {
     /**
      * 获取缺陷关联的图片
      */
-//    List<DefectImage> getImagesByDefectId(Long defectId);
+    List<DefectImage> getImagesByDefectId(Long defectId);
 
 
 

@@ -74,9 +74,9 @@ public class ImageServiceImpl implements ImageService {
     /*
     * 根据id获取图片
     * */
-//    @Override
-//    public List<DefectImage> getImagesByDefectId(Long defectId) {
-//        return imageMapper.selectByDefectId(defectId);
-//    }
+    @Override
+    public List<DefectImage> getImagesByDefectId(Long defectId) {
+        return imageMapper.selectByDefectId(defectId);
+    }
 
 }

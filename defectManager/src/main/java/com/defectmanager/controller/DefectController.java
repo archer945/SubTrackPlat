@@ -4,12 +4,16 @@ package com.defectmanager.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.common.domain.vo.JsonVO;
 import com.defectmanager.entity.Defect;
+import com.defectmanager.entity.DefectImage;
 import com.defectmanager.query.DefectQuery;
 import com.defectmanager.service.DefectService;
+import com.defectmanager.service.ImageService;
 import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -18,6 +22,8 @@ public class DefectController {
 
     @Resource
     private DefectService defectService;
+    @Resource
+    private ImageService imageService;
 
     @PostMapping("/page")
     @ApiOperation("分页查询缺陷信息")
@@ -54,5 +60,23 @@ public class DefectController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/{id}")
+    @ApiOperation("获取缺陷详细信息")
+    public JsonVO<Defect> getDefectDetail(@PathVariable Long id) {
+        // 1. 获取缺陷基本信息
+        Defect defect = defectService.getById(id);
+        if (defect == null) {
+            return JsonVO.fail(null);
+        }
+
+        // 2. 获取关联的图片列表
+        List<DefectImage> images = imageService.getImagesByDefectId(id);
+        defect.setImages(images);
+
+        return JsonVO.success(defect);
+    }
+
+
 }
 

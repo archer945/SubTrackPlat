@@ -13,6 +13,8 @@ public interface DefectService {
 
     boolean updateStatus(Long id, String status, Long operatorId);
 
+// 在DefectService.java中添加
 
+    Defect getById(Long id);
 
 }
