@@ -42,5 +42,40 @@ public class AliOSSUtils {
         ossClient.shutdown();
         return url;// 把上传到oss的路径返回
     }
+    /**
+     * 从OSS删除文件
+     * @param fileUrl 文件的完整URL或对象键（如 "abc.jpg" 或 "https://bucket.endpoint/abc.jpg"）
+     * @return 是否删除成功
+     */
+    public boolean delete(String fileUrl) {
+        OSS ossClient = null;
+        try {
+            // 1. 创建OSS客户端
+            ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+
+            // 2. 提取对象键（处理URL和直接对象键两种情况）
+            String objectKey;
+            if (fileUrl.startsWith("http")) {
+                // 如果是完整URL，提取路径部分（去掉协议和域名）
+                String[] parts = fileUrl.split("/");
+                objectKey = parts[parts.length - 1];
+            } else {
+                // 直接使用传入的对象键
+                objectKey = fileUrl;
+            }
+
+            // 3. 执行删除
+            ossClient.deleteObject(bucketName, objectKey);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            // 4. 关闭客户端
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+        }
+    }
 
 }

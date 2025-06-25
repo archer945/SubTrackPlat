@@ -4,9 +4,12 @@ package com.defectmanager.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.defectmanager.entity.Defect;
+import com.defectmanager.entity.DefectImage;
 import com.defectmanager.mapper.DefectMapper;
 import com.defectmanager.query.DefectQuery;
 import com.defectmanager.service.DefectService;
+import com.defectmanager.service.ImageService;
+import com.defectmanager.utils.AliOSSUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,12 +18,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class DefectServiceImpl implements DefectService {
 
     @Autowired
     private DefectMapper defectMapper;
+    @Autowired
+    private ImageService imageService;
+    @Autowired
+    private AliOSSUtils ossUtils;
     
     @Override
     /*
@@ -68,8 +76,24 @@ public class DefectServiceImpl implements DefectService {
     * */
     @Override
     public Boolean deleteDefect(Long id) {
+
+        Defect defect = defectMapper.selectById(id);
+        if (defect == null) {
+            return false;
+        }
+        // 先查询图片记录（用于后续删除OSS文件）
+        List<DefectImage> images = imageService.getImagesByDefectId(id);
+
+
+        boolean defectDeleted = defectMapper.deleteById(id) > 0;
+        // 异步清理OSS文件（避免阻塞主流程）
+        if (defectDeleted && !images.isEmpty()) {
+            CompletableFuture.runAsync(() -> {
+                images.forEach(img -> ossUtils.delete(img.getImageUrl()));
+            });
+        }
         // 删除缺陷
-        return defectMapper.deleteById(id) > 0;
+        return defectDeleted;
     }
 
     /*
