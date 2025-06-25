@@ -9,9 +9,12 @@ import com.defectmanager.query.DefectQuery;
 import com.defectmanager.service.DefectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class DefectServiceImpl implements DefectService {
@@ -68,4 +71,64 @@ public class DefectServiceImpl implements DefectService {
         // 删除缺陷
         return defectMapper.deleteById(id) > 0;
     }
+
+    /*
+    * 状态修改
+    * */
+    @Override
+    @Transactional
+    public boolean updateStatus(Long id, String status, Long operatorId) {
+        // 1. 获取当前缺陷
+        Defect defect = defectMapper.selectById(id);
+        if (defect == null) throw new RuntimeException("缺陷不存在");
+
+        // 2. 硬编码状态流转校验
+        validateTransition(defect.getStatus(), status);
+
+        // 3. 更新状态及关联字段（操作人+时间戳）
+        updateStatusFields(defect, status, operatorId);
+
+        // 4. 持久化到数据库
+        return defectMapper.updateById(defect) > 0;
+    }
+    // 状态流转校验（硬编码版）
+    private void validateTransition(String currentStatus, String newStatus) {
+        Map<String, List<String>> rules = Map.of(
+                "待确认", List.of("已确认", "已驳回"),
+                "已确认", List.of("处理中", "已关闭"),
+                "处理中", List.of("已整改", "需复查")
+        );
+        if (!rules.getOrDefault(currentStatus, List.of()).contains(newStatus)) {
+            throw new RuntimeException("非法状态流转: " + currentStatus + " → " + newStatus);
+        }
+    }
+
+    // 更新字段的通用方法
+    private void updateStatusFields(Defect defect, String newStatus, Long operatorId) {
+        defect.setStatus(newStatus);
+        defect.setUpdateTime(LocalDateTime.now());
+
+        switch (newStatus) {
+            case "已确认":
+                defect.setConfirmBy(operatorId);
+                defect.setConfirmTime(LocalDateTime.now());
+                break;
+            case "处理中":
+                defect.setHandleBy(operatorId);
+                defect.setHandleStart(LocalDateTime.now());
+                break;
+            case "已整改":
+                defect.setHandleBy(operatorId); // 处理人可能和确认人不同
+                defect.setHandleEnd(LocalDateTime.now());
+                break;
+            case "已关闭":
+                break;
+        }
+    }
+
+
 }
+
+
+
+

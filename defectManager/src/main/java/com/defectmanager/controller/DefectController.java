@@ -8,6 +8,7 @@ import com.defectmanager.query.DefectQuery;
 import com.defectmanager.service.DefectService;
 import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
@@ -37,6 +38,21 @@ public class DefectController {
         return JsonVO.success(defectService.deleteDefect(id));
     }
 
+    @PutMapping("/{id}/status")
+    @ApiOperation("更新缺陷状态")
+    public ResponseEntity<String> updateStatus(
+            @PathVariable Long id,
+            @RequestParam String status,
+            @RequestHeader("X-User-Id") Long operatorId) { // 从请求头获取操作人
 
-
+        try {
+            boolean success = defectService.updateStatus(id, status, operatorId);
+            return success ?
+                    ResponseEntity.ok("状态更新成功") :
+                    ResponseEntity.badRequest().body("更新失败");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
+

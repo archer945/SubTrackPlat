@@ -10,4 +10,9 @@ public interface DefectService {
     Defect add(Defect defect);
 
     Boolean deleteDefect(Long id);
+
+    boolean updateStatus(Long id, String status, Long operatorId);
+
+
+
 }
