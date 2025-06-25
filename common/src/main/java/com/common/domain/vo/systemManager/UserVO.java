@@ -19,7 +19,7 @@ public class UserVO {
     private String realName;
 
     @Schema(description = "手机号", example = "13888888888")
-    private String phone;
+    private String tel;
 
     @Schema(description = "状态", example = "正常")
     private String status;
@@ -28,6 +28,6 @@ public class UserVO {
     private String deptName;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "开始时间", example = "2025-06-17 00:00:00")
-    private LocalDateTime startTime;
+    @Schema(description = "创建时间", example = "2025-06-17 00:00:00")
+    private LocalDateTime creatTime;
 }

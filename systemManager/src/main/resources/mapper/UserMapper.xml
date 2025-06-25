@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.systemManager.mapper.UserMapper">
-    <resultMap id="userResultMap" type="com.systemManager.entity.User">
+    <resultMap id="userResultMap" type="com.common.domain.vo.systemManager.UserVO">
         <id column="user_id" property="userId"/>
         <result column="username" property="username"/>
         <result column="real_name" property="realName"/>
         <result column="tel" property="tel"/>
         <result column="status" property="status"/>
-        <result column="dept_id" property="deptId"/>
-        <result column="create_time" property="createTime"/>
+        <result column="dept_name" property="deptName"/>
+        <result column="create_time" property="creatTime"/>
     </resultMap>
 
     <select id="selectUser" resultMap="userResultMap">
@@ -18,7 +18,7 @@
         u.real_name,
         u.tel,
         u.status,
-        u.dept_id,
+        d.dept_name,
         u.create_time
         FROM
         user u
@@ -32,7 +32,7 @@
                 AND u.status = #{query.status}
             </if>
             <if test="query.tel != null and query.tel != ''">
-                AND u.phone = #{query.tel}
+                AND u.tel = #{query.tel}
             </if>
             <if test="query.startTime != null">
                 AND u.create_time >= #{query.startTime}
@@ -42,5 +42,13 @@
             </if>
         </where>
         ORDER BY u.create_time DESC, u.user_id DESC
+    </select>
+    <select id="selectUserByUsername" resultType="java.lang.Boolean">
+         SELECT
+        COUNT(1) > 0
+        FROM
+        user
+        WHERE
+        username = #{username}
     </select>
 </mapper>

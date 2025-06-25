@@ -13,8 +13,8 @@ public class UserQuery extends PageQuery {
     @Schema(description = "用户名", example = "admin")
     private String username;
 
-    @Schema(description = "状态", example = "正常")
-    private String status;
+    @Schema(description = "状态", example = "1")
+    private Integer status;
 
     @Schema(description = "手机号码", example = "15888888888")
     private String tel;

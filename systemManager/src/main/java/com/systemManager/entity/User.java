@@ -59,7 +59,7 @@ public class User implements Serializable {
     private Long deptId;
 
     /**
-     * 状态 0:禁用 1:正常 2:锁定
+     * 状态 0:禁用 1:正常 2:失效
      */
     private Integer status;
 
