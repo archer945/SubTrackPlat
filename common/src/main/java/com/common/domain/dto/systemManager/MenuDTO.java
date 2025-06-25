@@ -42,7 +42,7 @@ public class MenuDTO {
     @Schema(description = "权限标识（类型为F时必填）", example = "system:user:add")
     private String perms;
 
-    @Schema(description = "菜单图标", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "菜单图标", example = "/image", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "菜单图标不能为空")
     private String icon;
 

@@ -51,7 +51,7 @@ public class UserController {
 
     @Operation(summary = "删除用户")
     @DeleteMapping("/{id}")
-    public JsonVO<String> deleteUser(@PathVariable Long id) {
+    public JsonVO<String> removeUser(@PathVariable Long id) {
         return JsonVO.success(userService.removeUser(id));
     }
 }

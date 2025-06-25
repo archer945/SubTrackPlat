@@ -10,6 +10,6 @@ public class MenuQuery extends PageQuery {
     @Schema(description = "菜单名称", example = "系统管理")
     private String menuName;
 
-    @Schema(description = "状态", example = "显示")
-    private String visible;
+    @Schema(description = "状态", example = "1")
+    private Integer visible;
 }

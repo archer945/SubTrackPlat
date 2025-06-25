@@ -9,7 +9,7 @@ import com.common.domain.dto.systemManager.UpdateUserDTO;
 import com.common.domain.query.systemManager.UserQuery;
 import com.common.domain.vo.systemManager.UserVO;
 import com.systemManager.entity.User;
-import com.systemManager.mapper.MsUserMapper;
+import com.systemManager.mapper.UserMsMapper;
 import com.systemManager.mapper.UserMapper;
 import com.systemManager.service.IUserService;
 import jakarta.annotation.Resource;
@@ -33,8 +33,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private UserMapper userMapper;
 
     @Autowired
-    @Qualifier("msUserMapperImpl")
-    private MsUserMapper msMapper;
+    @Qualifier("userMsMapperImpl")
+    private UserMsMapper msMapper;
 
     @Override
     @Transactional

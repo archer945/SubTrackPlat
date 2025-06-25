@@ -9,7 +9,7 @@ import com.common.domain.query.systemManager.MenuQuery;
 import com.common.domain.vo.systemManager.MenuTreeVO;
 import com.systemManager.entity.Menu;
 import com.systemManager.mapper.MenuMapper;
-import com.systemManager.mapper.MsMenuMapper;
+import com.systemManager.mapper.MenuMsMapper;
 import com.systemManager.service.IMenuService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -40,8 +40,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     private MenuMapper menuMapper;
 
     @Autowired
-    @Qualifier("msMenuMapperImpl")
-    private MsMenuMapper msMapper;
+    @Qualifier("menuMsMapperImpl")
+    private MenuMsMapper msMapper;
 
     @Override
     public PageDTO<MenuTreeVO> listMenu(MenuQuery menuQuery) {
@@ -110,6 +110,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
 
         // 更新菜单
         Menu menu = msMapper.dtoToDo(dto);
+        menu.setMenuId(id);
         if (menuMapper.updateById(menu) == 0) {
             throw new RuntimeException("修改菜单失败");
         }
@@ -148,7 +149,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         if (menuMapper.deleteById(menu) == 0) {
             throw new RuntimeException("删除菜单失败");
         }
-        return "菜单删除成功";
+        return id.toString();
     }
 
     /**

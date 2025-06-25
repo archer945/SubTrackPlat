@@ -1,6 +1,9 @@
 package com.systemManager.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.common.domain.query.systemManager.RoleQuery;
+import com.common.domain.vo.systemManager.RoleVO;
 import com.systemManager.entity.Role;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -14,4 +17,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 public interface RoleMapper extends BaseMapper<Role> {
 
+    Page<RoleVO> selectUser(RoleQuery query, Page<RoleVO> page);
 }
