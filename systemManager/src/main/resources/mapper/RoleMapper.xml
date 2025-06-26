@@ -33,8 +33,8 @@
             <if test="query.status != null and query.status != ''">
                 AND r.status = #{query.status}
             </if>
-            <if test="query.beginTime != null">
-                AND r.create_time &gt;= #{query.beginTime}
+            <if test="query.startTime != null">
+                AND r.create_time &gt;= #{query.startTime}
             </if>
             <if test="query.endTime != null">
                 AND r.create_time &lt;= #{query.endTime}

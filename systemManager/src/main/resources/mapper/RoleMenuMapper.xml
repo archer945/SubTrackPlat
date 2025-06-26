@@ -3,7 +3,7 @@
 <mapper namespace="com.systemManager.mapper.RoleMenuMapper">
 
     <insert id="insertBatch">
-        INSERT INTO sys_role_menu(role_id, menu_id) VALUES
+        INSERT INTO role_menu(role_id, menu_id) VALUES
         <foreach collection="list" item="item" separator=",">
             (#{item.roleId}, #{item.menuId})
         </foreach>

@@ -17,7 +17,9 @@ import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,6 +53,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     }
 
     @Override
+    @Transactional
     public String saveRole(RoleDTO dto) {
         // 校验角色名称和编码唯一性
         checkRoleNameUnique(dto.getRoleName());
@@ -72,13 +75,56 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
     }
 
     @Override
+    @Transactional
     public String updateRole(Long id, RoleDTO dto) {
-        return "";
+        Role role = roleMapper.selectById(id);
+        if (role == null) {
+            throw new IllegalArgumentException("角色不存在");
+        }
+
+        // 校验角色名称和编码唯一性（排除自己）
+        checkRoleNameUnique(dto.getRoleName(), id);
+        checkRoleCodeUnique(dto.getRoleCode(), id);
+
+        role = msMapper.dtoToDo(dto);
+        role.setRoleId(id);
+        role.setUpdateTime(LocalDateTime.now());
+        if (roleMapper.updateById(role) == 0) {
+            throw new RuntimeException("修改角色失败");
+        }
+
+        // 更新角色菜单关联
+        roleMenuMapper.delete(new LambdaQueryWrapper<RoleMenu>().eq(RoleMenu::getRoleId, role.getRoleId()));
+        if (dto.getMenuIds() != null && !dto.getMenuIds().isEmpty()) {
+            insertRoleMenu(role.getRoleId(), dto.getMenuIds());
+        }
+        return id.toString();
     }
 
     @Override
+    @Transactional
     public String removeRole(Long id) {
-        return "";
+
+        Role role = roleMapper.selectById(id);
+        if (role == null) {
+            throw new IllegalArgumentException("角色不存在");
+        }
+
+        // 检查是否被用户关联
+        int userCount = roleMapper.countUserRoleByRoleId(id);
+        if (userCount > 0) {
+            throw new IllegalArgumentException(String.format("角色【%s】已分配用户，不能删除", role.getRoleName()));
+        }
+
+        // 删除角色菜单关联
+        roleMenuMapper.delete(new LambdaQueryWrapper<RoleMenu>().eq(RoleMenu::getRoleId, id));
+
+        // 删除角色
+        if (roleMapper.deleteById(role) == 0) {
+            throw new RuntimeException("删除角色失败");
+        }
+
+        return id.toString();
     }
 
     // 校验角色名称唯一性

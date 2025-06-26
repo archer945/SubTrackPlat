@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ public class RoleController {
 
     @GetMapping
     @Operation(summary = "获取角色列表（条件+分页）")
-    public JsonVO<PageDTO<RoleVO>> list(RoleQuery query) {
+    public JsonVO<PageDTO<RoleVO>> list(@ParameterObject @Validated RoleQuery query) {
         return JsonVO.success(roleService.listRoles(query));
     }
 
