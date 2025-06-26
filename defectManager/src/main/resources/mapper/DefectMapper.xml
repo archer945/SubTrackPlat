@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.defectmanager.mapper.DefectMapper">
+
+<!--    <insert id="insertDefectDynamic" parameterType="com.defectmanager.entity.Defect">-->
+
+
+
+<!--INSERT INTO defect(code, type, description, severity, is_valid, defect_length, defect_area, defect_count, suggestion, found_time, found_by, task_id, task_name, found_method, location, status, confirm_by, confirm_time, handle_by, handle_start, handle_end, result, create_time, update_time)-->
+<!--VALUES (#{code}, #{type}, #{description}, #{severity}, #{isValid}, #{defectLength}, #{defectArea}, #{defectCount}, #{suggestion}, #{foundTime}, #{foundBy}, #{taskId}, #{taskName},#{foundMethod},#{location},#{status},#{confirmBy},#{confirmTime},#{handleBy},#{handleStart},#{handleEnd},#{result})-->
+<!--    </insert>-->
+    <select id="selectByQuery" resultType="com.defectmanager.entity.Defect">
+        SELECT * FROM defect
+        <where>
+            <if test="query.type != null and query.type != ''">
+                AND type = #{query.type}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                AND status = #{query.status}
+            </if>
+            <if test="query.severity != null and query.severity != ''">
+                AND severity = #{query.severity}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                AND description LIKE CONCAT('%', #{query.keyword}, '%')
+            </if>
+            <if test="query.startTime != null">
+                AND found_time >= #{query.startTime}
+            </if>
+            <if test="query.endTime != null">
+                AND found_time &lt;= #{query.endTime}
+            </if>
+        </where>
+        ORDER BY found_time DESC
+    </select>
+</mapper>
