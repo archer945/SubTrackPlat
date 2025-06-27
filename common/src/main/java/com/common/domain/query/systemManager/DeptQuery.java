@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class DeptQuery extends PageQuery {
     @Schema(description = "部门名称", example = "技术部")
-    private String menuName;
+    private String deptName;
 
     @Schema(description = "状态", example = "正常")
     private String status;

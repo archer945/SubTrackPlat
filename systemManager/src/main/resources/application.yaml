@@ -26,9 +26,9 @@ mybatis-plus:
       id-type: AUTO
 logging:
   level:
-    org.springframework: DEBUG
+    org.springframework.jdbc: DEBUG
     com.baomidou.mybatisplus: TRACE
-    com.systemManager: DEBUG
+    com.systemManager.mapper: DEBUG
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

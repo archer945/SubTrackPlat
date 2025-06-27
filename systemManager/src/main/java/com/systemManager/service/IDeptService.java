@@ -21,8 +21,6 @@ public interface IDeptService extends IService<Dept> {
 
     PageDTO<DeptTreeVO> listDept(DeptQuery deptQuery);
 
-    List<DeptTreeVO> getDeptTree();
-
     String saveDept(DeptDTO dto);
 
     String updateDept(Long id, DeptDTO dto);

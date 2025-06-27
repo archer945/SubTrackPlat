@@ -39,12 +39,6 @@ public class DeptController {
         return JsonVO.success(deptService.listDept(deptQuery));
     }
 
-    @GetMapping("/tree")
-    @Operation(summary = "部门树形结构")
-    public JsonVO<List<DeptTreeVO>> tree() {
-        return JsonVO.success(deptService.getDeptTree());
-    }
-
     @Operation(summary = "添加部门")
     @PostMapping
     public JsonVO<String> addDept(@Validated @RequestBody DeptDTO dto) {
