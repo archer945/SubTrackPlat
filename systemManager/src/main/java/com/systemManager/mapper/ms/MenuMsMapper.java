@@ -1,4 +1,4 @@
-package com.systemManager.mapper;
+package com.systemManager.mapper.ms;
 
 import com.common.domain.dto.systemManager.MenuDTO;
 import com.systemManager.entity.Menu;

@@ -9,7 +9,7 @@ import com.common.domain.query.systemManager.MenuQuery;
 import com.common.domain.vo.systemManager.MenuTreeVO;
 import com.systemManager.entity.Menu;
 import com.systemManager.mapper.MenuMapper;
-import com.systemManager.mapper.MenuMsMapper;
+import com.systemManager.mapper.ms.MenuMsMapper;
 import com.systemManager.service.IMenuService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;

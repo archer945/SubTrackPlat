@@ -10,18 +10,22 @@ import java.util.List;
 @Data
 @Schema(description = "角色模型")
 public class RoleDTO {
-    @Schema(description = "角色名称", example = "管理员")
+    @Schema(description = "角色名称", example = "管理员", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "角色名称不能为空")
     private String roleName;
 
-    @Schema(description = "权限字符", example = "admin")
+    @Schema(description = "权限字符", example = "admin", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "角色编码不能为空")
     private String roleCode;
+
+    @Schema(description = "角色状态(0:停用 1:正常)", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "角色状态不能为空")
+    private String status;
 
     @Schema(description = "角色描述", example = "负责管理.....")
     private String description;
 
-    @Schema(description = "数据权限(1:全部 2:本部门 3:仅本人)", example = "1")
+    @Schema(description = "数据权限(1:全部 2:本部门 3:仅本人)", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "数据权限不能为空")
     private String dataScope;
 

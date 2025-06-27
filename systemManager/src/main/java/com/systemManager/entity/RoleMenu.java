@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-@TableName("role_menu")
+@TableName(value = "role_menu", schema = "sub_track_plat")
 public class RoleMenu implements Serializable {
 
     private static final long serialVersionUID = 1L;

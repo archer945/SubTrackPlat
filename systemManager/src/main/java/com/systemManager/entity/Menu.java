@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-@TableName("menu")
+@TableName(value = "menu", schema = "sub_track_plat")
 public class Menu implements Serializable {
 
     private static final long serialVersionUID = 1L;

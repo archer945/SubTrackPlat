@@ -11,7 +11,7 @@ import com.systemManager.entity.Role;
 import com.systemManager.entity.RoleMenu;
 import com.systemManager.mapper.RoleMapper;
 import com.systemManager.mapper.RoleMenuMapper;
-import com.systemManager.mapper.RoleMsMapper;
+import com.systemManager.mapper.ms.RoleMsMapper;
 import com.systemManager.service.IRoleService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         // 分页对象
         Page<RoleVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
         // 查询
-        Page<RoleVO> rolePage = roleMapper.selectUser(query, page);
+        Page<RoleVO> rolePage = roleMapper.selectRoles(query, page);
         return PageDTO.create(rolePage);
     }
 

@@ -16,7 +16,7 @@ public class MenuTreeVO {
     @Schema(description = "路由地址", example = "/system")
     private String path;
 
-    @Schema(description = "菜单图标", example = "")
+    @Schema(description = "菜单图标", example = "/image")
     private String icon;
 
     @Schema(description = "子菜单")

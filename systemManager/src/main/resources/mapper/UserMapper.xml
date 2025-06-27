@@ -21,7 +21,7 @@
         d.dept_name,
         u.create_time
         FROM
-        user u
+        "user" u
         LEFT JOIN
         dept d ON u.dept_id = d.dept_id
         <where>
@@ -47,7 +47,7 @@
          SELECT
         COUNT(1) > 0
         FROM
-        user
+        "user"
         WHERE
         username = #{username}
     </select>

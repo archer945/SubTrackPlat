@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-@TableName("role")
+@TableName(value = "role", schema = "sub_track_plat")
 public class Role implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -50,7 +50,7 @@ public class MenuController {
 
     @Operation(summary = "删除菜单")
     @DeleteMapping("/{id}")
-    public JsonVO<String> deleteUser(@PathVariable Long id) {
+    public JsonVO<String> removeMenu(@PathVariable Long id) {
         return JsonVO.success(menuService.removeMenu(id));
     }
 }

@@ -9,7 +9,7 @@ import com.common.domain.dto.systemManager.UpdateUserDTO;
 import com.common.domain.query.systemManager.UserQuery;
 import com.common.domain.vo.systemManager.UserVO;
 import com.systemManager.entity.User;
-import com.systemManager.mapper.UserMsMapper;
+import com.systemManager.mapper.ms.UserMsMapper;
 import com.systemManager.mapper.UserMapper;
 import com.systemManager.service.IUserService;
 import jakarta.annotation.Resource;
@@ -85,6 +85,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw new IllegalArgumentException("用户不存在");
         }
         user = msMapper.dtoToDo(dto);
+        user.setUserId(id);
         if (userMapper.updateById(user) == 0) {
             throw new RuntimeException("修改用户失败");
         }

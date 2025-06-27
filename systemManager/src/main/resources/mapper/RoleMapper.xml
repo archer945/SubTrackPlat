@@ -13,7 +13,7 @@
     </resultMap>
 
     <!-- 分页查询SQL -->
-    <select id="selectUser" resultMap="RoleVOResultMap">
+    <select id="selectRoles" resultMap="RoleVOResultMap">
         SELECT
         r.role_id,
         r.role_name,

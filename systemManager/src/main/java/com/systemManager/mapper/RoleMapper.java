@@ -20,5 +20,5 @@ public interface RoleMapper extends BaseMapper<Role> {
     @Select("SELECT COUNT(1) FROM user_role WHERE role_id = #{roleId}")
     int countUserRoleByRoleId(Long roleId);
 
-    Page<RoleVO> selectUser(RoleQuery query, Page<RoleVO> page);
+    Page<RoleVO> selectRoles(RoleQuery query, Page<RoleVO> page);
 }

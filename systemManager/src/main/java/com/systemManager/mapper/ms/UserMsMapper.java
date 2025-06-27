@@ -1,4 +1,4 @@
-package com.systemManager.mapper;
+package com.systemManager.mapper.ms;
 
 import com.common.domain.dto.systemManager.AddUserDTO;
 import com.common.domain.dto.systemManager.UpdateUserDTO;
