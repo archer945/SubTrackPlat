@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dashboard.mapper.DefectMapper">
+    <select id="getDefectType" resultType="com.common.domain.dto.dashboard.DefectTypeDTO">
+        SELECT
+            type,
+            COUNT(*) AS count
+        FROM
+            sub_track_plat.defect
+        GROUP BY
+            type
+        ORDER BY
+            count DESC
+    </select>
+
+    <!-- 基础统计 -->
+    <select id="countTotalAndValidDefects" resultType="java.util.Map">
+        SELECT
+            COUNT(*) AS total,
+            SUM(CASE WHEN is_valid = true THEN 1 ELSE 0 END) AS valid
+        FROM sub_track_plat.defect
+    </select>
+
+    <!-- 按类型统计 -->
+    <select id="countByType" resultType="com.common.domain.dto.dashboard.DefectTypeStats">
+        SELECT
+            type,
+            COUNT(*) AS count
+        FROM sub_track_plat.defect
+        GROUP BY type
+    </select>
+
+    <!-- 按严重程度统计 -->
+    <select id="countBySeverity" resultType="com.common.domain.dto.dashboard.DefectSeverityStats">
+        SELECT
+            severity,
+            COUNT(*) AS count
+        FROM sub_track_plat.defect
+        GROUP BY severity
+    </select>
+
+    <!-- 按状态统计 -->
+    <select id="countByStatus" resultType="com.common.domain.dto.dashboard.DefectStatusStats">
+        SELECT
+            status,
+            COUNT(*) AS count
+        FROM sub_track_plat.defect
+        GROUP BY status
+    </select>
+
+    <!-- 最近7天趋势 -->
+    <select id="countRecentTrend" resultType="com.common.domain.dto.dashboard.DefectTrendDTO">
+        SELECT
+            DATE(found_time) AS date,
+            COUNT(*) AS count
+        FROM sub_track_plat.defect
+        WHERE found_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        GROUP BY DATE(found_time)
+        ORDER BY date
+    </select>
+
+
+</mapper>
