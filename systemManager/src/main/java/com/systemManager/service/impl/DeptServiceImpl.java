@@ -1,7 +1,7 @@
 package com.systemManager.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import org.springframework.util.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.domain.dto.PageDTO;
@@ -13,7 +13,7 @@ import com.systemManager.mapper.DeptMapper;
 import com.systemManager.mapper.ms.DeptMsMapper;
 import com.systemManager.service.IDeptService;
 import jakarta.annotation.Resource;
-import org.springframework.beans.BeanUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
  * @since 2025-06-20
  */
 @Service
+@Slf4j
 public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements IDeptService {
     @Resource
     private DeptMapper deptMapper;
@@ -44,27 +45,37 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
 
     @Override
     public PageDTO<DeptTreeVO> listDept(DeptQuery deptQuery) {
-        // 分页对象
-        Page<DeptTreeVO> page = new Page<>(deptQuery.getPageIndex(), deptQuery.getPageSize());
-        // 查询
-        Page<DeptTreeVO> deptPage = deptMapper.selectDepts(deptQuery, page);
-        return PageDTO.create(deptPage);
+        // 构建查询条件
+        LambdaQueryWrapper<Dept> queryWrapper = new LambdaQueryWrapper<Dept>()
+                .eq(deptQuery.getStatus() != null, Dept::getStatus, deptQuery.getStatus())
+                .like(StringUtils.hasText(deptQuery.getDeptName()), Dept::getDeptName, deptQuery.getDeptName())
+                //.eq(deptQuery.getParentId() != null, Dept::getParentId, deptQuery.getParentId())
+                .orderByAsc(Dept::getParentId, Dept::getOrderNum);
+
+        // 分页查询原始部门数据
+        Page<Dept> page = new Page<>(deptQuery.getPageIndex(), deptQuery.getPageSize());
+        page = deptMapper.selectPage(page, queryWrapper);
+
+        // 转换为树形结构
+        List<DeptTreeVO> deptTree = buildDeptTree(page.getRecords());
+
+        // 构建分页结果
+        PageDTO<DeptTreeVO> pageResult = new PageDTO<>();
+        pageResult.setPageIndex(page.getCurrent());
+        pageResult.setPageSize(page.getSize());
+        pageResult.setTotal(page.getTotal());
+        pageResult.setPages(page.getPages());
+        pageResult.setRows(deptTree);
+        return pageResult;
     }
 
-    @Override
-    public List<DeptTreeVO> getDeptTree() {
-        List<Dept> depts = this.list(new LambdaQueryWrapper<Dept>()
-                .orderByAsc(Dept::getParentId, Dept::getOrderNum));
-
-        Map<Long, List<Dept>> deptMap = depts.stream()
-                .collect(Collectors.groupingBy(Dept::getParentId));
-
-        return buildDeptTree(deptMap, 0L);
-    }
 
     @Override
     @Transactional
     public String saveDept(DeptDTO dto) {
+        log.info("saveDept 参数: deptName={}, parentId={}", dto.getDeptName(), dto.getParentId());
+        // 处理 parentId 为 null 的情况（默认为 0）
+        Long parentId = dto.getParentId() != null ? dto.getParentId() : 0L;
         // 校验部门名称唯一性
         if (!checkDeptNameUnique(dto.getDeptName(), dto.getParentId(), null)) {
             throw new IllegalArgumentException("同级部门名称已存在");
@@ -74,7 +85,9 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         checkParentDeptExist(dto.getParentId());
 
         // 转换并保存
+        log.info("转换前的 DTO: {}", dto);
         Dept dept = msMapper.dtoToDo(dto);
+        log.info("转换后的 Dept: {}", dept);
         if(deptMapper.insert(dept) != 1){
             throw new RuntimeException("添加部门失败");
         }
@@ -89,11 +102,11 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             throw new IllegalArgumentException("部门不存在");
         }
         // 校验部门名称唯一性
-        if (!checkDeptNameUnique(dto.getDeptName(), dto.getParentId(), null)) {
+        if (!checkDeptNameUnique(dto.getDeptName(), dto.getParentId(), id)) {
             throw new IllegalArgumentException("同级部门名称已存在");
         }
         // 检查部门编码唯一性
-        checkDeptCodeUnique(dto.getDeptCode());
+        checkDeptCodeUnique(dto.getDeptCode(), id);
         checkParentDeptExist(dto.getParentId());
 
         dept = msMapper.dtoToDo(dto);
@@ -121,24 +134,49 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
             throw new IllegalArgumentException("部门下存在子部门，不能删除");
         }
 
-        if (deptMapper.updateById(dept) == 0) {
-            throw new RuntimeException("删除用户失败");
+        if (deptMapper.deleteById(dept) == 0) {
+            throw new RuntimeException("删除部门失败");
         }
 
         return id.toString();
     }
 
-    // 构建部门树
-    private List<DeptTreeVO> buildDeptTree(Map<Long, List<Dept>> deptMap, Long parentId) {
-        return deptMap.getOrDefault(parentId, Collections.emptyList()).stream()
-                .map(dept -> {
-                    DeptTreeVO node = new DeptTreeVO();
-                    BeanUtils.copyProperties(dept, node);
-                    node.setChildren(buildDeptTree(deptMap, dept.getDeptId()));
-                    return node;
-                })
+    /**
+     * 构建部门树形结构
+     */
+    private List<DeptTreeVO> buildDeptTree(List<Dept> deptList) {
+        // 按父部门ID分组
+        Map<Long, List<Dept>> deptMap = deptList.stream()
+                .collect(Collectors.groupingBy(Dept::getParentId));
+
+        // 构建树形结构
+        return deptMap.getOrDefault(0L, Collections.emptyList()).stream()
+                .map(dept -> convertToTreeVO(dept, deptMap))
                 .sorted(Comparator.comparing(DeptTreeVO::getOrderNum))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 递归转换部门为树形VO
+     */
+    private DeptTreeVO convertToTreeVO(Dept dept, Map<Long, List<Dept>> deptMap) {
+        DeptTreeVO vo = new DeptTreeVO();
+        // 复制属性
+        vo.setDeptId(dept.getDeptId());
+        vo.setDeptName(dept.getDeptName());
+        vo.setParentId(dept.getParentId());
+        vo.setOrderNum(dept.getOrderNum());
+        vo.setCreateTime(dept.getCreateTime());
+
+        // 递归处理子部门
+        List<Dept> children = deptMap.get(dept.getDeptId());
+        if (children != null && !children.isEmpty()) {
+            vo.setChildren(children.stream()
+                    .map(child -> convertToTreeVO(child, deptMap))
+                    .sorted(Comparator.comparing(DeptTreeVO::getOrderNum))
+                    .collect(Collectors.toList()));
+        }
+        return vo;
     }
 
     // 检查部门名称是否唯一
@@ -152,7 +190,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
     }
 
     private void checkDeptCodeUnique(String deptCode, Long excludeDeptId) {
-        if (StringUtils.isBlank(deptCode)) {
+        if (deptCode == null || deptCode.trim().isEmpty()) {
             throw new IllegalArgumentException("部门编码不能为空");
         }
         Long count = deptMapper.selectCount(new LambdaQueryWrapper<Dept>()

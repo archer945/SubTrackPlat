@@ -11,7 +11,7 @@
 
     <sql id="selectDeptVo">
         SELECT d.dept_id, d.dept_name,d.parent_id,d.order_num,d.create_time
-        FROM "dept" d
+        FROM dept d
     </sql>
 
     <select id="selectDepts" resultMap="DeptResultMap">
@@ -31,10 +31,10 @@
     </select>
 
     <select id="checkDeptNameUnique" resultType="int">
-        SELECT COUNT(1) FROM "dept"
-        WHERE dept_name = #{deptName} AND parent_id = #{parentId}
-        <if test="deptId != null">
-            AND dept_id != #{deptId}
+        SELECT COUNT(1) FROM dept
+        WHERE dept_name = #{deptName} AND (parent_id = #{parentId} OR (#{parentId} IS NULL AND parent_id = 0))
+        <if test="excludeDeptId != null">
+            AND dept_id != #{excludeDeptId}
         </if>
     </select>
 
@@ -43,6 +43,6 @@
     </select>
 
     <select id="countChildrenByParentId" resultType="int">
-        SELECT COUNT(1) FROM "dept" WHERE parent_id = #{parentId}
+        SELECT COUNT(1) FROM dept WHERE parent_id = #{parentId}
     </select>
 </mapper>
