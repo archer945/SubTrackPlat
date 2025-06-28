@@ -30,12 +30,12 @@ public class DefectImageController {
     /*
     * 上传多个图片
     * */
-//    @PostMapping(value = "/batch/{defectId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public JsonVO<List<DefectImage>> uploadImages(
-//            @PathVariable Long defectId,
-//            @RequestPart MultipartFile[] files) throws IOException {
-//        return JsonVO.success(imageService.batchUploadImages(defectId, List.of(files)));
-//    }
+    @PostMapping(value = "/batch/{defectId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public JsonVO<List<DefectImage>> uploadImages(
+            @PathVariable Long defectId,
+            @RequestPart MultipartFile[] files) throws IOException {
+        return JsonVO.success(imageService.batchUploadImages(defectId, List.of(files)));
+    }
 
 //    @GetMapping("/{defectId}")
 //    public JsonVO<List<DefectImage>> getImages(@PathVariable Long defectId) {
