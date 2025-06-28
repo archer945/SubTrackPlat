@@ -1,6 +1,7 @@
 package com.defectmanager.service.impl;
 
 import com.defectmanager.entity.Defect;
+import com.defectmanager.enmu.*;
 import com.defectmanager.mapper.DefectMapper;
 import com.defectmanager.query.DefectQuery;
 import com.defectmanager.service.exportService;
@@ -22,7 +23,6 @@ public class ExportServiceImpl implements exportService {
     @Autowired
     private DefectMapper defectMapper;
 
-
     @Override
     public ByteArrayOutputStream exportDefectsToExcel(DefectQuery query, HttpServletResponse response) throws UnsupportedEncodingException {
         // 1. 设置响应头
@@ -30,14 +30,12 @@ public class ExportServiceImpl implements exportService {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=" + java.net.URLEncoder.encode(fileName, "UTF-8"));
 
-        // 2. 查询数据
+        // 2. 查询数据 - 使用枚举转换后的查询条件
         List<Defect> defects = defectMapper.selectByQuery(query);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         // 3. 生成Excel
-        try (Workbook workbook = new XSSFWorkbook();
-            ) {
-
+        try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("缺陷数据");
 
             // 3.1 创建表头
@@ -55,7 +53,6 @@ public class ExportServiceImpl implements exportService {
         }
         return outputStream;
     }
-
 
     private void createHeaderRow(Workbook workbook, Sheet sheet) {
         Row headerRow = sheet.createRow(0);
@@ -91,27 +88,40 @@ public class ExportServiceImpl implements exportService {
             // 填充数据
             row.createCell(0).setCellValue(defect.getId());
             row.createCell(1).setCellValue(defect.getTaskName());
-            row.createCell(2).setCellValue(defect.getType());
 
+            // 处理枚举类型字段
+            row.createCell(2).setCellValue(
+                    defect.getType() != null ? defect.getType().getDisplayName() : "");
 
+            row.createCell(3).setCellValue(
+                    defect.getLocation() != null ? defect.getLocation().toString() : "");
 
+            row.createCell(4).setCellValue(
+                    defect.getIsValid() != null ? (defect.getIsValid() ? "是" : "否") : "");
 
+            row.createCell(5).setCellValue(
+                    defect.getSeverity() != null ? defect.getSeverity().getDisplayName() : "");
 
-            row.createCell(3).setCellValue(defect.getLocation() != null ? defect.getLocation().toString() : "");
-            row.createCell(4).setCellValue(defect.getIsValid() != null ? (defect.getIsValid() ? "是" : "否") : "");
-            row.createCell(5).setCellValue(defect.getSeverity());
-            row.createCell(6).setCellValue(defect.getDefectLength() != null ? defect.getDefectLength().doubleValue() : 0);
-            row.createCell(7).setCellValue(defect.getDefectArea() != null ? defect.getDefectArea().doubleValue() : 0);
-            row.createCell(8).setCellValue(defect.getDefectCount() != null ? defect.getDefectCount() : 0);
-            row.createCell(9).setCellValue(defect.getSuggestion() != null ? defect.getSuggestion() : "");
+            row.createCell(6).setCellValue(
+                    defect.getDefectLength() != null ? defect.getDefectLength().doubleValue() : 0);
 
+            row.createCell(7).setCellValue(
+                    defect.getDefectArea() != null ? defect.getDefectArea().doubleValue() : 0);
+
+            row.createCell(8).setCellValue(
+                    defect.getDefectCount() != null ? defect.getDefectCount() : 0);
+
+            row.createCell(9).setCellValue(
+                    defect.getSuggestion() != null ? defect.getSuggestion() : "");
 
             Cell dateCell = row.createCell(10);
             if (defect.getFoundTime() != null) {
                 dateCell.setCellValue(defect.getFoundTime());
                 dateCell.setCellStyle(dateStyle);
             }
-            row.createCell(11).setCellValue(defect.getStatus());
+
+            row.createCell(11).setCellValue(
+                    defect.getStatus() != null ? defect.getStatus().getDisplayName() : "");
         }
 
         // 自动调整列宽

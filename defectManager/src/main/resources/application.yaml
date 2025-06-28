@@ -2,26 +2,30 @@ server:
   port: 8080
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3307/sub_track_plat?useSSL=false&serverTimezone=UTC
-    username: root
+    url: jdbc:kingbase8://localhost:54321/sub_track_plat?currentSchema=public
+    username: system
     password: liumeilin
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: com.kingbase8.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 20
   application:
     name: defectManager
+
 mybatis-plus:
-  #mapper????
   mapper-locations: classpath*:mapper/**/*.xml
   type-aliases-package: com.defectManager.entity
   configuration:
-    #??????
     map-underscore-to-camel-case: true
   global-config:
     db-config:
       id-type: AUTO
+
 logging:
   level:
     org.springframework: DEBUG
     com.baomidou.mybatisplus: TRACE
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -32,8 +36,8 @@ springdoc:
   group-configs:
     - group: 'default'
       paths-to-match: '/**'
-      #????????????????????
       packages-to-scan: com.defectManager.controller
+
 knife4j:
   enable: true
   setting:
