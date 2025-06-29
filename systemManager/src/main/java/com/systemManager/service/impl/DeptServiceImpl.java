@@ -160,13 +160,8 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
      * 递归转换部门为树形VO
      */
     private DeptTreeVO convertToTreeVO(Dept dept, Map<Long, List<Dept>> deptMap) {
-        DeptTreeVO vo = new DeptTreeVO();
         // 复制属性
-        vo.setDeptId(dept.getDeptId());
-        vo.setDeptName(dept.getDeptName());
-        vo.setParentId(dept.getParentId());
-        vo.setOrderNum(dept.getOrderNum());
-        vo.setCreateTime(dept.getCreateTime());
+        DeptTreeVO vo = msMapper.doToVo(dept);
 
         // 递归处理子部门
         List<Dept> children = deptMap.get(dept.getDeptId());

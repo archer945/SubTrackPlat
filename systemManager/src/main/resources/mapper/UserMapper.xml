@@ -41,7 +41,7 @@
                 AND u.create_time &lt;= #{query.endTime}
             </if>
         </where>
-        ORDER BY u.create_time DESC, u.user_id DESC
+        ORDER BY u.user_id,u.create_time DESC
     </select>
     <select id="selectUserByUsername" resultType="java.lang.Boolean">
          SELECT
