@@ -1,6 +1,7 @@
 package com.defectmanager.controller;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.common.domain.vo.JsonVO;
 import com.defectmanager.enmu.DefectStatusEnum;
@@ -38,8 +39,11 @@ public class DefectController {
     @PostMapping("/page")
     @ApiOperation("分页查询缺陷信息")
     public JsonVO<Page<Defect>> query(@RequestBody DefectQuery query) {
-        return JsonVO.success(defectService.queryByCondition(query));
+        Page<Defect> result = defectService.queryByCondition(query);
+        return JsonVO.success(result);
     }
+
+
 
     @PostMapping("/add")
     @ApiOperation("添加缺陷信息")

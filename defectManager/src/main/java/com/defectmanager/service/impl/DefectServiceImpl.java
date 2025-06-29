@@ -1,14 +1,15 @@
 package com.defectmanager.service.impl;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.defectmanager.enmu.DefectStatusEnum;
 import com.defectmanager.enmu.DefectTypeEnum;
-import com.defectmanager.enmu.FoundMethodEnum;
 import com.defectmanager.enmu.SeverityLevelEnum;
 import com.defectmanager.entity.Defect;
 import com.defectmanager.entity.DefectImage;
+import com.defectmanager.mapper.DefectImageMapper;
 import com.defectmanager.mapper.DefectMapper;
 import com.defectmanager.query.DefectQuery;
 import com.defectmanager.service.DefectService;
@@ -20,9 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 public class DefectServiceImpl implements DefectService {
@@ -33,28 +36,73 @@ public class DefectServiceImpl implements DefectService {
     private ImageService imageService;
     @Autowired
     private AliOSSUtils ossUtils;
+    @Autowired
+    private DefectImageMapper imageMapper;
 
     @Override
     public Page<Defect> queryByCondition(DefectQuery query) {
+        // 1. 分页查询缺陷数据
         Page<Defect> page = new Page<>(query.getPageIndex(), query.getPageSize());
+        LambdaQueryWrapper<Defect> wrapper = buildWrapper(query);
+        Page<Defect> defectPage = defectMapper.selectPage(page, wrapper);
 
+        // 2. 提取缺陷ID列表
+        List<Long> ids = defectPage.getRecords().stream()
+                .map(Defect::getId)
+                .collect(Collectors.toList());
+        if (ids.isEmpty()) {
+            return defectPage;
+        }
+
+        // 3. 查询关联图片并按缺陷ID分组
+        List<DefectImage> imgList = imageMapper.selectList(
+                new LambdaQueryWrapper<DefectImage>()
+                        .in(DefectImage::getDefectId, ids)
+                        .orderByAsc(DefectImage::getUploadedAt)
+        );
+        Map<Long, List<DefectImage>> imgMap = imgList.stream()
+                .collect(Collectors.groupingBy(DefectImage::getDefectId));
+
+        // 4. 设置图片列表到缺陷对象
+        defectPage.getRecords().forEach(d -> {
+            List<DefectImage> images = imgMap.get(d.getId());
+            d.setImages(images != null ? images : new ArrayList<>());
+        });
+
+        return defectPage;
+    }
+
+    /**
+     * 根据查询条件构造 MyBatis-Plus 查询 Wrapper
+     */
+    private LambdaQueryWrapper<Defect> buildWrapper(DefectQuery query) {
         LambdaQueryWrapper<Defect> wrapper = new LambdaQueryWrapper<>();
-        wrapper.like(query.getKeyword() != null, Defect::getDescription, query.getKeyword())
-                .eq(query.getType() != null, Defect::getType,
-                        query.getType() != null ? DefectTypeEnum.fromDbValue(query.getType()) : null)
-                .eq(query.getStatus() != null, Defect::getStatus,
-                        query.getStatus() != null ? DefectStatusEnum.fromDbValue(query.getStatus()) : null)
-                .eq(query.getSeverity() != null, Defect::getSeverity,
-                        query.getSeverity() != null ? SeverityLevelEnum.fromDbValue(query.getSeverity()) : null);
+
+        if (StrUtil.isNotBlank(query.getKeyword())) {
+            wrapper.like(Defect::getDescription, query.getKeyword());
+        }
+
+        if (StrUtil.isNotBlank(query.getType())) {
+            wrapper.eq(Defect::getType, DefectTypeEnum.fromDbValue(query.getType()));
+        }
+
+        if (StrUtil.isNotBlank(query.getStatus())) {
+            wrapper.eq(Defect::getStatus, DefectStatusEnum.fromDbValue(query.getStatus()));
+        }
+
+        if (StrUtil.isNotBlank(query.getSeverity())) {
+            wrapper.eq(Defect::getSeverity, SeverityLevelEnum.fromDbValue(query.getSeverity()));
+        }
 
         if (query.getStartTime() != null) {
             wrapper.ge(Defect::getFoundTime, query.getStartTime());
         }
+
         if (query.getEndTime() != null) {
             wrapper.le(Defect::getFoundTime, query.getEndTime());
         }
 
-        return defectMapper.selectPage(page, wrapper);
+        return wrapper;
     }
     /*
     * 添加缺陷信息
