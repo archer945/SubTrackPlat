@@ -23,6 +23,19 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
+      // 系统管理模块
+      '/api/systemManager': {
+        target: 'http://localhost:8082',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/systemManager/, '')
+      },
+      // 任务模块
+      '/api/tasks': {
+        target: 'http://localhost:8081',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/tasks/, '')
+      }
     },
   },
+
 })
