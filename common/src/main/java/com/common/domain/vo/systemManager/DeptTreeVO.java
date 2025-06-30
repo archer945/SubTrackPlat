@@ -24,6 +24,18 @@ public class DeptTreeVO {
     @Schema(description = "创建时间", example = "2025-06-17 00:00:00")
     private LocalDateTime createTime;
 
+    @Schema(description = "状态(1:正常 0:停用)", example = "1")
+    private Integer status;
+
+    @Schema(description = "部门编码", example = "managerDept")
+    private String deptCode;
+
+    @Schema(description = "部门负责人", example = "张三")
+    private String leader;
+
+    @Schema(description = "联系电话", example = "12345678900")
+    private String tel;
+
     @Schema(description = "子部门")
     private List<DeptTreeVO> children;
 }

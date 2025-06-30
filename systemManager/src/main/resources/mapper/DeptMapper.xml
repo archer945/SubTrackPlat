@@ -6,11 +6,16 @@
         <result property="deptName" column="dept_name"/>
         <result property="parentId" column="parent_id"/>
         <result property="orderNum" column="order_num"/>
+        <result property="status" column="status"/>
+        <result property="deptCode" column="dept_code"/>
+        <result property="leader" column="leader"/>
+        <result property="tel" column="tel"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
 
     <sql id="selectDeptVo">
-        SELECT d.dept_id, d.dept_name,d.parent_id,d.order_num,d.create_time
+        SELECT d.dept_id, d.dept_name,d.parent_id,d.order_num,d.status,d.create_time
+        ,d.dept_code,d.leader,d.tel
         FROM dept d
     </sql>
 
