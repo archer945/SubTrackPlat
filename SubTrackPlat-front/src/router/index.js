@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import TaskManage from '@/views/task/TaskManage.vue'
+import SystemManager from '@/views/systemManager/SystemManager.vue'
 
 const routes = [
   {
@@ -16,9 +17,12 @@ const routes = [
     name: 'TaskDetail',
     component: () => import('@/views/task/TaskDetail.vue'),
     props: true
+  },
+  {
+    path: '/system',
+    name: 'SystemManager',
+    component: SystemManager
   }
-
-
 ]
 
 const router = createRouter({
