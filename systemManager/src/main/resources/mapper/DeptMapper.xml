@@ -10,12 +10,13 @@
         <result property="deptCode" column="dept_code"/>
         <result property="leader" column="leader"/>
         <result property="tel" column="tel"/>
+        <result property="email" column="email"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
 
     <sql id="selectDeptVo">
         SELECT d.dept_id, d.dept_name,d.parent_id,d.order_num,d.status,d.create_time
-        ,d.dept_code,d.leader,d.tel
+        ,d.dept_code,d.leader,d.tel,d.email
         FROM dept d
     </sql>
 

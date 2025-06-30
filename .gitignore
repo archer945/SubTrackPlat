@@ -43,3 +43,6 @@ target
 
 # Maven ignore
 .flattened-pom.xml
+
+# Node.js
+node_modules/

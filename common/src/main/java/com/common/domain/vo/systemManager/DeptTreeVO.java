@@ -36,6 +36,9 @@ public class DeptTreeVO {
     @Schema(description = "联系电话", example = "12345678900")
     private String tel;
 
+    @Schema(description = "邮箱", example = "zhangsan@qq.com")
+    private String email;
+
     @Schema(description = "子部门")
     private List<DeptTreeVO> children;
 }
