@@ -135,15 +135,6 @@ export function exportDefects(params: DefectQuery) {
     })
 }
 
-// =============================================================
-// 👇 ★ 新增包装函数：标记“已整改” ★
-// =============================================================
-/**
- * 标记缺陷为「已整改」
- */
-export function markDefectRectified(id: number, operatorId?: number) {
-    return updateDefectStatus(id, DefectStatusEnum.FIXED, operatorId)
-}
 
 // =============================================================
 // 图片上传接口

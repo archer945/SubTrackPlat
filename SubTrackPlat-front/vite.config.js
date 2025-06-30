@@ -17,9 +17,7 @@ export default defineConfig({
   // ---------- 本地开发服务器 ----------
   server: {
     proxy: {
-      // 只要请求以 /api 开头，就转发到后端 8080 端口
-      // 例：/api/defects/page -> http://localhost:8080/defects/page
-      '/api': {
+      '/api/defects': {
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
