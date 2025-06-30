@@ -1,6 +1,9 @@
 package com.defectmanager.query;
 
 import com.common.domain.query.PageQuery;
+import com.defectmanager.enmu.DefectStatusEnum;
+import com.defectmanager.enmu.DefectTypeEnum;
+import com.defectmanager.enmu.SeverityLevelEnum;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -61,5 +64,18 @@ import java.time.LocalDateTime;
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
+    public DefectTypeEnum getTypeEnum() {
+        return type != null ? DefectTypeEnum.fromDbValue(type) : null;
+    }
+
+    public
+    DefectStatusEnum getStatusEnum() {
+        return status != null ? DefectStatusEnum.fromDbValue(status) : null;
+    }
+
+    public SeverityLevelEnum getSeverityEnum() {
+        return severity != null ? SeverityLevelEnum.fromDbValue(severity) : null;
+    }
+
 }
 

@@ -1,8 +1,10 @@
 package com.defectmanager.controller;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.common.domain.vo.JsonVO;
+import com.defectmanager.enmu.DefectStatusEnum;
 import com.defectmanager.entity.Defect;
 import com.defectmanager.entity.DefectImage;
 import com.defectmanager.query.DefectQuery;
@@ -37,8 +39,11 @@ public class DefectController {
     @PostMapping("/page")
     @ApiOperation("分页查询缺陷信息")
     public JsonVO<Page<Defect>> query(@RequestBody DefectQuery query) {
-        return JsonVO.success(defectService.queryByCondition(query));
+        Page<Defect> result = defectService.queryByCondition(query);
+        return JsonVO.success(result);
     }
+
+
 
     @PostMapping("/add")
     @ApiOperation("添加缺陷信息")
@@ -64,10 +69,15 @@ public class DefectController {
             @RequestHeader("X-User-Id") Long operatorId) { // 从请求头获取操作人
 
         try {
-            boolean success = defectService.updateStatus(id, status, operatorId);
+            // 将字符串状态转换为枚举
+            DefectStatusEnum statusEnum = DefectStatusEnum.fromDbValue(status);
+
+            boolean success = defectService.updateStatus(id, statusEnum, operatorId);
             return success ?
                     ResponseEntity.ok("状态更新成功") :
                     ResponseEntity.badRequest().body("更新失败");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("无效的状态值: " + status);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

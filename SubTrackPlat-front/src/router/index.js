@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import TaskManage from '@/views/task/TaskManage.vue'
-
+import DefectManage from '@/views/defect/DefectList.vue'
 const routes = [
   {
     path: '/',
@@ -16,13 +16,16 @@ const routes = [
     name: 'TaskDetail',
     component: () => import('@/views/task/TaskDetail.vue'),
     props: true
+  },
+  {
+    path: '/defects',
+    name: 'DefectManage',
+    component: DefectManage
   }
-
-
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
 

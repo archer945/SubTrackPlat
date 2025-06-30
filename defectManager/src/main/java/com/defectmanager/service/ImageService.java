@@ -23,7 +23,5 @@ public interface ImageService {
     List<DefectImage> getImagesByDefectId(Long defectId);
 
 
-
-
-
+    List<DefectImage> batchUploadImages(Long defectId, List<MultipartFile> files);
 }
