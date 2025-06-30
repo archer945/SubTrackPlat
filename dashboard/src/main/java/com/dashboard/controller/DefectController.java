@@ -1,13 +1,12 @@
 package com.dashboard.controller;
 
 
-import com.common.domain.dto.dashboard.DefectStatsDTO;
+import com.common.domain.dto.dashboard.defect.DefectStatsDTO;
 import com.common.domain.vo.JsonVO;
-import com.common.domain.dto.dashboard.DefectTypeDTO;
+import com.common.domain.dto.dashboard.defect.DefectTypeDTO;
 import com.dashboard.service.DefectService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,11 +29,9 @@ public class DefectController {
         }
         return JsonVO.success(defectService.getDefectType());
     }
-
-    @GetMapping("/summary")
-    public JsonVO<  List<DefectStatsDTO>> getDefectStats() {
-        return JsonVO.success(defectService.getDefectStatsSummary());
+        @GetMapping("/defect-stats")
+        public JsonVO<DefectStatsDTO> getDefectStats() {
+            return JsonVO.success(defectService.getDefectStats());
+        }
     }
 
-
-}

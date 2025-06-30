@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dashboard.mapper.InspectionTaskMapper">
+
+    <!-- 基础统计 -->
+    <select id="countBasicStats" resultType="com.common.domain.dto.dashboard.inspect.BasicStatsDTO">
+        SELECT
+            COUNT(CASE WHEN DATE(create_time) = CURDATE() THEN 1 END) AS today,
+            COUNT(CASE WHEN DATE(create_time) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN 1 END) AS yesterday,
+            COUNT(CASE WHEN status = '已完成' THEN 1 END) AS completed
+        FROM sub_track_plat.inspect_task
+    </select>
+
+    <!-- 按任务类型统计 -->
+    <select id="countByType" resultType="com.common.domain.dto.dashboard.inspect.InspectionTypeStats">
+        SELECT
+            type,
+            COUNT(*) AS count
+        FROM sub_track_plat.inspect_task
+        GROUP BY type
+    </select>
+
+    <!-- 按状态统计 -->
+    <select id="countByStatus" resultType="com.common.domain.dto.dashboard.inspect.InspectionStatusStats">
+        SELECT
+            status,
+            COUNT(*) AS count
+        FROM sub_track_plat.inspect_task
+        GROUP BY status
+    </select>
+
+    <!-- 按执行人统计 -->
+    <select id="countByExecutor" resultType="com.common.domain.dto.dashboard.inspect.InspectionExecutorStats">
+        SELECT
+            executor_id AS executorId,
+            (SELECT name FROM sub_track_plat.user WHERE user_id = executor_id) AS executorName,
+            COUNT(*) AS taskCount
+        FROM sub_track_plat.inspect_task
+        GROUP BY executor_id
+    </select>
+
+    <!-- 最近7天趋势 -->
+    <select id="countRecentTrend" resultType="com.common.domain.dto.dashboard.inspect.InspectionTrendDTO">
+        SELECT
+            DATE(create_time) AS date,
+            COUNT(*) AS createdCount,
+            SUM(CASE WHEN status = '已完成' AND DATE(actual_end) = DATE(create_time) THEN 1 ELSE 0 END) AS completedCount
+        FROM sub_track_plat.inspect_task
+        WHERE create_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        GROUP BY DATE(create_time)
+        ORDER BY date
+    </select>
+    
+    <select id="countTotalInspections" resultType="integer">
+        SELECT COUNT(*) FROM sub_track_plat.inspect_task
+    </select>
+
+    <select id="countMonthlyInspections" resultType="com.common.domain.dto.dashboard.inspect.MonthlyInspectionDTO">
+        SELECT
+            DATE_FORMAT(create_time, '%Y-%m') AS yearMonth,
+            COUNT(*) AS count
+        FROM sub_track_plat.inspect_task
+        GROUP BY DATE_FORMAT(create_time, '%Y-%m')
+        ORDER BY yearMonth DESC
+    </select>
+
+</mapper>
