@@ -18,8 +18,8 @@
     <select id="countDefectValidity" resultType="com.common.domain.dto.dashboard.defect.DefectValidityCountDTO">
         SELECT
             COUNT(*) AS total,
-            SUM(CASE WHEN is_valid = true THEN 1 ELSE 0 END) AS valid,
-            SUM(CASE WHEN is_valid = false THEN 1 ELSE 0 END) AS falseReport
+            COALESCE(SUM(CASE WHEN is_valid = true THEN 1 ELSE 0 END), 0) AS valid,
+            COALESCE(SUM(CASE WHEN is_valid = false THEN 1 ELSE 0 END), 0) AS falseReport
         FROM sub_track_plat.defect
     </select>
 
@@ -62,13 +62,11 @@
     <!-- 最近7天趋势 -->
     <select id="countRecentTrend" resultType="com.common.domain.dto.dashboard.defect.DefectTrendDTO">
         SELECT
-            DATE(found_time) AS date,
+            CAST(found_time AS DATE) AS date,
             COUNT(*) AS count
         FROM sub_track_plat.defect
-        WHERE found_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-        GROUP BY DATE(found_time)
+        WHERE found_time >= CURRENT_DATE - 7
+        GROUP BY CAST(found_time AS DATE)
         ORDER BY date
     </select>
-
-
 </mapper>
