@@ -26,6 +26,11 @@
         <result property="problemsFound" column="problems_found"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <!-- ✅ 新增姓名字段 -->
+        <result property="creatorId" column="creator_id"/>
+        <result property="creatorName" column="creator_name"/>
+        <result property="executorName" column="executor_name"/>
+        <result property="assistantName" column="assistant_name"/>
     </resultMap>
 
     <select id="selectTaskPage" resultMap="BaseResultMap">
@@ -57,16 +62,17 @@
             planned_start, planned_end, actual_start, actual_end,
             line_name, start_point, end_point, range_description,
             status, completion_rate, result, problems_found,
-            create_time, update_time
+            create_time, update_time,
+            creator_id, creator_name, executor_name, assistant_name
         ) VALUES (
                      #{name}, #{type}, CAST(#{priority} AS inspect_task_priority_enum), #{description}, #{executorId}, #{assistantId},
                      #{plannedStart}, #{plannedEnd}, #{actualStart}, #{actualEnd},
                      #{lineName}, #{startPoint}, #{endPoint}, #{rangeDescription},
                      CAST(#{status} AS inspect_task_status_enum), #{completionRate}, #{result}, #{problemsFound},
-                     #{createTime}, #{updateTime}
+                     #{createTime}, #{updateTime},
+                     #{creatorId}, #{creatorName}, #{executorName}, #{assistantName}
                  )
     </insert>
-
 
     <update id="updateTask">
         UPDATE sub_track_plat.inspect_task SET
@@ -88,9 +94,14 @@
                                                completion_rate = #{completionRate},
                                                result = #{result},
                                                problems_found = #{problemsFound},
+                                               creator_id = #{creatorId},
+                                               creator_name = #{creatorName},
+                                               executor_name = #{executorName},
+                                               assistant_name = #{assistantName},
                                                update_time = #{updateTime}
         WHERE id = #{id}
     </update>
+
     <update id="updateTaskStatus">
         UPDATE sub_track_plat.inspect_task
         SET status = #{status}::sub_track_plat.inspect_task_status_enum

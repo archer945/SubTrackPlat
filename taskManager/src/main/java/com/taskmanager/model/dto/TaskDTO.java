@@ -24,4 +24,5 @@ public class TaskDTO {
     private Integer completionRate;
     private String result;
     private Integer problemsFound;
+    private Long creatorId;
 }

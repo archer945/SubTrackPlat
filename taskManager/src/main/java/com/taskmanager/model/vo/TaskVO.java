@@ -27,4 +27,10 @@ public class TaskVO {
     private Integer problemsFound;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+    private String creatorName;
+    private String executorName;
+    private String assistantName;
+    private Long creatorId;
+
+
 }

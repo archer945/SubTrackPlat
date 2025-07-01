@@ -27,4 +27,9 @@ public class Task {
     private Integer problemsFound;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+    private Long creatorId;
+    private String creatorName;
+    private String executorName;
+    private String assistantName;
+
 }

@@ -1,6 +1,7 @@
 package com.taskmanager.service.impl;
 
 import com.taskmanager.mapper.TaskMapper;
+import com.taskmanager.mapper.UserMapper;
 import com.taskmanager.model.dto.TaskDTO;
 import com.taskmanager.model.entity.Task;
 import com.taskmanager.model.query.TaskQuery;
@@ -19,10 +20,12 @@ import java.util.stream.Collectors;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskMapper taskMapper;
-
-    public TaskServiceImpl(TaskMapper taskMapper) {
+    private final UserMapper userMapper;
+    public TaskServiceImpl(TaskMapper taskMapper, UserMapper userMapper) {
         this.taskMapper = taskMapper;
+        this.userMapper = userMapper;
     }
+
 
     @Override
     public TaskVO getTaskById(Long id) {
@@ -39,6 +42,19 @@ public class TaskServiceImpl implements TaskService {
         BeanUtils.copyProperties(dto, task);
         task.setCreateTime(LocalDateTime.now());
         task.setUpdateTime(LocalDateTime.now());
+
+        // 查询执行人、协助人、创建人姓名
+        if (dto.getExecutorId() != null) {
+            task.setExecutorName(userMapper.selectRealNameById(dto.getExecutorId()));
+        }
+        if (dto.getAssistantId() != null) {
+            task.setAssistantName(userMapper.selectRealNameById(dto.getAssistantId()));
+        }
+        if (dto.getCreatorId() != null) {
+            task.setCreatorId(dto.getCreatorId());
+            task.setCreatorName(userMapper.selectRealNameById(dto.getCreatorId()));
+        }
+
         taskMapper.insertTask(task);
     }
 
@@ -48,8 +64,18 @@ public class TaskServiceImpl implements TaskService {
         BeanUtils.copyProperties(dto, task);
         task.setId(id);
         task.setUpdateTime(LocalDateTime.now());
+
+        // 更新执行人 / 协助人姓名（如有变动）
+        if (dto.getExecutorId() != null) {
+            task.setExecutorName(userMapper.selectRealNameById(dto.getExecutorId()));
+        }
+        if (dto.getAssistantId() != null) {
+            task.setAssistantName(userMapper.selectRealNameById(dto.getAssistantId()));
+        }
+
         taskMapper.updateTask(task);
     }
+
 
     @Override
     public void deleteTaskById(Long id) {
@@ -60,13 +86,24 @@ public class TaskServiceImpl implements TaskService {
     public PageInfo<TaskVO> getTaskPage(TaskQuery query) {
         PageHelper.startPage(query.getPage(), query.getSize());
         List<Task> list = taskMapper.selectTaskPage(query);
+
+        // 必须先构造 PageInfo 原始分页对象（包含 total）
+        PageInfo<Task> pageInfo = new PageInfo<>(list);
+
+        // 再将 list 映射成 voList
         List<TaskVO> voList = list.stream().map(task -> {
             TaskVO vo = new TaskVO();
             BeanUtils.copyProperties(task, vo);
             return vo;
         }).collect(Collectors.toList());
-        return new PageInfo<>(voList);
+
+        // 手动构造 PageInfo<TaskVO>，保持分页结构
+        PageInfo<TaskVO> voPageInfo = new PageInfo<>();
+        BeanUtils.copyProperties(pageInfo, voPageInfo);
+        voPageInfo.setList(voList);
+        return voPageInfo;
     }
+
 
     @Override
     public List<TaskVO> getAllTasks() {
@@ -105,5 +142,8 @@ public class TaskServiceImpl implements TaskService {
         }
         return true;
     }
+
+
+
 
 }
