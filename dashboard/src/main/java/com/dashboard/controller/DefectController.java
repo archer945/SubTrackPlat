@@ -19,6 +19,10 @@ public class DefectController {
     @Autowired
     private DefectService defectService;
 
+    @GetMapping("")  // 映射到/dashboard
+    public String apiRoot() {
+        return "Dashboard API 已就绪，可用接口：/defectOverview, /inspectSummary";
+    }
 
     @GetMapping("/defectOverview")
     @ApiOperation("获取缺陷类型及对应数量")

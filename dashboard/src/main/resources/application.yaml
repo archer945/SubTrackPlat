@@ -2,9 +2,9 @@ server:
   port: 8080
 spring:
   datasource:
-    url: jdbc:kingbase8://localhost:54321/sub_track_plat?currentSchema=sub_track_plat
+    url: jdbc:kingbase8://47.94.245.245/sub_track_plat?currentSchema=sub_track_plat
     username: system
-    password: 20236886
+    password: kingbase8
     driver-class-name: com.kingbase8.Driver
   #  datasource:
   #    url: jdbc:mysql://localhost:3306/sub_track_plat?useSSL=false&serverTimezone=UTC
