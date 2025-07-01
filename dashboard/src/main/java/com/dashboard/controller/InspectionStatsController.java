@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/inspection-stats")
+@RequestMapping("/dashboard")
 public class InspectionStatsController {
 
     @Autowired
@@ -21,7 +21,7 @@ public class InspectionStatsController {
     /**
      * 获取巡视统计概览
      */
-    @GetMapping("/summary")
+    @GetMapping("/inspectSummary")
     public JsonVO<InspectionStatsDTO> getInspectionSummary() {
         InspectionStatsDTO stats = inspectionStatsService.getInspectionStats();
         return JsonVO.success(stats);
@@ -30,7 +30,7 @@ public class InspectionStatsController {
     /**
      * 按日期范围查询趋势数据（扩展接口示例）
      */
-    @GetMapping("/trend")
+    @GetMapping("/inspectTrend")
     public JsonVO<InspectionStatsDTO> getInspectionTrend(
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {

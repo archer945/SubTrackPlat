@@ -13,14 +13,14 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/defects")
+@RequestMapping("/dashboard")
 public class DefectController {
 
     @Autowired
     private DefectService defectService;
 
 
-    @GetMapping("/overview")
+    @GetMapping("/defectOverview")
     @ApiOperation("获取缺陷类型及对应数量")
     public JsonVO<List<DefectTypeDTO>> getDefectType () {
 
@@ -29,8 +29,8 @@ public class DefectController {
         }
         return JsonVO.success(defectService.getDefectType());
     }
-        @GetMapping("/defect-stats")
-        public JsonVO<DefectStatsDTO> getDefectStats() {
+    @GetMapping("/defect-stats")
+    public JsonVO<DefectStatsDTO> getDefectStats() {
             return JsonVO.success(defectService.getDefectStats());
         }
     }
