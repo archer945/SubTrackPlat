@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.taskmanager.mapper.TaskMapper">
+
+    <resultMap id="BaseResultMap" type="com.taskmanager.model.entity.Task">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="priority" column="priority"/>
+        <result property="description" column="description"/>
+        <result property="executorId" column="executor_id"/>
+        <result property="assistantId" column="assistant_id"/>
+        <result property="plannedStart" column="planned_start"/>
+        <result property="plannedEnd" column="planned_end"/>
+        <result property="actualStart" column="actual_start"/>
+        <result property="actualEnd" column="actual_end"/>
+        <result property="lineName" column="line_name"/>
+        <result property="startPoint" column="start_point"/>
+        <result property="endPoint" column="end_point"/>
+        <result property="rangeDescription" column="range_description"/>
+        <result property="status" column="status"/>
+        <result property="completionRate" column="completion_rate"/>
+        <result property="result" column="result"/>
+        <result property="problemsFound" column="problems_found"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectTaskPage" resultMap="BaseResultMap">
+        SELECT * FROM sub_track_plat.inspect_task
+        <where>
+            <if test="name != null and name != ''">
+                AND name ILIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="plannedStart != null">
+                AND planned_start &gt;= #{plannedStart}
+            </if>
+            <if test="plannedEnd != null">
+                AND planned_end &lt;= #{plannedEnd}
+            </if>
+        </where>
+        ORDER BY planned_start DESC
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM sub_track_plat.inspect_task WHERE id = #{id}
+    </select>
+
+    <insert id="insertTask" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sub_track_plat.inspect_task (
+            name, type, priority, description, executor_id, assistant_id,
+            planned_start, planned_end, actual_start, actual_end,
+            line_name, start_point, end_point, range_description,
+            status, completion_rate, result, problems_found,
+            create_time, update_time
+        ) VALUES (
+                     #{name}, #{type}, CAST(#{priority} AS inspect_task_priority_enum), #{description}, #{executorId}, #{assistantId},
+                     #{plannedStart}, #{plannedEnd}, #{actualStart}, #{actualEnd},
+                     #{lineName}, #{startPoint}, #{endPoint}, #{rangeDescription},
+                     CAST(#{status} AS inspect_task_status_enum), #{completionRate}, #{result}, #{problemsFound},
+                     #{createTime}, #{updateTime}
+                 )
+    </insert>
+
+
+    <update id="updateTask">
+        UPDATE sub_track_plat.inspect_task SET
+                                               name = #{name},
+                                               type = #{type},
+                                               priority = CAST(#{priority} AS inspect_task_priority_enum),
+                                               description = #{description},
+                                               executor_id = #{executorId},
+                                               assistant_id = #{assistantId},
+                                               planned_start = #{plannedStart},
+                                               planned_end = #{plannedEnd},
+                                               actual_start = #{actualStart},
+                                               actual_end = #{actualEnd},
+                                               line_name = #{lineName},
+                                               start_point = #{startPoint},
+                                               end_point = #{endPoint},
+                                               range_description = #{rangeDescription},
+                                               status = CAST(#{status} AS inspect_task_status_enum),
+                                               completion_rate = #{completionRate},
+                                               result = #{result},
+                                               problems_found = #{problemsFound},
+                                               update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+
+    <delete id="deleteTaskById">
+        DELETE FROM sub_track_plat.inspect_task WHERE id = #{id}
+    </delete>
+
+    <select id="getAllTasks" resultMap="BaseResultMap">
+        SELECT * FROM sub_track_plat.inspect_task ORDER BY planned_start DESC
+    </select>
+
+</mapper>
