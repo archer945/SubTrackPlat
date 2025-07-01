@@ -82,5 +82,14 @@ public class TaskController {
                 .sheet("任务数据")
                 .doWrite(exportList);
     }
+    @PutMapping("/{id}/status")
+    public boolean updateTaskStatus(@PathVariable Long id, @RequestParam String status) {
+        return taskService.updateTaskStatus(id, status);
+    }
+    @DeleteMapping
+    public boolean deleteTasks(@RequestBody List<Long> ids) {
+        // 调用服务层批量删除方法，传入任务 ID 列表
+        return taskService.deleteTasks(ids);
+    }
 
 }

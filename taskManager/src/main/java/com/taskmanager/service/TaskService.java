@@ -22,5 +22,13 @@ public interface TaskService {
 
     List<TaskVO> getAllTasks();
     List<TaskVO> getTaskList(TaskQuery query);
+    boolean updateTaskStatus(Long id, String status);
+    /**
+     * 批量删除任务
+     * @param ids 要删除的任务 ID 列表
+     * @return 是否删除成功
+     */
+    boolean deleteTasks(List<Long> ids);
+
 
 }

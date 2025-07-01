@@ -21,4 +21,7 @@ public interface TaskMapper {
     List<Task> selectTaskPage(TaskQuery query);
 
     List<Task> getAllTasks();
+    int updateTaskStatus(Task task);
+
+
 }

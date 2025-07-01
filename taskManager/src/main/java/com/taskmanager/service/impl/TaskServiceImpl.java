@@ -85,5 +85,25 @@ public class TaskServiceImpl implements TaskService {
             return vo;
         }).collect(Collectors.toList());
     }
+    @Override
+    public boolean updateTaskStatus(Long id, String status) {
+        Task task = new Task();
+        task.setId(id);
+        task.setStatus(status);
+        task.setUpdateTime(LocalDateTime.now());
+        return taskMapper.updateTaskStatus(task) > 0;
+    }
+    @Override
+    public boolean deleteTasks(List<Long> ids) {
+        // 如果为空，直接返回 false
+        if (ids == null || ids.isEmpty()) {
+            return false;
+        }
+        // 遍历 ID 列表并逐个删除任务
+        for (Long id : ids) {
+            taskMapper.deleteTaskById(id);
+        }
+        return true;
+    }
 
 }

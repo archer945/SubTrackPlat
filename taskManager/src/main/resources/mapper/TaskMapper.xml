@@ -91,7 +91,11 @@
                                                update_time = #{updateTime}
         WHERE id = #{id}
     </update>
-
+    <update id="updateTaskStatus">
+        UPDATE sub_track_plat.inspect_task
+        SET status = #{status}::sub_track_plat.inspect_task_status_enum
+        WHERE id = #{id}
+    </update>
 
     <delete id="deleteTaskById">
         DELETE FROM sub_track_plat.inspect_task WHERE id = #{id}
