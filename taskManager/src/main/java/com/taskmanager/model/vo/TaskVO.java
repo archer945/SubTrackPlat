@@ -13,6 +13,7 @@ public class TaskVO {
     private String description;
     private Long executorId;
     private Long assistantId;
+    private Long creatorId;
     private LocalDateTime plannedStart;
     private LocalDateTime plannedEnd;
     private LocalDateTime actualStart;
@@ -30,7 +31,6 @@ public class TaskVO {
     private String creatorName;
     private String executorName;
     private String assistantName;
-    private Long creatorId;
 
 
 }

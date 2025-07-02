@@ -2,6 +2,7 @@ package com.taskmanager.controller;
 
 import com.alibaba.excel.EasyExcel;
 import com.taskmanager.model.dto.TaskDTO;
+import com.taskmanager.model.entity.User;
 import com.taskmanager.model.query.TaskQuery;
 import com.taskmanager.model.vo.TaskExportVO;
 import com.taskmanager.model.vo.TaskVO;
@@ -12,7 +13,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,11 +34,7 @@ public class TaskController {
         return taskService.getTaskPage(query);
     }
 
-    // 查询所有任务（不分页）
-    @GetMapping("/all")
-    public List<TaskVO> getAll() {
-        return taskService.getAllTasks();
-    }
+
 
     // 查询单个任务详情
     @GetMapping("/{id}")
@@ -90,6 +89,14 @@ public class TaskController {
     public boolean deleteTasks(@RequestBody List<Long> ids) {
         // 调用服务层批量删除方法，传入任务 ID 列表
         return taskService.deleteTasks(ids);
+    }
+
+    @GetMapping("/users")
+    public Map<String, Object> getUsersByName(@RequestParam(required = false) String name) {
+        List<User> users = taskService.findUsersByName(name);
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", users);
+        return result;
     }
 
 }

@@ -26,21 +26,38 @@
         <result property="problemsFound" column="problems_found"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
-        <!-- ✅ 新增姓名字段 -->
         <result property="creatorId" column="creator_id"/>
-        <result property="creatorName" column="creator_name"/>
-        <result property="executorName" column="executor_name"/>
-        <result property="assistantName" column="assistant_name"/>
+        <!-- ✅ 移除executor_name 和 assistant_name 相关字段 -->
+        <!-- <result property="executorName" column="executor_name"/> -->
+        <!-- <result property="assistantName" column="assistant_name"/> -->
     </resultMap>
 
+    <!-- 查询任务分页 -->
     <select id="selectTaskPage" resultMap="BaseResultMap">
-        SELECT * FROM sub_track_plat.inspect_task
+        SELECT i.id,i.name, i.type, i.priority, i.description, i.executor_id, i.assistant_id, i.planned_start,
+               i.planned_end, i.actual_start, i.actual_end, i.line_name, i.start_point, i.end_point,
+               i.range_description, i.status, i.completion_rate, i.result, i.problems_found, i.create_time,
+               i.update_time, i.creator_id
+        FROM sub_track_plat.inspect_task i
         <where>
             <if test="name != null and name != ''">
                 AND name ILIKE CONCAT('%', #{name}, '%')
             </if>
+            <!-- 修改为使用 executorId 查询 -->
+            <if test="executorId != null">
+                AND executor_id = #{executorId}
+            </if>
+            <if test="creatorId != null">
+                AND creator_id = #{creatorId}
+            </if>
+            <if test="type != null and type != ''">
+                AND type = #{type}
+            </if>
+            <if test="priority != null and priority != ''">
+                AND priority = CAST(#{priority} AS sub_track_plat.inspect_task_priority_enum)
+            </if>
             <if test="status != null and status != ''">
-                AND status = #{status}
+                AND status = CAST(#{status} AS sub_track_plat.inspect_task_status_enum)
             </if>
             <if test="plannedStart != null">
                 AND planned_start &gt;= #{plannedStart}
@@ -52,10 +69,12 @@
         ORDER BY planned_start DESC
     </select>
 
+    <!-- 根据任务 ID 查询任务 -->
     <select id="selectById" resultMap="BaseResultMap">
         SELECT * FROM sub_track_plat.inspect_task WHERE id = #{id}
     </select>
 
+    <!-- 插入任务 -->
     <insert id="insertTask" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sub_track_plat.inspect_task (
             name, type, priority, description, executor_id, assistant_id,
@@ -63,17 +82,17 @@
             line_name, start_point, end_point, range_description,
             status, completion_rate, result, problems_found,
             create_time, update_time,
-            creator_id, creator_name, executor_name, assistant_name
+            creator_id
         ) VALUES (
                      #{name}, #{type}, CAST(#{priority} AS inspect_task_priority_enum), #{description}, #{executorId}, #{assistantId},
                      #{plannedStart}, #{plannedEnd}, #{actualStart}, #{actualEnd},
                      #{lineName}, #{startPoint}, #{endPoint}, #{rangeDescription},
                      CAST(#{status} AS inspect_task_status_enum), #{completionRate}, #{result}, #{problemsFound},
-                     #{createTime}, #{updateTime},
-                     #{creatorId}, #{creatorName}, #{executorName}, #{assistantName}
+                     #{createTime}, #{updateTime}, #{creatorId}
                  )
     </insert>
 
+    <!-- 更新任务 -->
     <update id="updateTask">
         UPDATE sub_track_plat.inspect_task SET
                                                name = #{name},
@@ -95,25 +114,37 @@
                                                result = #{result},
                                                problems_found = #{problemsFound},
                                                creator_id = #{creatorId},
-                                               creator_name = #{creatorName},
-                                               executor_name = #{executorName},
-                                               assistant_name = #{assistantName},
                                                update_time = #{updateTime}
         WHERE id = #{id}
     </update>
 
+    <!-- 更新任务状态 -->
     <update id="updateTaskStatus">
         UPDATE sub_track_plat.inspect_task
         SET status = #{status}::sub_track_plat.inspect_task_status_enum
         WHERE id = #{id}
     </update>
 
+    <!-- 删除任务 -->
     <delete id="deleteTaskById">
         DELETE FROM sub_track_plat.inspect_task WHERE id = #{id}
     </delete>
 
+    <!-- 查询所有任务 -->
     <select id="getAllTasks" resultMap="BaseResultMap">
         SELECT * FROM sub_track_plat.inspect_task ORDER BY planned_start DESC
+    </select>
+
+<!--    名字查id-->
+    <select id="selectUsersByName" resultType="com.taskmanager.model.entity.User">
+        SELECT user_id, real_name
+        FROM sub_track_plat.user
+        <where>
+            <if test="name != null and name != ''">
+                AND real_name LIKE CONCAT('%', #{name}, '%')
+            </if>
+        </where>
+        LIMIT 20
     </select>
 
 </mapper>

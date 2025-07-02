@@ -13,7 +13,9 @@ public class TaskQuery {
     private String name; // 任务名称
     private String type; // 任务类型
     private String status; // 任务状态
-    private String executor; // 执行人
+    private Long executorId; // 执行人ID，修改为 Long 类型
+    private Long creatorId; // 创建人ID
+    private String creatorName; // 创建人
     private String priority; // 任务优先级
 
     private LocalDateTime plannedStart; // 计划开始时间

@@ -28,8 +28,8 @@ public class Task {
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private Long creatorId;
-    private String creatorName;
-    private String executorName;
-    private String assistantName;
+//    private String creatorName;
+//    private String executorName;
+//    private String assistantName;
 
 }
