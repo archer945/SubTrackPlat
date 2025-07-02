@@ -78,9 +78,9 @@ public class DefectServiceImpl implements DefectService {
     private LambdaQueryWrapper<Defect> buildWrapper(DefectQuery query) {
         LambdaQueryWrapper<Defect> wrapper = new LambdaQueryWrapper<>();
 
-        if (StrUtil.isNotBlank(query.getKeyword())) {
-            wrapper.like(Defect::getDescription, query.getKeyword());
-        }
+//        if (StrUtil.isNotBlank(query.getKeyword())) {
+//            wrapper.like(Defect::getDescription, query.getKeyword());
+//        }
 
         if (StrUtil.isNotBlank(query.getType())) {
             wrapper.eq(Defect::getType, DefectTypeEnum.fromDbValue(query.getType()));
@@ -92,6 +92,14 @@ public class DefectServiceImpl implements DefectService {
 
         if (StrUtil.isNotBlank(query.getSeverity())) {
             wrapper.eq(Defect::getSeverity, SeverityLevelEnum.fromDbValue(query.getSeverity()));
+        }
+
+        if (StrUtil.isNotBlank(query.getTaskId())) {
+            wrapper.eq(Defect::getTaskId, query.getTaskId());
+        }
+
+        if (query.getIsValid() != null) {
+            wrapper.eq(Defect::getIsValid, query.getIsValid());
         }
 
         if (query.getStartTime() != null) {
@@ -197,6 +205,7 @@ public class DefectServiceImpl implements DefectService {
             case CONFIRMED:
                 defect.setConfirmBy(operatorId);
                 defect.setConfirmTime(LocalDateTime.now());
+                defect.setIsValid(true);
                 break;
             case PROCESSING:
                 defect.setHandleBy(operatorId);

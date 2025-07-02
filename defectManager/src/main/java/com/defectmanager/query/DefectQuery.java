@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
         private String type;
         private String status;
         private String severity;
-        private String keyword; // 模糊搜索描述
+        private Boolean isValid;
+        private String taskId;
         private LocalDateTime startTime;
         private LocalDateTime endTime;
 
@@ -41,12 +42,20 @@ import java.time.LocalDateTime;
         this.severity = severity;
     }
 
-    public String getKeyword() {
-        return keyword;
+    public Boolean getValid() {
+        return isValid;
     }
 
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
+    public void setValid(Boolean valid) {
+        isValid = valid;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
     public LocalDateTime getStartTime() {
