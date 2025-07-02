@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
-import { getDefectDetail } from '@/api/defect'
+import { getDefectDetail } from '@/api/defect/defect'
 import { ElMessage } from 'element-plus'
 
 const props = defineProps<{ defect?: any; id?: string | number }>()
@@ -16,7 +16,7 @@ function normalize(src: any) {
     taskName: src.taskName ?? src.title,
     distance: src.location,
     level: src.severity,
-    length: src.defectLength,
+    defectLength: src.defectLength,
     area: src.defectArea,
     count: src.defectCount,
     suggestion: src.description,
@@ -87,13 +87,13 @@ function downloadImage(url: string) {
 
         <el-descriptions :column="2" border>
           <el-descriptions-item label="缺陷类型">{{ detail.defectType }}</el-descriptions-item>
-          <el-descriptions-item label="所属任务">{{ detail.taskName }}</el-descriptions-item>
-          <el-descriptions-item label="距离位置">{{ detail.distance }}</el-descriptions-item>
-          <el-descriptions-item label="严重程度">{{ detail.level }}</el-descriptions-item>
-          <el-descriptions-item label="缺陷长度">{{ detail.length }}</el-descriptions-item>
-          <el-descriptions-item label="缺陷面积">{{ detail.area }}</el-descriptions-item>
-          <el-descriptions-item label="缺陷数量">{{ detail.count }}</el-descriptions-item>
-          <el-descriptions-item label="整改建议">{{ detail.suggestion }}</el-descriptions-item>
+          <el-descriptions-item label="所属任务ID">{{ detail.taskId }}</el-descriptions-item>
+          <el-descriptions-item label="距离位置">{{ detail.distance ?? '未知位置' }}</el-descriptions-item>
+          <el-descriptions-item label="严重程度">{{ detail.level ?? '未知' }}</el-descriptions-item>
+          <el-descriptions-item label="缺陷长度">{{ detail.defectLength ?? '未知' }}</el-descriptions-item>
+          <el-descriptions-item label="缺陷面积">{{ detail.area ?? '未知' }}</el-descriptions-item>
+          <el-descriptions-item label="缺陷数量">{{ detail.count ?? '未知' }}</el-descriptions-item>
+          <el-descriptions-item label="整改建议">{{ detail.suggestion ?? '未知' }}</el-descriptions-item>
         </el-descriptions>
       </div>
     </template>
@@ -101,7 +101,7 @@ function downloadImage(url: string) {
 
   <el-dialog v-model="viewerVisible" width="80%" top="5vh" custom-class="image-viewer-dialog" :show-close="false">
     <el-image-viewer :url-list="viewerUrls" :initial-index="viewerIndex" class="flex-1" @close="viewerVisible=false" />
-    <div class="absolute top-4 right-4 z-50"><el-button size="small" type="primary" @click="downloadImage(viewerUrls[viewerIndex])">下载图片</el-button></div>
+    <!-- <div class="absolute top-4 right-4 z-50"><el-button size="small" type="primary" @click="downloadImage(viewerUrls[viewerIndex])">下载图片</el-button></div> -->
   </el-dialog>
 </template>
 

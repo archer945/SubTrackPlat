@@ -5,18 +5,22 @@ import com.defectmanager.enmu.DefectStatusEnum;
 import com.defectmanager.enmu.DefectTypeEnum;
 import com.defectmanager.enmu.SeverityLevelEnum;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Data
-    public class DefectQuery extends PageQuery {
-        private String type;
-        private String status;
-        private String severity;
-        private Boolean isValid;
-        private String taskId;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
+@Getter
+@Setter
+public class DefectQuery extends PageQuery {
+    private String type;
+    private String status;
+    private String severity;
+    private Boolean isValid;
+    private String taskId;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
     public String getType() {
         return type;
@@ -42,21 +46,8 @@ import java.time.LocalDateTime;
         this.severity = severity;
     }
 
-    public Boolean getValid() {
-        return isValid;
-    }
 
-    public void setValid(Boolean valid) {
-        isValid = valid;
-    }
 
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
 
     public LocalDateTime getStartTime() {
         return startTime;

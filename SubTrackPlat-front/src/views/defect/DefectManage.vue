@@ -106,32 +106,33 @@
       <!-- TODO 缺陷图片 -->
       <el-table-column label="缺陷图片" width="120">
         <template #default="{ row }">
-          <div class="image-container">
-            <el-image
-                style="width: 80px; height: 60px; cursor: pointer; border-radius: 4px"
-                :src="row.thumbnailUrl"
-                :preview-src-list="row.previewUrls"
-                fit="cover"
-                @error="handleImageError"
-                :initial-index="0"
-                :zoom-rate="1.2"
-                :max-scale="7"
-                :min-scale="0.2"
-            >
-              <template #error>
-                <div class="image-error">
-                  <el-icon><Picture /></el-icon>
-                  <span>加载失败</span>
-                </div>
-              </template>
-              <template #placeholder>
-                <div class="image-placeholder">
-                  <el-icon><Loading /></el-icon>
-                </div>
-              </template>
-            </el-image>
-            <span v-if="row.imageCount > 1" class="image-badge">+{{ row.imageCount - 1 }}</span>
-          </div>
+          <!-- 直接点缩略图触发 openPreview -->
+          <el-image
+              style="width: 80px; height: 60px; cursor: pointer; border-radius: 4px"
+              :src="row.thumbnailUrl"
+              fit="cover"
+              @error="handleImageError"
+              @click="openPreview(row)"
+          >
+            <!-- 加载失败 -->
+            <template #error>
+              <div class="image-error">
+                <el-icon><Picture /></el-icon>
+                <span>加载失败</span>
+              </div>
+            </template>
+            <!-- 加载中 -->
+            <template #placeholder>
+              <div class="image-placeholder">
+                <el-icon><Loading /></el-icon>
+              </div>
+            </template>
+          </el-image>
+
+          <!-- 多图角标（可留可删）-->
+          <span v-if="row.imageCount > 1" class="image-badge">
+      +{{ row.imageCount - 1 }}
+    </span>
         </template>
       </el-table-column>
 
@@ -251,7 +252,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import { getDefectList, exportDefects, DefectStatusEnum, deleteDefect, updateDefectStatus } from '@/api/defect'
+import { getDefectList, exportDefects, DefectStatusEnum, deleteDefect, updateDefectStatus } from '@/api/defect/defect'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import DefectDetail from '@/components/defect/DefectDetail.vue'
 import { Picture, Loading } from '@element-plus/icons-vue'

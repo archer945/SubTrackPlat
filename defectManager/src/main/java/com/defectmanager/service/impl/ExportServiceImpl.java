@@ -24,6 +24,9 @@ public class ExportServiceImpl implements exportService {
     private DefectMapper defectMapper;
 
 
+
+
+
     @Override
     public ByteArrayOutputStream exportDefectsToCsv(DefectQuery query, HttpServletResponse response) throws UnsupportedEncodingException {
         // 1. 设置响应头
@@ -65,7 +68,6 @@ public class ExportServiceImpl implements exportService {
 
             // 3.3 写入到输出流
             outputStream.write(csvContent.toString().getBytes("UTF-8"));
-            response.getOutputStream().write(outputStream.toByteArray());
             response.flushBuffer();
         } catch (IOException e) {
             e.printStackTrace();
@@ -84,5 +86,6 @@ public class ExportServiceImpl implements exportService {
         }
         return value;
     }
+
 
 }

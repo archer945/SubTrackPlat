@@ -1,6 +1,5 @@
 package com.defectmanager.service.impl;
 
-
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -42,6 +41,7 @@ public class DefectServiceImpl implements DefectService {
     @Override
     public Page<Defect> queryByCondition(DefectQuery query) {
         // 1. 分页查询缺陷数据
+        System.out.println(query.toString());
         Page<Defect> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<Defect> wrapper = buildWrapper(query);
         Page<Defect> defectPage = defectMapper.selectPage(page, wrapper);
@@ -205,7 +205,6 @@ public class DefectServiceImpl implements DefectService {
             case CONFIRMED:
                 defect.setConfirmBy(operatorId);
                 defect.setConfirmTime(LocalDateTime.now());
-                defect.setIsValid(true);
                 break;
             case PROCESSING:
                 defect.setHandleBy(operatorId);

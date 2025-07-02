@@ -1,7 +1,6 @@
 package com.defectmanager.controller;
 
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.common.domain.vo.JsonVO;
 import com.defectmanager.enmu.DefectStatusEnum;
@@ -42,7 +41,6 @@ public class DefectController {
         Page<Defect> result = defectService.queryByCondition(query);
         return JsonVO.success(result);
     }
-
 
 
     @PostMapping("/add")
@@ -117,7 +115,6 @@ public class DefectController {
 //        } catch (IOException e) {
 //            throw new RuntimeException("导出失败", e);
 //        }
-//    }
         try {
             // 1. 设置响应头
             String fileName = "缺陷数据_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + ".csv";
