@@ -23,11 +23,12 @@
 
     <!-- 按状态统计 -->
     <select id="countByStatus" resultType="com.common.domain.dto.dashboard.inspect.InspectionStatusStats">
-        SELECT
-            status,
-            COUNT(*) AS count
-        FROM sub_track_plat.inspect_task
-        GROUP BY status
+            SELECT
+                type,
+                status,
+                COUNT(*) AS count
+            FROM sub_track_plat.inspect_task
+            GROUP BY type, status
     </select>
 
     <!-- 按执行人统计 -->
