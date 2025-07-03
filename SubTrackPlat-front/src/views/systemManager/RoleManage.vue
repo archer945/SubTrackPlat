@@ -10,7 +10,7 @@
           <el-input v-model="searchForm.roleCode" placeholder="请输入角色编码" clearable />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="角色状态" clearable>
+          <el-select v-model="searchForm.status" placeholder="角色状态" clearable  style="width: 120px">
             <el-option label="正常" :value="1" />
             <el-option label="停用" :value="0" />
           </el-select>
@@ -449,7 +449,14 @@ const handleRemove = (row) => {
     type: 'warning'
   }).then(async () => {
     try {
-      await deleteRole(row.roleId)
+      const response = await deleteRole(row.roleId)
+      
+      // 检查响应是否包含错误信息
+      if (response && response.error) {
+        console.error('删除角色失败:', response)
+        return
+      }
+      
       ElMessage.success('删除成功')
       // 立即刷新数据
       await fetchRoleList()
@@ -492,16 +499,22 @@ const submitForm = () => {
   roleFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
+        let response
         if (dialogType.value === 'add') {
           // 新增角色
-          await addRole(roleForm)
-          ElMessage.success('添加成功')
+          response = await addRole(roleForm)
         } else {
           // 修改角色
-          await updateRole(roleForm.roleId, roleForm)
-          ElMessage.success('修改成功')
+          response = await updateRole(roleForm.roleId, roleForm)
         }
         
+        // 检查响应是否包含错误信息
+        if (response && response.error) {
+          console.error('保存角色失败:', response)
+          return
+        }
+        
+        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '修改成功')
         dialogVisible.value = false
         // 立即刷新数据
         await fetchRoleList()
@@ -536,7 +549,14 @@ const submitPermAssign = async () => {
   const allKeys = [...checkedKeys, ...halfCheckedKeys]
   
   try {
-    await assignRoleMenus(selectedRole.value.roleId, allKeys)
+    const response = await assignRoleMenus(selectedRole.value.roleId, allKeys)
+    
+    // 检查响应是否包含错误信息
+    if (response && response.error) {
+      console.error('分配权限失败:', response)
+      return
+    }
+    
     ElMessage.success('权限分配成功')
     permDialogVisible.value = false
     // 立即刷新数据
@@ -556,10 +576,17 @@ const submitDataScopeAssign = async () => {
   }
   
   try {
-    await updateRoleDataScope(selectedRole.value.roleId, {
+    const response = await updateRoleDataScope(selectedRole.value.roleId, {
       dataScope: dataScopeForm.dataScope,
       deptIds
     })
+    
+    // 检查响应是否包含错误信息
+    if (response && response.error) {
+      console.error('分配数据权限失败:', response)
+      return
+    }
+    
     ElMessage.success('数据权限分配成功')
     dataScopeDialogVisible.value = false
     // 立即刷新数据

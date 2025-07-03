@@ -17,7 +17,7 @@
     <sql id="selectDeptVo">
         SELECT d.dept_id, d.dept_name,d.parent_id,d.order_num,d.status,d.create_time
         ,d.dept_code,d.leader,d.tel,d.email
-        FROM dept d
+        FROM  dept d
     </sql>
 
     <select id="selectDepts" resultMap="DeptResultMap">
@@ -25,6 +25,9 @@
         <where>
             <if test="query.deptName != null and query.deptName != ''">
                 AND d.dept_name LIKE CONCAT('%', #{query.deptName}, '%')
+            </if>
+            <if test="query.deptCode != null and query.deptCode != ''">
+                AND d.dept_code = #{query.deptCode}
             </if>
             <if test="query.status != null and query.status != ''">
                 AND d.status = #{query.status}
@@ -50,5 +53,9 @@
 
     <select id="countChildrenByParentId" resultType="int">
         SELECT COUNT(1) FROM dept WHERE parent_id = #{parentId}
+    </select>
+
+    <select id="selectByDeptName" resultType="com.systemManager.entity.Dept">
+        SELECT * FROM dept WHERE dept_name = #{deptName} LIMIT 1
     </select>
 </mapper>

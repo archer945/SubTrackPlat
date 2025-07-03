@@ -10,7 +10,7 @@
           <el-input v-model="searchForm.deptCode" placeholder="请输入部门编码" clearable />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
+          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable  style="width: 120px">
             <el-option label="正常" :value="1" />
             <el-option label="停用" :value="0" />
           </el-select>
@@ -43,13 +43,13 @@
       highlight-current-row
     >
       <el-table-column type="selection" width="55" />
-      <el-table-column prop="deptId" label="部门编号" width="80" />
+      <el-table-column prop="deptId" label="部门编号" width="120" />
       <el-table-column prop="deptName" label="部门名称" width="180" />
-      <el-table-column prop="deptCode" label="部门编码" width="120" />
-      <el-table-column prop="orderNum" label="排序" width="80" />
+      <el-table-column prop="deptCode" label="部门编码" width="180" />
+      <el-table-column prop="orderNum" label="排序" width="100" />
       <el-table-column prop="leader" label="负责人" width="120" />
-      <el-table-column prop="tel" label="联系电话" width="120" />
-      <el-table-column prop="status" label="状态" width="80">
+      <el-table-column prop="tel" label="联系电话" width="150" />
+      <el-table-column prop="status" label="状态" width="100">
         <template #default="scope">
           <el-tag :type="getStatusType(scope.row.status)">
             {{ getStatusText(scope.row.status) }}
@@ -96,6 +96,16 @@
             placeholder="请选择上级部门"
             check-strictly
             :render-after-expand="false"
+            default-expand-all
+            node-key="deptId"
+            :props="{
+              label: 'deptName',
+              children: 'children',
+              value: 'deptId',
+              disabled: 'disabled'
+            }"
+            filterable
+            clearable
           />
         </el-form-item>
         <el-form-item label="部门名称" prop="deptName">
@@ -136,8 +146,7 @@
 <script setup>
 import { ref, reactive, onMounted, onActivated } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Edit, Delete, Plus } from '@element-plus/icons-vue'
-import { getDeptList, addDept, updateDept, deleteDept } from '@/api/systemManager/dept'
+import { getDeptList, addDept, updateDept, deleteDept, getDeptTree } from '@/api/systemManager/dept'
 
 // 搜索表单
 const searchForm = reactive({
@@ -305,116 +314,82 @@ const processDeptData = (data) => {
 // 获取部门树
 const fetchDeptTree = async () => {
   try {
-    // 使用部门列表接口获取部门数据
-    const response = await getDeptList({ pageIndex: 1, pageSize: 100 })
-    console.log('部门树原始响应:', response)
+    // 使用专门的部门树接口获取部门数据
+    const response = await getDeptTree()
+    console.log('部门树原始响应:', JSON.stringify(response))
+    
+    let treeData = []
     
     // 确保数据格式正确
-    if (response && response.records) {
-      deptOptions.value = [
-        {
-          deptId: 0,
-          deptName: '主公司',
-          children: processDeptData(response.records)
+    if (response && Array.isArray(response)) {
+      // 如果直接返回数组，则使用该数组作为树形数据
+      treeData = processDeptData(response)
+    } else if (response && response.data && Array.isArray(response.data)) {
+      // 如果返回的是包含data字段的对象，且data是数组
+      treeData = processDeptData(response.data)
+    } else if (response && typeof response === 'object') {
+      // 尝试从response中提取可能的数据字段
+      const possibleDataFields = ['data', 'list', 'items', 'content', 'rows', 'records'];
+      for (const field of possibleDataFields) {
+        if (response[field] && Array.isArray(response[field])) {
+          treeData = processDeptData(response[field]);
+          console.log(`使用response.${field}字段获取树数据:`, JSON.stringify(treeData));
+          break;
         }
-      ]
-      console.log('处理后的部门树数据:', deptOptions.value)
-    } else if (response && response.rows) {
-      // 兼容后端返回rows的情况
-      deptOptions.value = [
-        {
-          deptId: 0,
-          deptName: '主公司',
-          children: processDeptData(response.rows)
-        }
-      ]
-      console.log('使用rows字段的部门树数据:', deptOptions.value)
-    } else if (response && response.data && response.data.rows) {
-      // 兼容后端返回data.rows的情况
-      deptOptions.value = [
-        {
-          deptId: 0,
-          deptName: '主公司',
-          children: processDeptData(response.data.rows)
-        }
-      ]
-      console.log('使用data.rows字段的部门树数据:', deptOptions.value)
-    } else {
-      // 尝试直接使用response，如果它是数组的话
-      if (Array.isArray(response)) {
-        deptOptions.value = [
-          {
-            deptId: 0,
-            deptName: '主公司',
-            children: processDeptData(response)
-          }
-        ]
-        console.log('直接使用response作为数组构建树:', deptOptions.value)
-      } else if (response && typeof response === 'object') {
-        // 尝试从response中提取可能的数据字段
-        const possibleDataFields = ['data', 'list', 'items', 'content'];
-        for (const field of possibleDataFields) {
-          if (response[field] && Array.isArray(response[field])) {
-            deptOptions.value = [
-              {
-                deptId: 0,
-                deptName: '主公司',
-                children: processDeptData(response[field])
-              }
-            ];
-            console.log(`使用response.${field}字段构建树:`, deptOptions.value);
-            break;
-          } else if (response[field] && response[field].rows && Array.isArray(response[field].rows)) {
-            deptOptions.value = [
-              {
-                deptId: 0,
-                deptName: '主公司',
-                children: processDeptData(response[field].rows)
-              }
-            ];
-            console.log(`使用response.${field}.rows字段构建树:`, deptOptions.value);
-            break;
-          }
-        }
-        
-        if (deptOptions.value.length === 0) {
-          console.error('部门树数据格式不符合预期:', response)
-          deptOptions.value = []
-        }
-      } else {
-        console.error('部门树数据格式不符合预期:', response)
-        deptOptions.value = []
       }
+      
+      if (treeData.length === 0) {
+        console.error('部门树数据格式不符合预期:', response)
+      }
+    } else {
+      console.error('部门树数据格式不符合预期:', response)
     }
+    
+    // 构造部门选择器的数据结构，直接使用树形数据，不添加虚拟根节点
+    deptOptions.value = treeData
+    
+    // 添加一个"无上级部门"选项
+    deptOptions.value.unshift({
+      deptId: 0,
+      deptName: '无上级部门',
+      disabled: false,
+      children: []
+    })
+    
+    console.log('处理后的部门树数据:', JSON.stringify(deptOptions.value))
 
-    // 如果没有获取到部门树数据，创建一个默认的空树
-    if (deptOptions.value.length === 0) {
+    // 如果没有获取到部门树数据，只保留"无上级部门"选项
+    if (treeData.length === 0) {
       deptOptions.value = [
         {
           deptId: 0,
-          deptName: '主公司',
+          deptName: '无上级部门',
+          disabled: false,
           children: []
         }
       ]
-      console.warn('未获取到部门树数据，使用默认空树')
+      console.warn('未获取到部门树数据，只显示无上级部门选项')
     }
-  } catch (error) {
-    console.error('获取部门树失败:', error)
-    ElMessage.warning('获取部门数据失败，请刷新重试')
-    deptOptions.value = [
-      {
-        deptId: 0,
-        deptName: '主公司',
-        children: []
-      }
-    ]
-  }
+      } catch (error) {
+      console.error('获取部门树失败:', error)
+      ElMessage.warning('获取部门数据失败，请刷新重试')
+      deptOptions.value = [
+        {
+          deptId: 0,
+          deptName: '无上级部门',
+          disabled: false,
+          children: []
+        }
+      ]
+    }
 }
 
 // 处理新增
-const handleAdd = () => {
+const handleAdd = async () => {
   dialogType.value = 'add'
   deptForm.parentId = 0
+  // 打开对话框前重新获取部门树
+  await fetchDeptTree()
   dialogVisible.value = true
 }
 
@@ -452,7 +427,7 @@ const handleRowClick = (row) => {
 }
 
 // 处理编辑
-const handleEdit = (row) => {
+const handleEdit = async (row) => {
   dialogType.value = 'edit'
   // 填充表单数据
   Object.keys(deptForm).forEach(key => {
@@ -460,7 +435,43 @@ const handleEdit = (row) => {
       deptForm[key] = row[key]
     }
   })
+  // 打开对话框前重新获取部门树
+  await fetchDeptTree()
+  
+  // 禁用当前部门及其所有子部门，防止循环引用
+  disableCurrentDeptAndChildren(deptOptions.value, row.deptId)
+  
   dialogVisible.value = true
+}
+
+// 禁用当前部门及其所有子部门，防止循环引用
+const disableCurrentDeptAndChildren = (depts, currentDeptId) => {
+  if (!depts || !Array.isArray(depts)) return
+  
+  for (const dept of depts) {
+    if (dept.deptId === currentDeptId) {
+      dept.disabled = true
+      // 递归禁用所有子部门
+      if (dept.children && Array.isArray(dept.children)) {
+        disableAllChildren(dept.children)
+      }
+    } else if (dept.children && Array.isArray(dept.children)) {
+      // 递归检查子部门
+      disableCurrentDeptAndChildren(dept.children, currentDeptId)
+    }
+  }
+}
+
+// 禁用所有子部门
+const disableAllChildren = (children) => {
+  if (!children || !Array.isArray(children)) return
+  
+  for (const child of children) {
+    child.disabled = true
+    if (child.children && Array.isArray(child.children)) {
+      disableAllChildren(child.children)
+    }
+  }
 }
 
 // 处理删除单条记录
@@ -570,13 +581,15 @@ const initTestData = () => {
   ]
   
   // 同时更新部门树
-  deptOptions.value = [
-    {
-      deptId: 0,
-      deptName: '主公司',
-      children: tableData.value
-    }
-  ]
+  deptOptions.value = tableData.value.slice()
+  
+  // 添加"无上级部门"选项
+  deptOptions.value.unshift({
+    deptId: 0,
+    deptName: '无上级部门',
+    disabled: false,
+    children: []
+  })
   
   ElMessage.success('已初始化测试数据')
 }

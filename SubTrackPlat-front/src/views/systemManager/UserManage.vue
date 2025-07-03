@@ -11,9 +11,9 @@
             <el-input v-model="searchForm.tel" placeholder="请输入手机号码" clearable />
           </el-form-item>
           <el-form-item label="状态">
-            <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
+            <el-select v-model="searchForm.status" placeholder="请选择状态" clearable  style="width: 100px">
               <el-option label="正常" :value="1" />
-              <el-option label="禁用" :value="0" />
+              <el-option label="禁用" :value="3" />
               <el-option label="失效" :value="2" />
             </el-select>
           </el-form-item>
@@ -24,7 +24,8 @@
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
-              value-format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD HH:mm:ss"
+              :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
             />
           </el-form-item>
           <el-form-item>
@@ -38,6 +39,7 @@
     <!-- 操作按钮区域 -->
     <div class="action-area">
       <el-button type="primary" @click="handleAdd">新增</el-button>
+      <el-button type="danger" :disabled="selectedRows.length === 0" @click="handleBatchDelete">批量删除</el-button>
       <el-button type="warning" @click="handleImport">导入</el-button>
       <el-button type="info" @click="handleExport">导出</el-button>
       <el-button @click="refreshTable">刷新</el-button>
@@ -56,7 +58,11 @@
       <el-table-column prop="userId" label="用户编号" width="80" />
       <el-table-column prop="username" label="用户名" width="120" />
       <el-table-column prop="realName" label="用户昵称" width="120" />
-      <el-table-column prop="deptName" label="部门" width="120" />
+      <el-table-column label="部门" width="120">
+        <template #default="scope">
+          {{ scope.row.deptName || '无部门' }}
+        </template>
+      </el-table-column>
       <el-table-column prop="tel" label="手机号码" width="120" />
       <el-table-column prop="status" label="状态" width="80" align="center">
         <template #default="scope">
@@ -105,8 +111,8 @@
     <!-- 分页区域 -->
     <div class="pagination-container">
       <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
+        :current-page="currentPage"
+        :page-size="pageSize"
         :page-sizes="[10, 20, 50, 100]"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
@@ -128,7 +134,7 @@
         :rules="userRules"
         label-width="100px"
       >
-        <el-form-item label="用户名称" prop="username">
+        <el-form-item label="用户名" prop="username">
           <el-input v-model="userForm.username" placeholder="请输入用户名" :disabled="dialogType === 'edit'" />
         </el-form-item>
         <el-form-item label="用户昵称" prop="realName">
@@ -150,12 +156,16 @@
             placeholder="请选择部门"
             check-strictly
             :render-after-expand="false"
+            default-expand-all
+            node-key="value"
+            filterable
+            clearable
           />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="userForm.status">
             <el-radio :label="1">正常</el-radio>
-            <el-radio :label="0">禁用</el-radio>
+            <el-radio :label="3">禁用</el-radio>
             <el-radio :label="2">失效</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -194,22 +204,92 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 重置密码对话框 -->
+    <reset-password-dialog
+      :visible="resetPwdDialogVisible"
+      @update:visible="resetPwdDialogVisible = $event"
+      :user-id="selectedUser.userId"
+      :username="selectedUser.username"
+      @success="handleResetPwdSuccess"
+    />
+
+    <!-- 导入用户对话框 -->
+    <el-dialog v-model="importDialogVisible" title="导入用户" width="500px">
+      <el-upload
+        class="upload-demo"
+        drag
+        action="#"
+        :auto-upload="false"
+        :on-change="handleFileChange"
+        :limit="1"
+        :file-list="fileList"
+        accept=".xlsx, .xls"
+      >
+        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+        <div class="el-upload__text">
+          拖拽文件到此处或 <em>点击上传</em>
+        </div>
+        <template #tip>
+          <div class="el-upload__tip">
+            请上传Excel文件，且文件大小不超过10MB
+          </div>
+          <div class="el-upload__tip">
+            <el-link type="primary" @click="downloadTemplate">下载导入模板</el-link>
+          </div>
+        </template>
+      </el-upload>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="importDialogVisible = false">取消</el-button>
+          <el-button type="primary" :disabled="!uploadFile" @click="submitImport">确定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+    
+    <!-- 导入结果对话框 -->
+    <el-dialog v-model="importResultDialogVisible" title="导入结果" width="600px">
+      <el-result
+        :icon="importResult.failCount > 0 ? 'warning' : 'success'"
+        :title="importResult.failCount > 0 ? '部分导入成功' : '导入成功'"
+        :sub-title="`成功导入 ${importResult.successCount} 条数据，失败 ${importResult.failCount} 条数据`"
+      >
+        <template v-if="importResult.failCount > 0" #extra>
+          <div class="import-error-list">
+            <h4>失败原因：</h4>
+            <el-scrollbar height="200px">
+              <ul>
+                <li v-for="(error, index) in importResult.errorMessages" :key="index">
+                  {{ error }}
+                </li>
+              </ul>
+            </el-scrollbar>
+          </div>
+        </template>
+      </el-result>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="importResultDialogVisible = false">确定</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, onActivated } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Edit, Delete, ArrowDown, Key, UserFilled, Search, Refresh } from '@element-plus/icons-vue'
-import { getUserList, addUser, updateUser, deleteUser, resetUserPassword, getUserRoles, assignUserRoles } from '@/api/systemManager/user'
-import { getDeptList } from '@/api/systemManager/dept'
+import { Edit, Delete, ArrowDown, Key, UserFilled, Search, Refresh, UploadFilled } from '@element-plus/icons-vue'
+import { getUserList, addUser, updateUser, deleteUser, resetUserPassword, getUserRoles, assignUserRoles, batchDeleteUsers, importUsers, exportUsers } from '@/api/systemManager/user'
+import { getDeptList, getDeptTree } from '@/api/systemManager/dept'
 import { getRoleList } from '@/api/systemManager/role'
+import ResetPasswordDialog from './ResetPasswordDialog.vue'
 
 // 搜索表单
 const searchForm = reactive({
   username: '',
   tel: '',
-  status: '',
+  status: null,
   createTime: []
 })
 
@@ -269,7 +349,16 @@ const userRules = {
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
   ],
   deptId: [
-    { required: true, message: '请选择部门', trigger: 'change' }
+    { 
+      validator: (rule, value, callback) => {
+        if (value === undefined || value === null || value === '') {
+          callback(new Error('请选择部门'))
+        } else {
+          callback()
+        }
+      }, 
+      trigger: 'change' 
+    }
   ]
 }
 
@@ -277,6 +366,20 @@ const userRules = {
 const roleDialogVisible = ref(false)
 const selectedUser = ref({})
 const selectedRoles = ref([])
+
+// 重置密码相关
+const resetPwdDialogVisible = ref(false)
+
+// 导入相关
+const importDialogVisible = ref(false)
+const importResultDialogVisible = ref(false)
+const fileList = ref([])
+const uploadFile = ref(null)
+const importResult = ref({
+  successCount: 0,
+  failCount: 0,
+  errorMessages: []
+})
 
 // 处理搜索
 const handleSearch = () => {
@@ -289,7 +392,7 @@ const resetSearch = () => {
   // 重置搜索表单
   searchForm.username = ''
   searchForm.tel = ''
-  searchForm.status = ''
+  searchForm.status = null
   searchForm.createTime = []
   handleSearch()
 }
@@ -304,9 +407,18 @@ const fetchUserList = async () => {
     }
     
     if (searchForm.createTime && searchForm.createTime.length === 2) {
-      params.beginTime = searchForm.createTime[0]
+      params.startTime = searchForm.createTime[0]
       params.endTime = searchForm.createTime[1]
       delete params.createTime
+    }
+    
+    // 处理状态参数
+    if (params.status === null || params.status === '') {
+      // 如果状态为null或空字符串，从请求参数中删除该字段
+      delete params.status
+    } else {
+      // 否则确保状态是整数类型
+      params.status = Number(params.status)
     }
     
     const response = await getUserList(params)
@@ -328,7 +440,12 @@ const fetchUserList = async () => {
           item.createTime = formatDateTime(item.createTime)
         }
         
-        console.log(`用户 ${item.username} 的状态:`, item.status, typeof item.status)
+        // 处理部门名称，如果deptId为0或null且deptName为空，则显示"无部门"
+        if ((item.deptId === 0 || item.deptId === null) && !item.deptName) {
+          item.deptName = '无部门'
+        }
+        
+                  console.log(`用户 ${item.username} 的状态:`, item.status, typeof item.status)
       })
     }
     
@@ -345,35 +462,64 @@ const fetchUserList = async () => {
 // 获取部门树
 const fetchDeptTree = async () => {
   try {
-    // 使用部门列表接口获取部门数据
-    const response = await getDeptList({ pageIndex: 1, pageSize: 100 })
+    // 使用部门树接口获取部门数据
+    const response = await getDeptTree()
     console.log('用户管理-部门树原始响应:', response)
     
+    // 递归转换部门数据为树形选择器格式
+    const convertDeptTree = (deptList) => {
+      if (!deptList || !Array.isArray(deptList)) return [];
+      
+      return deptList.map(dept => ({
+        value: dept.deptId,
+        label: dept.deptName,
+        children: dept.children ? convertDeptTree(dept.children) : []
+      }));
+    };
+    
     // 确保数据格式正确
-    if (response && response.records) {
-      deptOptions.value = [
-        {
-          value: 0,
-          label: '主公司',
-          children: response.records.map(dept => ({
-            value: dept.deptId,
-            label: dept.deptName,
-            children: dept.children ? dept.children.map(child => ({
-              value: child.deptId,
-              label: child.deptName
-            })) : []
-          }))
-        }
-      ]
-      console.log('用户管理-处理后的部门树数据:', deptOptions.value)
+    if (response && Array.isArray(response)) {
+      // 直接使用返回的数组
+      deptOptions.value = convertDeptTree(response);
+    } else if (response && response.data && Array.isArray(response.data)) {
+      // 使用response.data
+      deptOptions.value = convertDeptTree(response.data);
     } else {
-      console.error('用户管理-部门树数据格式不符合预期:', response)
-      deptOptions.value = []
+      // 尝试从response中提取可能的数据字段
+      const possibleDataFields = ['data', 'list', 'items', 'content', 'rows', 'records'];
+      let foundData = false;
+      
+      for (const field of possibleDataFields) {
+        if (response && response[field] && Array.isArray(response[field])) {
+          deptOptions.value = convertDeptTree(response[field]);
+          foundData = true;
+          break;
+        }
+      }
+      
+      if (!foundData) {
+        console.error('用户管理-部门树数据格式不符合预期:', response);
+        deptOptions.value = [];
+      }
     }
+    
+    // 添加"无部门"选项
+    deptOptions.value.unshift({
+      value: 0,
+      label: '无部门',
+      disabled: false
+    });
+    
+    console.log('用户管理-处理后的部门树数据:', deptOptions.value);
   } catch (error) {
-    console.error('获取部门树失败:', error)
-    ElMessage.warning('获取部门数据失败，请刷新重试')
-    deptOptions.value = []
+    console.error('获取部门树失败:', error);
+    ElMessage.warning('获取部门数据失败，请刷新重试');
+    // 至少提供"无部门"选项
+    deptOptions.value = [{
+      value: 0,
+      label: '无部门',
+      disabled: false
+    }];
   }
 }
 
@@ -390,8 +536,10 @@ const fetchRoleList = async () => {
 }
 
 // 处理新增
-const handleAdd = () => {
+const handleAdd = async () => {
   dialogType.value = 'add'
+  // 打开对话框前重新获取部门树
+  await fetchDeptTree()
   dialogVisible.value = true
 }
 
@@ -426,12 +574,50 @@ const handleDelete = () => {
 
 // 处理导入
 const handleImport = () => {
-  ElMessage.info('导入功能待实现')
+  importDialogVisible.value = true
 }
 
 // 处理导出
-const handleExport = () => {
-  ElMessage.info('导出功能待实现')
+const handleExport = async () => {
+  try {
+    // 构建查询参数
+    const params = { ...searchForm }
+    
+    if (params.createTime && params.createTime.length === 2) {
+      params.startTime = params.createTime[0]
+      params.endTime = params.createTime[1]
+      delete params.createTime
+    }
+    
+    // 处理状态参数
+    if (params.status === null || params.status === '') {
+      delete params.status
+    } else {
+      params.status = Number(params.status)
+    }
+    
+    // 显示加载提示
+    ElMessage.info('正在导出数据，请稍候...')
+    
+    // 构建查询参数字符串
+    const queryParams = new URLSearchParams()
+    Object.keys(params).forEach(key => {
+      if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+        queryParams.append(key, params[key])
+      }
+    })
+    
+    // 直接使用window.location.href进行下载
+    window.location.href = `/api/systemManager/systemManager/user/export?${queryParams.toString()}`
+    
+    // 延迟显示成功消息
+    setTimeout(() => {
+      ElMessage.success('导出请求已发送，请等待浏览器下载')
+    }, 1000)
+  } catch (error) {
+    console.error('导出用户失败:', error)
+    ElMessage.error('导出用户失败: ' + (error.message || '未知错误'))
+  }
 }
 
 // 刷新表格
@@ -451,7 +637,7 @@ const handleRowClick = (row) => {
 }
 
 // 处理编辑
-const handleEdit = (row) => {
+const handleEdit = async (row) => {
   dialogType.value = 'edit'
   // 填充表单数据
   Object.keys(userForm).forEach(key => {
@@ -463,6 +649,8 @@ const handleEdit = (row) => {
       }
     }
   })
+  // 打开对话框前重新获取部门树
+  await fetchDeptTree()
   dialogVisible.value = true
 }
 
@@ -474,7 +662,14 @@ const handleRemove = (row) => {
     type: 'warning'
   }).then(async () => {
     try {
-      await deleteUser(row.userId)
+      const response = await deleteUser(row.userId)
+      
+      // 检查响应是否包含错误信息
+      if (response && response.error) {
+        console.error('删除用户失败:', response)
+        return
+      }
+      
       ElMessage.success('删除成功')
       // 立即刷新数据
       await fetchUserList()
@@ -491,33 +686,46 @@ const handleRemove = (row) => {
 
 // 处理重置密码
 const handleResetPwd = (row) => {
-  ElMessageBox.confirm(`确认重置"${row.username}"的密码吗?`, '警告', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(async () => {
-    try {
-      await resetUserPassword(row.userId)
-      ElMessage.success('密码重置成功')
-      // 立即刷新数据
-      await fetchUserList()
-    } catch (error) {
-      console.error('重置密码失败:', error)
-    }
-  }).catch(() => {
-    // 取消重置
-  })
+  selectedUser.value = row
+  resetPwdDialogVisible.value = true
+}
+
+// 处理重置密码成功
+const handleResetPwdSuccess = () => {
+  // 重置密码成功后刷新用户列表
+  fetchUserList()
 }
 
 // 处理分配角色
 const handleAssignRole = async (row) => {
   selectedUser.value = row
   try {
+    console.log('获取用户角色, 用户ID:', row.userId)
     const roles = await getUserRoles(row.userId)
-    selectedRoles.value = roles.map(role => role.roleId)
+    console.log('获取到的用户角色:', roles)
+    
+    if (roles && roles.error) {
+      ElMessage.error(roles.message || '获取用户角色失败')
+      return
+    }
+    
+    // 确保roles是数组
+    if (Array.isArray(roles)) {
+      selectedRoles.value = roles
+    } else if (roles && Array.isArray(roles.data)) {
+      selectedRoles.value = roles.data
+    } else {
+      console.warn('获取到的用户角色数据格式不正确:', roles)
+      selectedRoles.value = []
+    }
+    
+    // 获取所有角色
+    await fetchRoleList()
+    
     roleDialogVisible.value = true
   } catch (error) {
     console.error('获取用户角色失败:', error)
+    ElMessage.error('获取用户角色失败: ' + (error.message || '未知错误'))
   }
 }
 
@@ -531,16 +739,37 @@ const submitForm = () => {
           userForm.status = parseInt(userForm.status, 10)
         }
         
-        if (dialogType.value === 'add') {
-          // 新增用户
-          await addUser(userForm)
-          ElMessage.success('添加成功')
-        } else {
-          // 修改用户
-          await updateUser(userForm.userId, userForm)
-          ElMessage.success('修改成功')
+        // 确保部门ID是数字类型
+        if (userForm.deptId !== undefined && userForm.deptId !== null) {
+          if (typeof userForm.deptId === 'string') {
+            userForm.deptId = parseInt(userForm.deptId, 10)
+          }
         }
         
+        // 创建要提交的数据副本
+        const submitData = { ...userForm }
+        
+        // 保留deptId的值，无论是0还是其他值，都直接传递给后端
+        // 0表示无部门，后端会正确处理
+        
+        console.log('提交用户数据:', submitData)
+        
+        let response
+        if (dialogType.value === 'add') {
+          // 新增用户
+          response = await addUser(submitData)
+        } else {
+          // 修改用户
+          response = await updateUser(submitData.userId, submitData)
+        }
+        
+        // 检查响应是否包含错误信息
+        if (response && response.error) {
+          console.error('保存用户失败:', response)
+          return
+        }
+        
+        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '修改成功')
         dialogVisible.value = false
         // 立即刷新数据
         await fetchUserList()
@@ -569,7 +798,18 @@ const resetForm = () => {
 // 提交角色分配
 const submitRoleAssign = async () => {
   try {
-    await assignUserRoles(selectedUser.value.userId, selectedRoles.value)
+    console.log('提交角色分配:', {
+      userId: selectedUser.value.userId,
+      roleIds: selectedRoles.value
+    })
+    const response = await assignUserRoles(selectedUser.value.userId, selectedRoles.value)
+    console.log('角色分配响应:', response)
+    
+    if (response && response.error) {
+      ElMessage.error(response.message || '角色分配失败')
+      return
+    }
+    
     ElMessage.success('角色分配成功')
     roleDialogVisible.value = false
     // 立即刷新数据
@@ -578,6 +818,7 @@ const submitRoleAssign = async () => {
     await fetchRoleList()
   } catch (error) {
     console.error('分配角色失败:', error)
+    ElMessage.error('分配角色失败: ' + (error.message || '未知错误'))
   }
 }
 
@@ -606,7 +847,7 @@ const handleCommand = (command, row) => {
 const getStatusType = (status) => {
   const statusNum = typeof status === 'string' ? parseInt(status, 10) : status
   if (statusNum === 1) return 'success'
-  if (statusNum === 0) return 'danger'
+  if (statusNum === 3) return 'danger'
   return 'info' // 状态为2或其他值
 }
 
@@ -614,7 +855,7 @@ const getStatusType = (status) => {
 const getStatusText = (status) => {
   const statusNum = typeof status === 'string' ? parseInt(status, 10) : status
   if (statusNum === 1) return '正常'
-  if (statusNum === 0) return '禁用'
+  if (statusNum === 3) return '禁用'
   return '失效' // 状态为2或其他值
 }
 
@@ -665,6 +906,115 @@ const formatDateTime = (dateTime) => {
     console.error('日期格式化错误:', error)
     return dateTime || '-'
   }
+}
+
+// 处理批量删除
+const handleBatchDelete = () => {
+  if (selectedRows.value.length === 0) {
+    ElMessage.warning('请至少选择一条记录')
+    return
+  }
+  
+  const usernames = selectedRows.value.map(row => row.username).join('、')
+  const userIds = selectedRows.value.map(row => row.userId)
+  
+  ElMessageBox.confirm(`确认批量删除以下用户吗?<br/>${usernames}`, '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+    dangerouslyUseHTMLString: true
+  }).then(async () => {
+    try {
+      const response = await batchDeleteUsers(userIds)
+      
+      // 检查响应是否包含错误信息
+      if (response && response.error) {
+        console.error('批量删除用户失败:', response)
+        return
+      }
+      
+      ElMessage.success('批量删除成功')
+      // 立即刷新数据
+      await fetchUserList()
+    } catch (error) {
+      console.error('批量删除用户失败:', error)
+    }
+  }).catch(() => {
+    // 取消删除
+  })
+}
+
+// 处理文件选择
+const handleFileChange = (file) => {
+  uploadFile.value = file.raw
+  fileList.value = [file]
+}
+
+// 提交导入
+const submitImport = async () => {
+  if (!uploadFile.value) {
+    ElMessage.warning('请先选择文件')
+    return
+  }
+  
+  try {
+    const response = await importUsers(uploadFile.value)
+    
+    // 检查响应是否包含错误信息
+    if (response && response.error) {
+      console.error('导入用户失败:', response)
+      return
+    }
+    
+    // 显示导入结果
+    importResult.value = {
+      successCount: response.successCount || 0,
+      failCount: response.failCount || 0,
+      errorMessages: response.errorMessages || []
+    }
+    
+    importDialogVisible.value = false
+    importResultDialogVisible.value = true
+    
+    // 清空文件列表
+    fileList.value = []
+    uploadFile.value = null
+    
+    // 刷新用户列表
+    await fetchUserList()
+  } catch (error) {
+    console.error('导入用户失败:', error)
+    ElMessage.error('导入用户失败: ' + (error.message || '未知错误'))
+  }
+}
+
+// 下载导入模板
+const downloadTemplate = () => {
+  // 创建一个基本的Excel模板
+  const template = [
+    ['用户名*', '密码*', '用户昵称*', '邮箱', '手机号码', '部门名称', '备注'],
+    ['user1', 'password1', '用户1', 'user1@example.com', '13800000001', '技术部', '备注1'],
+    ['user2', 'password2', '用户2', 'user2@example.com', '13800000002', '市场部', '备注2']
+  ]
+  
+  // 将模板转换为CSV格式
+  const csvContent = template.map(row => row.join(',')).join('\n')
+  
+  // 创建Blob对象
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  
+  // 创建下载链接
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = '用户导入模板.csv'
+  link.style.display = 'none'
+  
+  // 添加到文档并触发点击
+  document.body.appendChild(link)
+  link.click()
+  
+  // 清理
+  document.body.removeChild(link)
 }
 
 // 组件挂载时获取数据
@@ -718,5 +1068,26 @@ onActivated(() => {
   margin-left: 0;
   margin-right: 0;
   margin-bottom: 5px;
+}
+
+.import-error-list {
+  text-align: left;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.import-error-list ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.import-error-list li {
+  color: #f56c6c;
+  margin-bottom: 5px;
+}
+
+.el-upload__tip {
+  margin-top: 5px;
+  line-height: 1.5;
 }
 </style> 
