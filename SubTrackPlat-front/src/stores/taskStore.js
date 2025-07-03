@@ -13,8 +13,8 @@ export const useTaskStore = defineStore('task', {
       const now = Date.now()
       const cacheValid = now - this.cacheTime < 5 * 60 * 1000 // 缓存5分钟
       if (
-        JSON.stringify(params) === JSON.stringify(this.lastQueryParams) &&
-        cacheValid
+          JSON.stringify(params) === JSON.stringify(this.lastQueryParams) &&
+          cacheValid
       ) {
         // 命中缓存，返回列表和总数
         return { list: this.taskList, total: this.total }
