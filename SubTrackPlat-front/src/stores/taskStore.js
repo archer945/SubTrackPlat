@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { fetchTasks } from '@/services/taskService'
+import { fetchTasks } from '@/api/taskManager/taskService'
 
 export const useTaskStore = defineStore('task', {
   state: () => ({

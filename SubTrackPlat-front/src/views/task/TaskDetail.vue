@@ -97,7 +97,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Document } from '@element-plus/icons-vue'
-import { getTaskById } from '@/services/taskService'
+import { getTaskById } from '@/api/taskManager/taskService'
 import { useTaskDetailStore } from '@/stores/taskDetailStore'
 const taskDetailStore = useTaskDetailStore()
 

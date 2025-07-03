@@ -44,7 +44,7 @@
           />
         </el-form-item>
         <el-form-item label="任务类型">
-          <el-select v-model="searchForm.taskType" placeholder="请选择类型"style="width: 100px">
+          <el-select v-model="searchForm.taskType" placeholder="请选择类型" style="width: 100px">
             <el-option label="巡检" value="巡检" />
             <el-option label="检修" value="检修" />
             <el-option label="维护" value="维护" />
@@ -136,8 +136,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { fetchTasks, exportTasks, deleteTask as apiDeleteTask } from '@/services/taskService'
-import { fetchUserList } from '@/services/userService'
+import { fetchTasks, exportTasks, deleteTask as apiDeleteTask } from '@/api/taskManager/taskService'
+import { fetchUserList } from '@/api/taskManager/userService'
 import { useTaskStore } from '@/stores/taskStore'
 const router = useRouter()
 const taskStore = useTaskStore()

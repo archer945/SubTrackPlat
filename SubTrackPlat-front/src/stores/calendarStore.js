@@ -1,6 +1,6 @@
 // src/stores/calendarStore.js
 import { defineStore } from 'pinia'
-import { fetchTasks } from '@/services/taskService'
+import { fetchTasks } from '@/api/taskManager/taskService'
 
 export const useCalendarStore = defineStore('calendar', {
   state: () => ({

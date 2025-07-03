@@ -38,7 +38,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { DateTime } from 'luxon'
 import { ElMessageBox } from 'element-plus'
-import { fetchTasks, getTaskById } from '@/services/taskService'  // 导入 taskService.js 中的接口
+import { fetchTasks, getTaskById } from '@/api/taskManager/taskService'  // 导入 taskService.js 中的接口
 
 // 基础状态
 const router = useRouter()

@@ -3,6 +3,7 @@ import TaskManage from '@/views/task/TaskManage.vue'
 import DefectManage from '@/views/defect/DefectManage.vue'
 import SystemManager from '@/views/systemManager/SystemManager.vue'
 import Login from '@/views/login/Login.vue'
+import TaskList from '@/views/task/TaskList.vue'
 
 const routes = [
   {
