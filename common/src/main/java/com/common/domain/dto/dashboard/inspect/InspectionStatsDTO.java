@@ -14,6 +14,12 @@ public class InspectionStatsDTO {
     private Integer completedCount;     // 已完成任务数
     private Double completionRate;     // 完成率
 
+    // 新增巡视距离相关字段
+    private Double todayDistance;      // 今日巡视距离
+    private Double yesterdayDistance;  // 昨日巡视距离
+    private Double distanceGrowthRate; // 距离环比增长率
+    private Double totalDistance;      // 所有已完成任务的距离总和
+
     // 分布统计
     private List<InspectionTypeStats> typeDistribution;    // 按任务类型分布
     private List<InspectionStatusStats> statusDistribution; // 按状态分布

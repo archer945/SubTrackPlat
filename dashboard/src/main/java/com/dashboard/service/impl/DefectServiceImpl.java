@@ -21,7 +21,22 @@ public class DefectServiceImpl implements DefectService {
     private DefectMapper defectMapper;
     @Override
     public List<DefectTypeDTO> getDefectType() {
-        return defectMapper.getDefectType();
+        List<DefectTypeDTO> defectTypes = defectMapper.getDefectType();
+
+        // 计算总数
+        int total = defectTypes.stream()
+                .mapToInt(DefectTypeDTO::getCount)
+                .sum();
+
+        // 计算各类型占比
+        if (total > 0) {
+            for (DefectTypeDTO dto : defectTypes) {
+                double ratio = formatPercent(dto.getCount(), total);
+                dto.setRatio(ratio);
+            }
+        }
+
+        return defectTypes;
     }
 
     @Override

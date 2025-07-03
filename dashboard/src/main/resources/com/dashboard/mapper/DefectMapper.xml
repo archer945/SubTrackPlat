@@ -4,7 +4,7 @@
 <mapper namespace="com.dashboard.mapper.DefectMapper">
     <select id="getDefectType" resultType="com.common.domain.dto.dashboard.defect.DefectTypeDTO">
         SELECT
-            type,
+            type，
             COUNT(*) AS count
         FROM
             sub_track_plat.defect

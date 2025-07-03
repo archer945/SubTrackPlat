@@ -29,6 +29,14 @@ public class InspectionStatsServiceImpl implements InspectionStatsService {
         stats.setYesterdayCount(basicStats.getYesterday());
         stats.setCompletedCount(basicStats.getCompleted());
 
+        // 设置距离相关数据
+        stats.setTodayDistance(basicStats.getTodayDistance());
+        stats.setYesterdayDistance(basicStats.getYesterdayDistance());
+        // 设置已完成任务的总距离
+        stats.setTotalDistance(inspectionTaskMapper.sumCompletedDistance());
+
+        // 2. 计算比率
+
         // 2. 计算比率
         calculateRates(stats);
 

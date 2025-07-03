@@ -8,7 +8,9 @@
         SELECT
             COUNT(CASE WHEN CAST(create_time AS DATE) = CURRENT_DATE THEN 1 END) AS today,
             COUNT(CASE WHEN CAST(create_time AS DATE) = (CURRENT_DATE - 1) THEN 1 END) AS yesterday,
-            COUNT(CASE WHEN status = '已完成' THEN 1 END) AS completed
+            COUNT(CASE WHEN status = '已完成' THEN 1 END) AS completed,
+            SUM(CASE WHEN CAST(actual_end AS DATE) = CURRENT_DATE THEN distance ELSE 0 END) AS todayDistance,
+            SUM(CASE WHEN CAST(actual_end AS DATE) = (CURRENT_DATE - 1) THEN distance ELSE 0 END) AS yesterdayDistance
         FROM sub_track_plat.inspect_task
     </select>
 
@@ -76,5 +78,13 @@
         FROM sub_track_plat.inspect_task
         GROUP BY DATE_FORMAT(create_time, '%Y-%m')
         ORDER BY yearMonth DESC
+    </select>
+
+    <!-- 计算所有已完成任务的距离总和 -->
+    <select id="sumCompletedDistance" resultType="double">
+        SELECT
+            COALESCE(SUM(distance), 0)
+        FROM sub_track_plat.inspect_task
+        WHERE status = '已完成'
     </select>
 </mapper>
