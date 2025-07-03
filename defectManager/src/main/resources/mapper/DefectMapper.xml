@@ -22,9 +22,9 @@
             <if test="query.severity != null and query.severity != ''">
                 AND severity = #{query.severity}
             </if>
-            <if test="query.keyword != null and query.keyword != ''">
-                AND description LIKE CONCAT('%', #{query.keyword}, '%')
-            </if>
+            <!--            <if test="query.keyword != null and query.keyword != ''">-->
+            <!--                AND description LIKE CONCAT('%', #{query.keyword}, '%')-->
+            <!--            </if>-->
             <if test="query.startTime != null">
                 AND found_time >= #{query.startTime}
             </if>

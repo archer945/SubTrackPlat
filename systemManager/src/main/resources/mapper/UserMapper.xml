@@ -11,7 +11,7 @@
         <result column="status" property="status"/>
         <result column="dept_name" property="deptName"/>
         <result column="remark" property="remark"/>
-        <result column="create_time" property="creatTime"/>
+        <result column="create_time" property="createTime"/>
     </resultMap>
 
     <select id="selectUser" resultMap="userResultMap">
@@ -57,4 +57,13 @@
         WHERE
         username = #{username}
     </select>
+    
+    <update id="batchUpdateStatus">
+        UPDATE "user"
+        SET status = #{status}
+        WHERE user_id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </update>
 </mapper>

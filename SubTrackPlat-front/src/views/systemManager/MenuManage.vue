@@ -7,14 +7,14 @@
           <el-input v-model="searchForm.menuName" placeholder="请输入菜单名称" clearable />
         </el-form-item>
         <el-form-item label="菜单类型">
-          <el-select v-model="searchForm.menuType" placeholder="菜单类型" clearable>
+          <el-select v-model="searchForm.menuType" placeholder="菜单类型" clearable  style="width: 120px">
             <el-option label="目录" value="M" />
             <el-option label="菜单" value="C" />
             <el-option label="按钮" value="F" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.visible" placeholder="菜单状态" clearable>
+          <el-select v-model="searchForm.visible" placeholder="菜单状态" clearable  style="width: 120px">
             <el-option label="显示" :value="1" />
             <el-option label="隐藏" :value="0" />
           </el-select>
@@ -44,9 +44,9 @@
       @row-click="handleRowClick"
       highlight-current-row
     >
-      <el-table-column prop="menuId" label="菜单编号" width="80" />
-      <el-table-column prop="menuName" label="菜单名称" width="180" />
-      <el-table-column prop="icon" label="图标" width="80">
+      <el-table-column prop="menuId" label="菜单编号" width="130" />
+      <el-table-column prop="menuName" label="菜单名称" width="160" />
+      <el-table-column prop="icon" label="图标" width="100">
         <template #default="scope">
           <el-icon v-if="scope.row.icon && isValidIcon(scope.row.icon)">
             <component :is="scope.row.icon" />
@@ -54,11 +54,9 @@
           <span v-else>--</span>
         </template>
       </el-table-column>
-      <el-table-column prop="orderNum" label="排序" width="60" />
-      <el-table-column prop="path" label="路由地址" min-width="120" />
-      <el-table-column prop="component" label="组件路径" min-width="120" />
-      <el-table-column prop="perms" label="权限标识" min-width="120" />
-      <el-table-column prop="menuType" label="类型" width="80">
+      <el-table-column prop="orderNum" label="排序" width="80" />
+      <el-table-column prop="path" label="路由地址" width="200" />
+      <el-table-column prop="menuType" label="类型" width="100">
         <template #default="scope">
           <el-tag type="primary" v-if="scope.row.menuType === 'M'">目录</el-tag>
           <el-tag type="success" v-else-if="scope.row.menuType === 'C'">菜单</el-tag>
@@ -73,7 +71,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" fixed="right" width="200">
+      <el-table-column label="操作" fixed="right" width="250">
         <template #default="scope">
           <div class="operation-buttons">
             <el-button size="small" type="primary" plain @click.stop="handleEdit(scope.row)">

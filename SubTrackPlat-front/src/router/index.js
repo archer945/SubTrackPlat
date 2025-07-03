@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import TaskManage from '@/views/task/TaskManage.vue'
-import DefectManage from '@/views/defect/DefectList.vue'
+import DefectManage from '@/views/defect/DefectManage.vue'
 import SystemManager from '@/views/systemManager/SystemManager.vue'
+import Login from '@/views/login/Login.vue'
 
 const routes = [
   {
@@ -16,7 +17,17 @@ const routes = [
   },
   {
     path: '/',
-    redirect: '/tasks'
+    redirect: '/login'
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/views/login/Register.vue')
   },
   {
     path: '/tasks',

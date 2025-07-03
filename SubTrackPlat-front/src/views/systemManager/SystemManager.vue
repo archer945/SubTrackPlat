@@ -79,9 +79,6 @@ const handleMenuSelect = (index) => {
     case 'param':
       // 暂未实现参数配置
       break
-    case 'test':
-      // 暂未实现API测试
-      break
     default:
       currentComponent.value = UserManage
   }

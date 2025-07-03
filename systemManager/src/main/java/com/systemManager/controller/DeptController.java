@@ -6,7 +6,6 @@ import com.common.domain.dto.systemManager.DeptDTO;
 import com.common.domain.query.systemManager.DeptQuery;
 import com.common.domain.vo.JsonVO;
 import com.common.domain.vo.systemManager.DeptTreeVO;
-import com.systemManager.mapper.DeptMapper;
 import com.systemManager.service.IDeptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,6 +54,12 @@ public class DeptController {
     @DeleteMapping("/{id}")
     public JsonVO<String> removeDept(@PathVariable Long id) {
         return JsonVO.success(deptService.removeDept(id));
+    }
+    
+    @Operation(summary = "获取部门树")
+    @GetMapping("/tree")
+    public JsonVO<List<DeptTreeVO>> getDeptTree() {
+        return JsonVO.success(deptService.getDeptTree());
     }
 }
 

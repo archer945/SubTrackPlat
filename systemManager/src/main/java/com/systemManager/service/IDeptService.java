@@ -26,4 +26,10 @@ public interface IDeptService extends IService<Dept> {
     String updateDept(Long id, DeptDTO dto);
 
     String removeDept(Long id);
+    
+    /**
+     * 获取部门树形列表
+     * @return 部门树形列表
+     */
+    List<DeptTreeVO> getDeptTree();
 }
