@@ -6,7 +6,7 @@ import axios from 'axios'
  * @returns {Promise} 返回任务数据
  */
 export const fetchTasks = (params) => {
-    return axios.get('/api/tasks', { params })
+    return axios.get('/api/tasks/tasks', { params })
 }
 
 /**
@@ -16,7 +16,7 @@ export const fetchTasks = (params) => {
  */
 export const exportTasks = (params) => {
     return axios({
-        url: '/api/tasks/export',
+        url: '/api/tasks/tasks/export',
         method: 'GET',
         responseType: 'blob',
         params,
@@ -29,14 +29,14 @@ export const exportTasks = (params) => {
  * @returns {Promise} 返回删除结果
  */
 export const deleteTask = (taskId) => {
-    return axios.delete(`/api/tasks/${taskId}`)
+    return axios.delete(`/api/tasks/tasks/${taskId}`)
 }
 
 
 
 // 获取任务详情
 export const getTaskById = (taskId) => {
-    return axios.get(`/api/tasks/${taskId}`)
+    return axios.get(`/api/tasks/tasks/${taskId}`)
         .then(response => response.data)
         .catch(error => {
             console.error('获取任务数据失败', error)

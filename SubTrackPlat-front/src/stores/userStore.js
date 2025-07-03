@@ -1,6 +1,6 @@
 // src/stores/userStore.js
 import { defineStore } from 'pinia'
-import { fetchUserList } from '@/services/userService'
+import { fetchUserList } from '@/api/taskManager/userService'
 
 export const useUserStore = defineStore('user', {
   state: () => ({

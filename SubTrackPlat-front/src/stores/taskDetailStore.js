@@ -1,6 +1,6 @@
 // src/stores/taskDetailStore.js
 import { defineStore } from 'pinia'
-import { getTaskById } from '@/services/taskService'
+import { getTaskById } from '@/api/taskManager/taskService'
 
 export const useTaskDetailStore = defineStore('taskDetail', {
   state: () => ({

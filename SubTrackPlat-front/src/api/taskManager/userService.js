@@ -6,5 +6,5 @@ import axios from 'axios'
  * @returns {Promise}
  */
 export const fetchUserList = (params) => {
-    return axios.get('/api/tasks/users', { params })
+    return axios.get('/api/tasks/tasks/users', { params })
 }
