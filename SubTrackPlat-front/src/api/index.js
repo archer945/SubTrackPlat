@@ -27,8 +27,30 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
   response => {
+    // 如果响应类型是blob（文件下载），直接返回响应数据
+    if (response.config.responseType === 'blob') {
+      // 检查是否是空的blob或错误响应
+      if (response.data.size === 0) {
+        ElMessage.error('导出失败：返回的文件为空')
+        return Promise.reject(new Error('返回的文件为空'))
+      }
+      return response.data
+    }
+    
     const res = response.data
     console.log('接收响应:', response.config.url, JSON.stringify(res))
+    
+    // 检查响应中是否包含错误信息，即使状态码是200
+    if (res.data && typeof res.data === 'string' && (res.data.includes('错误') || res.data.includes('失败') || res.data.includes('不能'))) {
+      console.error('请求返回错误信息:', res.data)
+      ElMessage.error(res.data)
+      return {
+        error: true,
+        code: res.code,
+        message: res.message || '请求失败',
+        data: res.data
+      }
+    }
     
     // 根据后端接口规范判断请求是否成功
     if (res.code === 10000) {
@@ -171,39 +193,55 @@ request.interceptors.response.use(
       // 直接返回数据
       return res.data;
     } else {
-      console.error('请求失败，错误码:', res.code, '错误信息:', res.message)
-      ElMessage.error(res.message || '请求失败')
+      console.error('请求失败，错误码:', res.code, '错误信息:', res.message, '错误数据:', res.data)
+      
+      // 优先使用data字段作为错误提示，如果data字段不存在则使用message字段
+      const errorMessage = res.data || res.message || '请求失败'
+      ElMessage.error(errorMessage)
+      
       // 返回错误信息，但不中断处理流程，让组件自己处理错误
       return {
         error: true,
         code: res.code,
-        message: res.message || '请求失败'
+        message: res.message || '请求失败',
+        data: res.data
       }
     }
   },
   error => {
     let message = '网络错误，请稍后重试'
+    let errorData = null
     
     if (error.response) {
       console.error('响应错误状态码:', error.response.status)
       console.error('响应错误数据:', error.response.data)
       
+      // 尝试从错误响应中获取更详细的错误信息
+      if (error.response.data) {
+        if (error.response.data.data) {
+          errorData = error.response.data.data
+          message = errorData || message
+        } else if (error.response.data.message) {
+          message = error.response.data.message
+        }
+      }
+      
       switch (error.response.status) {
         case 401:
-          message = '未授权，请重新登录'
+          message = message || '未授权，请重新登录'
           // 可以在这里处理登出逻辑
           break
         case 403:
-          message = '拒绝访问'
+          message = message || '拒绝访问'
           break
         case 404:
-          message = '请求的资源不存在'
+          message = message || '请求的资源不存在'
           break
         case 500:
-          message = '服务器内部错误'
+          message = message || '服务器内部错误'
           break
         default:
-          message = `请求失败: ${error.response.status}`
+          message = message || `请求失败: ${error.response.status}`
       }
     } else {
       console.error('请求错误:', error.message)
@@ -215,7 +253,8 @@ request.interceptors.response.use(
     // 返回错误信息，但不中断处理流程，让组件自己处理错误
     return {
       error: true,
-      message: message
+      message: message,
+      data: errorData
     }
   }
 )

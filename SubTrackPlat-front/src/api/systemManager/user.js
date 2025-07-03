@@ -44,10 +44,11 @@ export function deleteUser(id) {
 }
 
 // 重置用户密码
-export function resetUserPassword(id) {
+export function resetUserPassword(id, data) {
   return request({
     url: `/systemManager/systemManager/user/${id}/password/reset`,
-    method: 'put'
+    method: 'put',
+    data
   })
 }
 
@@ -62,8 +63,41 @@ export function getUserRoles(id) {
 // 分配用户角色
 export function assignUserRoles(id, roleIds) {
   return request({
-    url: `/systemManager/systemManager/user/${id}/roles`,
+    url: `/systemManager/systemManager/user/roles`,
     method: 'put',
-    data: { roleIds }
+    data: { userId: id, roleIds }
+  })
+}
+
+// 批量删除用户
+export function batchDeleteUsers(userIds) {
+  return request({
+    url: '/systemManager/systemManager/user/batch',
+    method: 'delete',
+    data: { userIds }
+  })
+}
+
+// 导入用户
+export function importUsers(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request({
+    url: '/systemManager/systemManager/user/import',
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+// 导出用户
+export function exportUsers(params) {
+  return request({
+    url: '/systemManager/systemManager/user/export',
+    method: 'get',
+    params,
+    responseType: 'blob'
   })
 } 

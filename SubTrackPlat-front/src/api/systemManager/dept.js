@@ -19,7 +19,13 @@ export function getDeptList(params) {
   })
 }
 
-
+// 获取部门树
+export function getDeptTree() {
+  return request({
+    url: '/systemManager/systemManager/dept/tree',
+    method: 'get'
+  })
+}
 
 // 获取部门详情
 export function getDeptDetail(id) {
