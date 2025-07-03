@@ -5,6 +5,16 @@ import SystemManager from '@/views/systemManager/SystemManager.vue'
 
 const routes = [
   {
+    path: '/defects',
+    name: 'DefectManage',
+    component: DefectManage
+  },
+  {
+    path: '/system',
+    name: 'SystemManager',
+    component: SystemManager
+  },
+  {
     path: '/',
     redirect: '/tasks'
   },
@@ -14,20 +24,15 @@ const routes = [
     component: TaskManage
   },
   {
+    path: '/tasks/list',
+    name: 'TaskList',
+    component: TaskList
+  },
+  {
     path: '/tasks/:id',
     name: 'TaskDetail',
     component: () => import('@/views/task/TaskDetail.vue'),
     props: true
-  },
-  {
-    path: '/defects',
-    name: 'DefectManage',
-    component: DefectManage
-  },
-  {
-    path: '/system',
-    name: 'SystemManager',
-    component: SystemManager
   }
 ]
 

@@ -22,9 +22,9 @@
 
     <!-- 日历主体 -->
     <FullCalendar
-      ref="calendarRef"
-      :options="calendarOptions"
-      class="calendar"
+        ref="calendarRef"
+        :options="calendarOptions"
+        class="calendar"
     />
   </div>
 </template>
@@ -38,27 +38,37 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { DateTime } from 'luxon'
 import { ElMessageBox } from 'element-plus'
+import { fetchTasks, getTaskById } from '@/services/taskService'  // 导入 taskService.js 中的接口
 
 // 基础状态
 const router = useRouter()
 const calendarRef = ref(null)
 const currentMonth = ref('')
 const calendarView = ref('dayGridMonth')
+const calendarOptions = ref({
+  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+  initialView: calendarView.value,
+  locale: 'zh-cn',
+  headerToolbar: false,
+  events: [],
+  eventClick: handleEventClick,
+  eventClassNames: getEventClassNames
+})
 
 // 动态按钮文字
 const prevLabel = computed(() => {
   switch (calendarView.value) {
-    case 'dayGridMonth': return '上月'
-    case 'timeGridWeek': return '上周'
-    case 'timeGridDay': return '上一天'
+    case 'dayGridMonth': return '上个月'
+    case 'timeGridWeek': return '上一周'
+    case 'timeGridDay': return '昨天'
     default: return '上'
   }
 })
 const nextLabel = computed(() => {
   switch (calendarView.value) {
-    case 'dayGridMonth': return '下月'
-    case 'timeGridWeek': return '下周'
-    case 'timeGridDay': return '下一天'
+    case 'dayGridMonth': return '下个月'
+    case 'timeGridWeek': return '下一周'
+    case 'timeGridDay': return '明天'
     default: return '下'
   }
 })
@@ -69,37 +79,31 @@ function getEventClassNames(arg) {
   return [`task-status-${status}`]
 }
 
-// 日历配置项
-const calendarOptions = ref({
-  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-  initialView: calendarView.value,
-  locale: 'zh-cn',
-  headerToolbar: false,
-  events: [
-    {
-      title: '隧道巡检-001',
-      date: '2025-06-02',
-      extendedProps: { id: 1, description: '例行巡检任务', status: '进行中' }
-    },
-    {
-      title: '隧道巡检-002',
-      date: '2025-06-03',
-      extendedProps: { id: 2, description: '例行巡检任务', status: '已完成' }
-    },
-    {
-      title: '设备检查',
-      date: '2025-06-03',
-      extendedProps: { id: 3, description: '设备状态检查', status: '待执行' }
-    },
-    {
-      title: '定期维护',
-      date: '2025-06-09',
-      extendedProps: { id: 4, description: '月度设备维护', status: '已暂停' }
+// 获取任务数据并填充到日历
+async function loadTasks() {
+  try {
+    const response = await fetchTasks({ /* 请求参数，如分页、筛选条件 */ })
+
+    // 确保访问正确的字段
+    if (Array.isArray(response.data.list)) {
+      const tasks = response.data.list.map(task => ({
+        title: task.name,  // 任务名称
+        start: task.plannedStart,  // 任务计划开始时间
+        end: task.plannedEnd,      // 任务计划结束时间
+        extendedProps: {
+          id: task.id,  // 任务ID
+          status: task.status  // 任务状态
+        }
+      }))
+      calendarOptions.value.events = tasks  // 填充到日历中
+    } else {
+      console.error('API 响应数据中的 list 字段不是数组:', response.data.list)
     }
-  ],
-  eventClick: handleEventClick,
-  eventClassNames: getEventClassNames
-})
+  } catch (error) {
+    console.error('获取任务数据失败', error)
+  }
+}
+
 
 // 跳转导航
 function handlePrev() {
@@ -123,7 +127,7 @@ function changeView(view) {
 function handleEventClick(info) {
   const { id } = info.event.extendedProps
   if (id) {
-    router.push(`/tasks/${id}`)
+    router.push({ name: 'TaskDetail', params: { id } })
   } else {
     ElMessageBox.alert('此任务缺少 ID，无法跳转', '无法跳转', {
       confirmButtonText: '确定',
@@ -138,7 +142,10 @@ function updateCurrentMonth() {
   currentMonth.value = DateTime.fromJSDate(date).toFormat('yyyy年MM月')
 }
 
-onMounted(updateCurrentMonth)
+onMounted(() => {
+  loadTasks()  // 页面加载时获取任务数据
+  updateCurrentMonth()
+})
 </script>
 
 <style scoped>
@@ -185,6 +192,14 @@ onMounted(updateCurrentMonth)
   border-color: #e6a23c !important;
 }
 .task-status-已暂停 {
+  background-color: #f8d7da !important;
+  border-color: #f56c6c !important;
+}
+.task-status-已取消 {
+  background-color: #f8d7da !important;
+  border-color: #f56c6c !important;
+}
+.task-status-已取消 {
   background-color: #f8d7da !important;
   border-color: #f56c6c !important;
 }

@@ -8,16 +8,16 @@
     <!-- 视图切换按钮 -->
     <div class="tab-buttons">
       <el-button
-        class="tab-button"
-        :type="activeTab === 'calendar' ? 'primary' : 'default'"
-        @click="activeTab = 'calendar'"
+          class="tab-button"
+          :type="activeTab === 'calendar' ? 'primary' : 'default'"
+          @click="activeTab = 'calendar'"
       >
         日历视图
       </el-button>
       <el-button
-        class="tab-button"
-        :type="activeTab === 'list' ? 'primary' : 'default'"
-        @click="activeTab = 'list'"
+          class="tab-button"
+          :type="activeTab === 'list' ? 'primary' : 'default'"
+          @click="activeTab = 'list'"
       >
         列表视图
       </el-button>
@@ -32,11 +32,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import TaskCalendar from './TaskCalendar.vue'
 import TaskList from './TaskList.vue'
 
-const activeTab = ref('calendar')
+const activeTab = ref('calendar') // 默认日历视图
+const route = useRoute()
+
+// 监听路由参数变化
+watch(
+    () => route.query.view,
+    (view) => {
+      if (view === 'list') {
+        activeTab.value = 'list'
+      } else if (view === 'calendar') {
+        activeTab.value = 'calendar'
+      }
+    },
+    { immediate: true }
+)
 </script>
 
 <style scoped>
