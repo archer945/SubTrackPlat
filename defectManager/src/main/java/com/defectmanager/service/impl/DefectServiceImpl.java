@@ -1,6 +1,5 @@
 package com.defectmanager.service.impl;
 
-
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -42,6 +41,7 @@ public class DefectServiceImpl implements DefectService {
     @Override
     public Page<Defect> queryByCondition(DefectQuery query) {
         // 1. 分页查询缺陷数据
+        System.out.println(query.toString());
         Page<Defect> page = new Page<>(query.getPageIndex(), query.getPageSize());
         LambdaQueryWrapper<Defect> wrapper = buildWrapper(query);
         Page<Defect> defectPage = defectMapper.selectPage(page, wrapper);
@@ -78,9 +78,9 @@ public class DefectServiceImpl implements DefectService {
     private LambdaQueryWrapper<Defect> buildWrapper(DefectQuery query) {
         LambdaQueryWrapper<Defect> wrapper = new LambdaQueryWrapper<>();
 
-        if (StrUtil.isNotBlank(query.getKeyword())) {
-            wrapper.like(Defect::getDescription, query.getKeyword());
-        }
+//        if (StrUtil.isNotBlank(query.getKeyword())) {
+//            wrapper.like(Defect::getDescription, query.getKeyword());
+//        }
 
         if (StrUtil.isNotBlank(query.getType())) {
             wrapper.eq(Defect::getType, DefectTypeEnum.fromDbValue(query.getType()));
@@ -92,6 +92,14 @@ public class DefectServiceImpl implements DefectService {
 
         if (StrUtil.isNotBlank(query.getSeverity())) {
             wrapper.eq(Defect::getSeverity, SeverityLevelEnum.fromDbValue(query.getSeverity()));
+        }
+
+        if (StrUtil.isNotBlank(query.getTaskId())) {
+            wrapper.eq(Defect::getTaskId, query.getTaskId());
+        }
+
+        if (query.getIsValid() != null) {
+            wrapper.eq(Defect::getIsValid, query.getIsValid());
         }
 
         if (query.getStartTime() != null) {

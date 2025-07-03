@@ -20,7 +20,7 @@ public enum SeverityLevelEnum {
 
     public static SeverityLevelEnum fromDbValue(String dbValue) {
         for (SeverityLevelEnum level : values()) {
-            if (level.dbValue.equals(dbValue)) {
+            if (level.name().equals(dbValue)) {
                 return level;
             }
         }

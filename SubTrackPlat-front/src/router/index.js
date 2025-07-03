@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import TaskManage from '@/views/task/TaskManage.vue'
-import DefectManage from '@/views/defect/DefectList.vue'
+import DefectManage from '@/views/defect/DefectManage.vue'
 import SystemManager from '@/views/systemManager/SystemManager.vue'
 
 const routes = [
