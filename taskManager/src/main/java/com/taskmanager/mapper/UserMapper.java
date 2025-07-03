@@ -1,11 +1,10 @@
 package com.taskmanager.mapper;
-
 import com.taskmanager.model.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-
 import java.util.List;
+
 
 @Mapper
 public interface UserMapper {
@@ -25,5 +24,5 @@ public interface UserMapper {
      */
     @Select("SELECT real_name FROM sub_track_plat.user WHERE user_id = #{id}")
     String getName(Long id);
-
+    List<User> selectByIds(@Param("ids") List<Long> ids);
 }

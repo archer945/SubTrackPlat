@@ -41,7 +41,7 @@
         FROM sub_track_plat.inspect_task i
         <where>
             <if test="name != null and name != ''">
-                AND name ILIKE CONCAT('%', #{name}, '%')
+            AND to_tsvector('simple', name) @@ plainto_tsquery('simple', #{name})
             </if>
             <!-- 修改为使用 executorId 查询 -->
             <if test="executorId != null">
