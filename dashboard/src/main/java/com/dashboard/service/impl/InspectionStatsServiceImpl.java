@@ -22,7 +22,7 @@ public class InspectionStatsServiceImpl implements InspectionStatsService {
     public InspectionStatsDTO getInspectionStats() {
         InspectionStatsDTO stats = new InspectionStatsDTO();
 
-        // 1. 获取基础统计
+
         // 1. 获取基础统计（改为使用BasicStatsDTO接收）
         BasicStatsDTO basicStats = inspectionTaskMapper.countBasicStats();
         stats.setTodayCount(basicStats.getToday());
