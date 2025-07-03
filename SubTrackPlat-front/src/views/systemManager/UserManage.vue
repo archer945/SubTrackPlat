@@ -279,7 +279,7 @@
 <script setup>
 import { ref, reactive, onMounted, onActivated } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Edit, Delete, ArrowDown, Key, UserFilled, Search, Refresh, UploadFilled } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete, ArrowDown, Key, UserFilled, Search, Refresh, UploadFilled } from '@element-plus/icons-vue'
 import { getUserList, addUser, updateUser, deleteUser, resetUserPassword, getUserRoles, assignUserRoles, batchDeleteUsers, importUsers, exportUsers } from '@/api/systemManager/user'
 import { getDeptList, getDeptTree } from '@/api/systemManager/dept'
 import { getRoleList } from '@/api/systemManager/role'
