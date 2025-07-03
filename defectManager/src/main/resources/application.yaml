@@ -2,9 +2,9 @@ server:
   port: 8080
 spring:
   datasource:
-    url: jdbc:kingbase8://localhost:54321/sub_track_plat?currentSchema=public
+    url: jdbc:kingbase8://47.94.245.245:54321/sub_track_plat?currentSchema=sub_track_plat
     username: system
-    password: liumeilin
+    password: kingbase8
     driver-class-name: com.kingbase8.Driver
     hikari:
       connection-timeout: 30000
