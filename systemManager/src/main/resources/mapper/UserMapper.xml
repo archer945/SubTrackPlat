@@ -6,8 +6,11 @@
         <result column="username" property="username"/>
         <result column="real_name" property="realName"/>
         <result column="tel" property="tel"/>
+        <result column="email" property="email"/>
+        <result column="dept_id" property="deptId"/>
         <result column="status" property="status"/>
         <result column="dept_name" property="deptName"/>
+        <result column="remark" property="remark"/>
         <result column="create_time" property="creatTime"/>
     </resultMap>
 
@@ -17,8 +20,11 @@
         u.username,
         u.real_name,
         u.tel,
+        u.email,
+        u.dept_id,
         u.status,
         d.dept_name,
+        u.remark,
         u.create_time
         FROM
         "user" u
@@ -41,7 +47,7 @@
                 AND u.create_time &lt;= #{query.endTime}
             </if>
         </where>
-        ORDER BY u.create_time DESC, u.user_id DESC
+        ORDER BY u.user_id,u.create_time DESC
     </select>
     <select id="selectUserByUsername" resultType="java.lang.Boolean">
          SELECT

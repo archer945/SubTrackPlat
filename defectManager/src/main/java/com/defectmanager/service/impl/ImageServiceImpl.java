@@ -51,24 +51,24 @@ public class ImageServiceImpl implements ImageService {
     /*
     * 批量上传图片
     * */
-//    @Override
-//    @Transactional
-//    public List<DefectImage> batchUploadImages(Long defectId, List<MultipartFile> files) {
-//        // 先验证缺陷是否存在
-//        if (defectMapper.selectById(defectId) == null) {
-//            throw new RuntimeException("缺陷ID " + defectId + " 不存在");
-//        }
-//
-//        return files.stream()
-//                .map(file -> {
-//                    try {
-//                        return uploadImage(defectId, file);
-//                    } catch (IOException e) {
-//                        throw new RuntimeException("图片上传失败: " + file.getOriginalFilename(), e);
-//                    }
-//                })
-//                .collect(Collectors.toList());
-//    }
+    @Override
+    @Transactional
+    public List<DefectImage> batchUploadImages(Long defectId, List<MultipartFile> files) {
+        // 先验证缺陷是否存在
+        if (defectMapper.selectById(defectId) == null) {
+            throw new RuntimeException("缺陷ID " + defectId + " 不存在");
+        }
+
+        return files.stream()
+                .map(file -> {
+                    try {
+                        return uploadImage(defectId, file);
+                    } catch (IOException e) {
+                        throw new RuntimeException("图片上传失败: " + file.getOriginalFilename(), e);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
 
 
     /*
