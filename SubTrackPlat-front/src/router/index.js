@@ -6,7 +6,17 @@ import SystemManager from '@/views/systemManager/SystemManager.vue'
 const routes = [
   {
     path: '/',
-    redirect: '/tasks'
+    redirect: '/login'
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/views/login/Register.vue')
   },
   {
     path: '/tasks',
