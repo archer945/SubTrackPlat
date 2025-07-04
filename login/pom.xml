@@ -70,6 +70,12 @@
         </dependency>
 
 
+        <dependency>
+            <groupId>com.kingbase</groupId>
+            <artifactId>kingbase8</artifactId>
+            <version>8.6.0</version> <!-- 替换为实际版本 -->
+        </dependency>
+
 
     </dependencies>
 
