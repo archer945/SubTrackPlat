@@ -9,31 +9,31 @@
       <!-- 左侧菜单 -->
       <div class="left-menu">
         <el-menu
-          :default-active="activeMenu"
-          class="system-menu"
-          @select="handleMenuSelect"
+            :default-active="activeMenu"
+            class="system-menu"
+            @select="handleMenuSelect"
         >
           <!-- 使用v-permission指令控制菜单项的显示 -->
           <el-menu-item index="user" v-permission="'system:user:list'">
             <el-icon><User /></el-icon>
             <span>用户管理</span>
           </el-menu-item>
-          
+
           <el-menu-item index="role" v-permission="'system:role:list'">
             <el-icon><UserFilled /></el-icon>
             <span>角色管理</span>
           </el-menu-item>
-          
+
           <el-menu-item index="menu" v-permission="'system:menu:list'">
             <el-icon><Menu /></el-icon>
             <span>菜单管理</span>
           </el-menu-item>
-          
+
           <el-menu-item index="dept" v-permission="'system:dept:list'">
             <el-icon><OfficeBuilding /></el-icon>
             <span>部门管理</span>
           </el-menu-item>
-          
+
           <el-menu-item index="param" v-permission="'system:param:list'">
             <el-icon><Setting /></el-icon>
             <span>参数配置</span>
@@ -111,7 +111,7 @@ const findFirstAvailableMenu = () => {
     { index: 'dept', perm: 'system:dept:list' },
     { index: 'param', perm: 'system:param:list' }
   ];
-  
+
   for (const menu of menuPerms) {
     if (permissionStore.hasPermission(menu.perm)) {
       activeMenu.value = menu.index;
@@ -119,7 +119,7 @@ const findFirstAvailableMenu = () => {
       return;
     }
   }
-  
+
   // 如果没有任何权限，显示空页面或权限提示
   currentComponent.value = null;
 }

@@ -7,7 +7,7 @@ import TaskList from '@/views/task/TaskList.vue'
 import { usePermissionStore } from '@/stores/permissionStore'
 
 // 路由白名单，不需要权限验证的路由
-const whiteList = ['/login', '/register', '/404', '/403'];
+const whiteList = ['/login', '/register', '/404', '/403', '/system', '/defects', '/tasks'];
 
 // 基础路由
 const constantRoutes = [

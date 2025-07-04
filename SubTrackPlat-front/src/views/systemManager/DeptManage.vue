@@ -146,6 +146,7 @@
 <script setup>
 import { ref, reactive, onMounted, onActivated } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, Edit, Delete } from '@element-plus/icons-vue'
 import { getDeptList, addDept, updateDept, deleteDept, getDeptTree } from '@/api/systemManager/dept'
 
 // 搜索表单

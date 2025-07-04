@@ -175,7 +175,7 @@
 <script setup>
 import { ref, reactive, onMounted, onActivated, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { User, Setting, Menu as MenuIcon, Document, Grid, List, Edit, Delete, Plus } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete } from '@element-plus/icons-vue'
 import { getMenuList, addMenu, updateMenu, deleteMenu } from '@/api/systemManager/menu'
 
 // 搜索表单

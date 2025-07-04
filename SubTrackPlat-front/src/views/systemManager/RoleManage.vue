@@ -90,8 +90,8 @@
     <!-- 分页区域 -->
     <div class="pagination-container">
       <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
+        :current-page="currentPage"
+        :page-size="pageSize"
         :page-sizes="[10, 20, 50, 100]"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
@@ -206,7 +206,7 @@
 <script setup>
 import { ref, reactive, onMounted, onActivated } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Edit, Delete, ArrowDown, Menu, DataLine } from '@element-plus/icons-vue'
+import { Plus, Edit, Delete, ArrowDown, Menu, DataLine } from '@element-plus/icons-vue'
 import { getRoleList, addRole, updateRole, deleteRole, getRoleMenus, assignRoleMenus, updateRoleDataScope } from '@/api/systemManager/role'
 import { getMenuList } from '@/api/systemManager/menu'
 import { getDeptList } from '@/api/systemManager/dept'

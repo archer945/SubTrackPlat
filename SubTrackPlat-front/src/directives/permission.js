@@ -7,9 +7,15 @@ import { usePermissionStore } from '@/stores/permissionStore'
  * 1. v-permission="'system:user:add'"  // 需要指定权限
  * 2. v-permission="{ or: ['system:user:add', 'system:user:edit'] }" // 需要其中一个权限
  * 3. v-permission="{ and: ['system:user:add', 'system:user:edit'] }" // 需要同时拥有所有权限
+ * 
+ * 注意：当前已临时禁用权限验证，所有权限都会通过
  */
 export const permission = {
   mounted(el, binding) {
+    // 临时禁用权限验证，所有权限都会通过
+    const hasPermission = true;
+    
+    /* 原权限验证代码（已禁用）
     const permissionStore = usePermissionStore();
     
     // 解析指令参数
@@ -33,6 +39,7 @@ export const permission = {
         }
       }
     }
+    */
     
     // 无权限则移除元素
     if (!hasPermission) {
