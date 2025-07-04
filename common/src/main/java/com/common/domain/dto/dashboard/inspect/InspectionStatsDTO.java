@@ -20,6 +20,9 @@ public class InspectionStatsDTO {
     private Double distanceGrowthRate; // 距离环比增长率
     private Double totalDistance;      // 所有已完成任务的距离总和
 
+    // 今日巡检任务详情列表
+    private List<InspectionTaskDetailDTO> todayInspect; // 今日巡检任务详情
+
     // 分布统计
     private List<InspectionTypeStats> typeDistribution;    // 按任务类型分布
     private List<InspectionStatusStats> statusDistribution; // 按状态分布

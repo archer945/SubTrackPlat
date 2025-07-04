@@ -35,7 +35,9 @@ public class InspectionStatsServiceImpl implements InspectionStatsService {
         // 设置已完成任务的总距离
         stats.setTotalDistance(inspectionTaskMapper.sumCompletedDistance());
 
-        // 2. 计算比率
+        // 设置今日巡检任务详情列表
+        stats.setTodayInspect(inspectionTaskMapper.getTodayInspectionTasks());
+
 
         // 2. 计算比率
         calculateRates(stats);
@@ -57,6 +59,7 @@ public class InspectionStatsServiceImpl implements InspectionStatsService {
 
         return stats;
     }
+
 
     public void calculateRates(InspectionStatsDTO stats) {
         // 计算环比增长率
