@@ -30,4 +30,11 @@ public interface InspectionTaskMapper extends BaseMapper<InspectTask> {
     Integer countTotalInspections();
 
     List<MonthlyInspectionDTO> countMonthlyInspections();
+
+    // 计算所有已完成任务的距离总和
+    Double sumCompletedDistance();
+
+    // 获取今日巡检任务详情列表
+    List<InspectionTaskDetailDTO> getTodayInspectionTasks();
+
 }

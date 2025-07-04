@@ -22,12 +22,22 @@ public class InspectionStatsServiceImpl implements InspectionStatsService {
     public InspectionStatsDTO getInspectionStats() {
         InspectionStatsDTO stats = new InspectionStatsDTO();
 
-        // 1. 获取基础统计
+
         // 1. 获取基础统计（改为使用BasicStatsDTO接收）
         BasicStatsDTO basicStats = inspectionTaskMapper.countBasicStats();
         stats.setTodayCount(basicStats.getToday());
         stats.setYesterdayCount(basicStats.getYesterday());
         stats.setCompletedCount(basicStats.getCompleted());
+
+        // 设置距离相关数据
+        stats.setTodayDistance(basicStats.getTodayDistance());
+        stats.setYesterdayDistance(basicStats.getYesterdayDistance());
+        // 设置已完成任务的总距离
+        stats.setTotalDistance(inspectionTaskMapper.sumCompletedDistance());
+
+        // 设置今日巡检任务详情列表
+        stats.setTodayInspect(inspectionTaskMapper.getTodayInspectionTasks());
+
 
         // 2. 计算比率
         calculateRates(stats);
@@ -49,6 +59,7 @@ public class InspectionStatsServiceImpl implements InspectionStatsService {
 
         return stats;
     }
+
 
     public void calculateRates(InspectionStatsDTO stats) {
         // 计算环比增长率

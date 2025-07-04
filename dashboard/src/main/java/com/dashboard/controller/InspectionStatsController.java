@@ -36,6 +36,7 @@ public class InspectionStatsController {
             @RequestParam(required = false) String endDate) {
         // 可调用Service层扩展方法实现按日期筛选
         InspectionStatsDTO stats = inspectionStatsService.getInspectionStats();
+        System.out.println("stats = " + stats);
         return JsonVO.success(stats);
     }
 }

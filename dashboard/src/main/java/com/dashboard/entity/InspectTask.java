@@ -46,6 +46,8 @@ public class InspectTask {
     @TableField("range_description")
     private String rangeDescription;
 
+    private Double distance; // 巡视距离
+
     private String status; // 对应枚举类型 inspect_task_status_enum
 
     @TableField("completion_rate")
