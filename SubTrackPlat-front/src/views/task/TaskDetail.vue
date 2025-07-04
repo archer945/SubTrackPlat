@@ -136,7 +136,7 @@ const statusTagType = (status) => {
 }
 
 const goCalendar = () => {
-  router.push('/tasks')
+  router.push({ path: '/tasks', query: { view: 'calendar' } })
 }
 
 const goList = () => {

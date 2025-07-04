@@ -14,7 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -106,75 +106,95 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public PageInfo<TaskVO> getTaskPage(TaskQuery query) {
+        long t0 = System.currentTimeMillis();
         PageHelper.startPage(query.getPage(), query.getSize());
+        long t1 = System.currentTimeMillis();
         List<Task> list = taskMapper.selectTaskPage(query);
+        long t2 = System.currentTimeMillis();
+        System.out.println("[耗时统计] PageHelper.startPage: " + (t1 - t0) + "ms, selectTaskPage SQL: " + (t2 - t1) + "ms");
 
-        // 必须先构造 PageInfo 原始分页对象（包含 total）
-        PageInfo<Task> pageInfo = new PageInfo<>(list);
+        // 1. 收集所有相关用户ID
+        Set<Long> userIds = new HashSet<>();
+        for (Task task : list) {
+            if (task.getExecutorId() != null) userIds.add(task.getExecutorId());
+            if (task.getAssistantId() != null) userIds.add(task.getAssistantId());
+            if (task.getCreatorId() != null) userIds.add(task.getCreatorId());
+        }
+        long t3 = System.currentTimeMillis();
+        System.out.println("[耗时统计] 收集用户ID: " + (t3 - t2) + "ms");
 
-        // 再将 list 映射成 voList
+        // 2. 批量查询用户信息
+        Map<Long, String> userNameMap;
+        if (!userIds.isEmpty()) {
+            List<User> users = userMapper.selectByIds(new ArrayList<>(userIds));
+            userNameMap = users.stream().collect(Collectors.toMap(User::getUserId, User::getRealName));
+        } else {
+            userNameMap = Collections.emptyMap();
+        }
+        final Map<Long, String> finalUserNameMap = userNameMap;
+        long t4 = System.currentTimeMillis();
+        System.out.println("[耗时统计] 批量查用户: " + (t4 - t3) + "ms");
+
+        // 3. 组装VO
+        long t5 = System.currentTimeMillis();
         List<TaskVO> voList = list.stream().map(task -> {
             TaskVO vo = new TaskVO();
             BeanUtils.copyProperties(task, vo);
-
-            // 查询执行人姓名和协助人姓名
             if (task.getExecutorId() != null) {
-                User executor = userMapper.selectById(task.getExecutorId());
-                if (executor != null) {
-                    vo.setExecutorName(executor.getRealName());
-                }
+                vo.setExecutorName(finalUserNameMap.get(task.getExecutorId()));
             }
-
             if (task.getAssistantId() != null) {
-                User assistant = userMapper.selectById(task.getAssistantId());
-                if (assistant != null) {
-                    vo.setAssistantName(assistant.getRealName());
-                }
+                vo.setAssistantName(finalUserNameMap.get(task.getAssistantId()));
             }
             if (task.getCreatorId() != null) {
-                User creator = userMapper.selectById(task.getCreatorId());
-                if (creator != null) {
-                    vo.setCreatorName(creator.getRealName());
-                }
+                vo.setCreatorName(finalUserNameMap.get(task.getCreatorId()));
             }
             return vo;
         }).collect(Collectors.toList());
+        long t6 = System.currentTimeMillis();
+        System.out.println("[耗时统计] 组装VO: " + (t6 - t5) + "ms");
 
-        // 手动构造 PageInfo<TaskVO>，保持分页结构
+        // 保持分页结构
+        PageInfo<Task> pageInfo = new PageInfo<>(list);
         PageInfo<TaskVO> voPageInfo = new PageInfo<>();
         BeanUtils.copyProperties(pageInfo, voPageInfo);
         voPageInfo.setList(voList);
+        long t7 = System.currentTimeMillis();
+        System.out.println("[耗时统计] PageInfo组装: " + (t7 - t6) + "ms, getTaskPage总耗时: " + (t7 - t0) + "ms");
         return voPageInfo;
     }
 
-
-
     @Override
     public List<TaskVO> getTaskList(TaskQuery query) {
-        // 查询任务列表，传递查询条件
         List<Task> list = taskMapper.selectTaskPage(query);
 
-        // 将查询结果映射到 TaskVO，并填充执行人和协助人姓名
+        // 1. 收集所有相关用户ID
+        Set<Long> userIds = new HashSet<>();
+        for (Task task : list) {
+            if (task.getExecutorId() != null) userIds.add(task.getExecutorId());
+            if (task.getAssistantId() != null) userIds.add(task.getAssistantId());
+        }
+
+        // 2. 批量查询用户信息
+        Map<Long, String> userNameMap;
+        if (!userIds.isEmpty()) {
+            List<User> users = userMapper.selectByIds(new ArrayList<>(userIds));
+            userNameMap = users.stream().collect(Collectors.toMap(User::getUserId, User::getRealName));
+        } else {
+            userNameMap = Collections.emptyMap();
+        }
+        final Map<Long, String> finalUserNameMap = userNameMap;
+
+        // 3. 组装VO
         return list.stream().map(task -> {
             TaskVO vo = new TaskVO();
             BeanUtils.copyProperties(task, vo);
-
-            // 查询执行人姓名
             if (task.getExecutorId() != null) {
-                User executor = userMapper.selectById(task.getExecutorId());
-                if (executor != null) {
-                    vo.setExecutorName(executor.getRealName());
-                }
+                vo.setExecutorName(finalUserNameMap.get(task.getExecutorId()));
             }
-
-            // 查询协助人姓名
             if (task.getAssistantId() != null) {
-                User assistant = userMapper.selectById(task.getAssistantId());
-                if (assistant != null) {
-                    vo.setAssistantName(assistant.getRealName());
-                }
+                vo.setAssistantName(finalUserNameMap.get(task.getAssistantId()));
             }
-
             return vo;
         }).collect(Collectors.toList());
     }
