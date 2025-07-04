@@ -1,4 +1,4 @@
-package com.systemManager.mapper;
+package com.systemManager.mapper.ms;
 
 import com.common.domain.dto.systemManager.AddUserDTO;
 import com.common.domain.dto.systemManager.UpdateUserDTO;
@@ -13,7 +13,7 @@ import org.mapstruct.Mapper;
  * @version 1.0.0
  */
 @Mapper(componentModel = "spring")
-public interface MsUserMapper {
+public interface UserMsMapper {
 
     /**
      * 将AddUserDTO转换为实体类

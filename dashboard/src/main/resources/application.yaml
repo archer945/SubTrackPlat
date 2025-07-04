@@ -1,0 +1,50 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: jdbc:kingbase8://47.94.245.245/sub_track_plat?currentSchema=sub_track_plat
+    username: system
+    password: kingbase8
+    driver-class-name: com.kingbase8.Driver
+  #  datasource:
+  #    url: jdbc:mysql://localhost:3306/sub_track_plat?useSSL=false&serverTimezone=UTC
+  #    username: root
+  #    password:
+  #    driver-class-name: com.mysql.cj.jdbc.Driver
+  application:
+    name: dashboard
+mybatis-plus:
+  #mapper配置文件
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.dashboard.entity
+  configuration:
+    database-id: kingbase
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      schema: sub_track_plat
+      id-type: AUTO
+logging:
+  level:
+    org.springframework.jdbc: DEBUG
+    com.baomidou.mybatisplus: TRACE
+    com.systemManager.mapper: DEBUG
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      #生成文档所需的扫包路径，一般为启动类目录
+      packages-to-scan: com.dashboard.controller
+knife4j:
+  enable: true
+  setting:
+    language: zh-CN
+    enable-swagger-models: true
+    enable-document-manage: true

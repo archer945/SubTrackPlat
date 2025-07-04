@@ -3,9 +3,14 @@ package com.systemManager.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * <p>
@@ -17,8 +22,8 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-@TableName("user")
-public class User implements Serializable {
+@TableName(value = "user", schema = "sub_track_plat")
+public class User implements Serializable, UserDetails {
 
     private static final long serialVersionUID = 1L;
 
@@ -59,7 +64,7 @@ public class User implements Serializable {
     private Long deptId;
 
     /**
-     * 状态 0:禁用 1:正常 2:失效
+     * 状态  1:正常 2:失效 3:禁用
      */
     private Integer status;
 
@@ -84,6 +89,39 @@ public class User implements Serializable {
      * 备注
      */
     private String remark;
+    
+    /**
+     * 权限列表
+     * -- SETTER --
+     *  设置权限列表
 
+     */
+    @Setter
+    @TableField(exist = false)
+    private List<SimpleGrantedAuthority> authorities;
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.authorities;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.status != 3; // 3表示禁用
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.status == 1; // 1表示正常
+    }
 }

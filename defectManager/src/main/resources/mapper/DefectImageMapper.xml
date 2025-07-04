@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.defectmanager.mapper.DefectImageMapper">
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO defect_image(defect_id, image_url, thumbnail_url, uploaded_at)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.defectId}, #{item.imageUrl}, #{item.thumbnailUrl}, #{item.uploadedAt})
+        </foreach>
+    </insert>
+</mapper>

@@ -1,11 +1,16 @@
 server:
-  port: 8080
+  port: 8082
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/sub_track_plat?useSSL=false&serverTimezone=UTC
-    username: root
-    password: xunxun2006
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:kingbase8://47.94.245.245:54321/sub_track_plat?currentSchema=sub_track_plat
+    username: system
+    password: kingbase8
+    driver-class-name: com.kingbase8.Driver
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/sub_track_plat?useSSL=false&serverTimezone=UTC
+#    username: root
+#    password: xunxun2006
+#    driver-class-name: com.mysql.cj.jdbc.Driver
   application:
     name: systemManager
 mybatis-plus:
@@ -17,12 +22,13 @@ mybatis-plus:
     map-underscore-to-camel-case: true
   global-config:
     db-config:
+      schema: sub_track_plat
       id-type: AUTO
 logging:
   level:
-    org.springframework: DEBUG
+    org.springframework.jdbc: DEBUG
     com.baomidou.mybatisplus: TRACE
-    com.systemManager: DEBUG
+    com.systemManager.mapper: DEBUG
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

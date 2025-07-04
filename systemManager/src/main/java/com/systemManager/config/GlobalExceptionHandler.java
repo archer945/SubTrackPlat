@@ -18,12 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-/**
- * <p>
- * 描述：全局异常捕获处理
- * </p>
- */
-@RestControllerAdvice("com.systemManager.controller")
+@RestControllerAdvice
 public class GlobalExceptionHandler {
     /**
      * 系统通用异常处理

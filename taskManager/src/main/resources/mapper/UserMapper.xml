@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.taskmanager.mapper.UserMapper">
+
+    <!-- 根据用户ID查询用户信息 -->
+    <select id="selectById" resultType="com.taskmanager.model.entity.User">
+        SELECT *
+        FROM sub_track_plat.user
+        WHERE user_id = #{id}
+    </select>
+
+    <!-- 根据用户ID查询用户姓名 -->
+    <select id="getName" resultType="java.lang.String">
+        SELECT real_name
+        FROM sub_track_plat.user
+        WHERE user_id = #{id}
+    </select>
+
+    <!-- 批量查询用户信息 -->
+    <select id="selectByIds" resultType="com.taskmanager.model.entity.User">
+        SELECT user_id, real_name
+        FROM sub_track_plat.user
+        WHERE user_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

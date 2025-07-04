@@ -7,9 +7,12 @@ import com.common.domain.dto.PageDTO;
 import com.common.domain.dto.systemManager.MenuDTO;
 import com.common.domain.query.systemManager.MenuQuery;
 import com.common.domain.vo.systemManager.MenuTreeVO;
+import com.common.domain.vo.systemManager.UserMenuVO;
 import com.systemManager.entity.Menu;
 import com.systemManager.mapper.MenuMapper;
-import com.systemManager.mapper.MsMenuMapper;
+import com.systemManager.mapper.ms.MenuMsMapper;
+import com.systemManager.security.exception.NoPermissionException;
+import com.systemManager.security.util.SecurityUtils;
 import com.systemManager.service.IMenuService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -40,8 +43,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     private MenuMapper menuMapper;
 
     @Autowired
-    @Qualifier("msMenuMapperImpl")
-    private MsMenuMapper msMapper;
+    @Qualifier("menuMsMapperImpl")
+    private MenuMsMapper msMapper;
 
     @Override
     public PageDTO<MenuTreeVO> listMenu(MenuQuery menuQuery) {
@@ -110,6 +113,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
 
         // 更新菜单
         Menu menu = msMapper.dtoToDo(dto);
+        menu.setMenuId(id);
         if (menuMapper.updateById(menu) == 0) {
             throw new RuntimeException("修改菜单失败");
         }
@@ -148,7 +152,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         if (menuMapper.deleteById(menu) == 0) {
             throw new RuntimeException("删除菜单失败");
         }
-        return "菜单删除成功";
+        return id.toString();
     }
 
     /**
@@ -255,5 +259,84 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
         if (count > 0) {
             throw new IllegalArgumentException("路由地址已存在");
         }
+    }
+
+    @Override
+    public List<UserMenuVO> getCurrentUserMenus() {
+        // 获取当前用户ID
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new NoPermissionException("用户未登录");
+        }
+        return getUserMenus(userId);
+    }
+
+    @Override
+    public List<UserMenuVO> getUserMenus(Long userId) {
+        // 判断是否为管理员
+        boolean isAdmin = userId != null && userId == 11L; // 假设ID为1的用户是管理员
+        
+        // 获取菜单列表
+        List<Menu> menus;
+        if (isAdmin) {
+            // 管理员可以查看所有菜单
+            menus = menuMapper.selectList(
+                    new LambdaQueryWrapper<Menu>()
+                            .eq(Menu::getVisible, 1)  // 只查询可见的菜单
+                            .orderByAsc(Menu::getParentId, Menu::getOrderNum)
+            );
+        } else {
+            // 普通用户根据角色查询菜单
+            menus = menuMapper.selectMenusByUserId(userId);
+        }
+        
+        // 构建菜单树
+        return buildUserMenuTree(menus);
+    }
+
+    /**
+     * 构建用户菜单树
+     */
+    private List<UserMenuVO> buildUserMenuTree(List<Menu> menus) {
+        if (CollectionUtils.isEmpty(menus)) {
+            return Collections.emptyList();
+        }
+        
+        // 按父ID分组
+        Map<Long, List<Menu>> menuMap = menus.stream()
+                .collect(Collectors.groupingBy(Menu::getParentId));
+        
+        // 构建树形结构
+        return buildUserMenuTreeNodes(menuMap, 0L);
+    }
+
+    /**
+     * 构建用户菜单树节点
+     */
+    private List<UserMenuVO> buildUserMenuTreeNodes(Map<Long, List<Menu>> menuMap, Long parentId) {
+        List<Menu> children = menuMap.getOrDefault(parentId, Collections.emptyList());
+        if (children.isEmpty()) {
+            return Collections.emptyList();
+        }
+        
+        // 转换并排序
+        return children.stream()
+                .map(menu -> {
+                    UserMenuVO vo = new UserMenuVO();
+                    vo.setMenuId(menu.getMenuId());
+                    vo.setMenuName(menu.getMenuName());
+                    vo.setParentId(menu.getParentId());
+                    vo.setPath(menu.getPath());
+                    vo.setComponent(menu.getComponent());
+                    vo.setIcon(menu.getIcon());
+                    vo.setMenuType(menu.getMenuType());
+                    vo.setPerms(menu.getPerms());
+                    
+                    // 递归设置子菜单
+                    vo.setChildren(buildUserMenuTreeNodes(menuMap, menu.getMenuId()));
+                    return vo;
+                })
+                .sorted(Comparator.comparing(UserMenuVO::getMenuId))
+                .collect(Collectors.toList());
     }
 }
