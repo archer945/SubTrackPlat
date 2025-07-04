@@ -13,23 +13,28 @@
           class="system-menu"
           @select="handleMenuSelect"
         >
-          <el-menu-item index="user">
+          <!-- 使用v-permission指令控制菜单项的显示 -->
+          <el-menu-item index="user" v-permission="'system:user:list'">
             <el-icon><User /></el-icon>
             <span>用户管理</span>
           </el-menu-item>
-          <el-menu-item index="role">
+          
+          <el-menu-item index="role" v-permission="'system:role:list'">
             <el-icon><UserFilled /></el-icon>
             <span>角色管理</span>
           </el-menu-item>
-          <el-menu-item index="menu">
+          
+          <el-menu-item index="menu" v-permission="'system:menu:list'">
             <el-icon><Menu /></el-icon>
             <span>菜单管理</span>
           </el-menu-item>
-          <el-menu-item index="dept">
+          
+          <el-menu-item index="dept" v-permission="'system:dept:list'">
             <el-icon><OfficeBuilding /></el-icon>
             <span>部门管理</span>
           </el-menu-item>
-          <el-menu-item index="param">
+          
+          <el-menu-item index="param" v-permission="'system:param:list'">
             <el-icon><Setting /></el-icon>
             <span>参数配置</span>
           </el-menu-item>
@@ -48,11 +53,15 @@
 
 <script setup>
 import { ref, shallowRef, onMounted } from 'vue'
-import { User, UserFilled, Menu, OfficeBuilding, Setting, Warning } from '@element-plus/icons-vue'
+import { User, UserFilled, Menu, OfficeBuilding, Setting } from '@element-plus/icons-vue'
 import UserManage from './UserManage.vue'
 import RoleManage from './RoleManage.vue'
 import MenuManage from './MenuManage.vue'
 import DeptManage from './DeptManage.vue'
+import { usePermissionStore } from '@/stores/permissionStore'
+
+// 权限store
+const permissionStore = usePermissionStore();
 
 // 当前激活的菜单
 const activeMenu = ref('user')
@@ -65,29 +74,60 @@ const handleMenuSelect = (index) => {
   activeMenu.value = index
   switch (index) {
     case 'user':
-      currentComponent.value = UserManage
+      if (permissionStore.hasPermission('system:user:list')) {
+        currentComponent.value = UserManage
+      }
       break
     case 'role':
-      currentComponent.value = RoleManage
+      if (permissionStore.hasPermission('system:role:list')) {
+        currentComponent.value = RoleManage
+      }
       break
     case 'menu':
-      currentComponent.value = MenuManage
+      if (permissionStore.hasPermission('system:menu:list')) {
+        currentComponent.value = MenuManage
+      }
       break
     case 'dept':
-      currentComponent.value = DeptManage
+      if (permissionStore.hasPermission('system:dept:list')) {
+        currentComponent.value = DeptManage
+      }
       break
     case 'param':
       // 暂未实现参数配置
       break
     default:
-      currentComponent.value = UserManage
+      // 找到用户有权限的第一个菜单项
+      findFirstAvailableMenu();
   }
+}
+
+// 找到第一个可用的菜单
+const findFirstAvailableMenu = () => {
+  const menuPerms = [
+    { index: 'user', perm: 'system:user:list' },
+    { index: 'role', perm: 'system:role:list' },
+    { index: 'menu', perm: 'system:menu:list' },
+    { index: 'dept', perm: 'system:dept:list' },
+    { index: 'param', perm: 'system:param:list' }
+  ];
+  
+  for (const menu of menuPerms) {
+    if (permissionStore.hasPermission(menu.perm)) {
+      activeMenu.value = menu.index;
+      handleMenuSelect(menu.index);
+      return;
+    }
+  }
+  
+  // 如果没有任何权限，显示空页面或权限提示
+  currentComponent.value = null;
 }
 
 // 初始化
 onMounted(() => {
-  // 默认显示用户管理
-  handleMenuSelect('user')
+  // 查找用户有权限的第一个菜单
+  findFirstAvailableMenu();
 })
 </script>
 

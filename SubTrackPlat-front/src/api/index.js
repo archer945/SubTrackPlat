@@ -15,6 +15,7 @@ request.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
+    
     console.log('发送请求:', config.method.toUpperCase(), config.url, config.params || config.data)
     return config
   },
@@ -69,193 +70,100 @@ request.interceptors.response.use(
           if (item.visible !== undefined && typeof item.visible === 'string') {
             item.visible = parseInt(item.visible, 10);
           }
-          // 处理创建时间字段
-          if (item.createTime && typeof item.createTime === 'string') {
-            // 如果是时间戳格式，进行转换
-            if (/^\d+$/.test(item.createTime)) {
-              const timestamp = parseInt(item.createTime);
-              if (!isNaN(timestamp)) {
-                const date = new Date(timestamp);
-                item.createTime = date.toLocaleString();
-              }
-            }
-            // 如果日期格式不正确或为空，保持原样
-          }
-          
-          // 处理creatTime字段(后端字段名可能少了一个e)
-          if (item.creatTime && !item.createTime) {
-            // 将creatTime映射到createTime
-            item.createTime = item.creatTime;
-            // 如果是时间戳格式，进行转换
-            if (typeof item.createTime === 'string' && /^\d+$/.test(item.createTime)) {
-              const timestamp = parseInt(item.createTime);
-              if (!isNaN(timestamp)) {
-                const date = new Date(timestamp);
-                item.createTime = date.toLocaleString();
-              }
-            }
-          }
-          
           return item;
         });
         
-        // 返回兼容格式，同时提供records和rows
         return {
-          records: records || [],
-          rows: records || [],
-          total: res.data.total || 0,
-          pageSize: res.data.pageSize,
-          pageIndex: res.data.pageIndex,
-          pages: res.data.pages,
-          data: res.data // 同时保留原始data字段
+          ...res,
+          data: {
+            ...res.data,
+            rows: records
+          }
         };
       }
       
-      // 特殊处理菜单数据
-      if (response.config.url.includes('/systemManager/systemManager/menu') && res.data) {
-        console.log('处理菜单数据:', res.data);
-        // 确保返回的菜单数据格式一致
-        if (res.data.rows) {
-          return {
-            records: res.data.rows || [],
-            rows: res.data.rows || [],
-            total: res.data.total || 0,
-            pageSize: res.data.pageSize,
-            pageIndex: res.data.pageIndex,
-            pages: res.data.pages
-          };
-        }
-      }
-      
-      // 特殊处理部门数据
-      if (response.config.url.includes('/systemManager/systemManager/dept') && res.data) {
-        console.log('处理部门数据:', res.data);
-        // 确保返回的部门数据格式一致
-        if (res.data.rows) {
-          // 处理状态字段，确保是数字类型
-          const processedRows = res.data.rows.map(item => {
+      // 处理菜单树数据
+      if (res.data && Array.isArray(res.data) && res.data.length > 0 && res.data[0].menuId !== undefined) {
+        // 菜单树数据处理
+        function processChildren(children) {
+          if (!children || children.length === 0) return children;
+          
+          return children.map(item => {
             const newItem = { ...item };
+            
             // 处理状态字段
-            if (newItem.status !== undefined) {
-              newItem.status = Number(newItem.status);
-            } else {
-              // 如果status字段不存在或为undefined，设置默认值为0（停用）
-              newItem.status = 0;
+            if (newItem.status !== undefined && typeof newItem.status === 'string') {
+              newItem.status = parseInt(newItem.status, 10);
             }
-            // 递归处理子部门
-            if (newItem.children && Array.isArray(newItem.children)) {
+            
+            // 处理visible字段
+            if (newItem.visible !== undefined && typeof newItem.visible === 'string') {
+              newItem.visible = parseInt(newItem.visible, 10);
+            }
+            
+            // 递归处理子菜单
+            if (newItem.children && newItem.children.length > 0) {
               newItem.children = processChildren(newItem.children);
             }
+            
             return newItem;
           });
-          
-          function processChildren(children) {
-            return children.map(child => {
-              const newChild = { ...child };
-              if (newChild.status !== undefined) {
-                newChild.status = Number(newChild.status);
-              } else {
-                // 如果status字段不存在或为undefined，设置默认值为0（停用）
-                newChild.status = 0;
-              }
-              if (newChild.children && Array.isArray(newChild.children)) {
-                newChild.children = processChildren(newChild.children);
-              }
-              return newChild;
-            });
-          }
-          
-          return {
-            records: processedRows || [],
-            rows: processedRows || [],
-            total: res.data.total || 0,
-            pageSize: res.data.pageSize,
-            pageIndex: res.data.pageIndex,
-            pages: res.data.pages
-          };
         }
+        
+        // 处理顶层菜单
+        const processedData = processChildren(res.data);
+        
+        return {
+          ...res,
+          data: processedData
+        };
       }
       
-      // 处理单个对象的日期格式
-      if (res.data && typeof res.data === 'object' && !Array.isArray(res.data)) {
-        if (res.data.createTime && typeof res.data.createTime === 'string') {
-          // 如果是时间戳格式，进行转换
-          if (/^\d+$/.test(res.data.createTime)) {
-            const timestamp = parseInt(res.data.createTime);
-            if (!isNaN(timestamp)) {
-              const date = new Date(timestamp);
-              res.data.createTime = date.toLocaleString();
-            }
-          }
-        }
-      }
-      
-      // 直接返回数据
-      return res.data;
-    } else {
-      console.error('请求失败，错误码:', res.code, '错误信息:', res.message, '错误数据:', res.data)
-      
-      // 优先使用data字段作为错误提示，如果data字段不存在则使用message字段
-      const errorMessage = res.data || res.message || '请求失败'
-      ElMessage.error(errorMessage)
-      
-      // 返回错误信息，但不中断处理流程，让组件自己处理错误
-      return {
-        error: true,
-        code: res.code,
-        message: res.message || '请求失败',
-        data: res.data
-      }
+      return res
     }
+    
+    // 如果响应码不是10000，说明请求出错
+    ElMessage.error(res.message || '请求失败')
+    return Promise.reject(new Error(res.message || '请求失败'))
   },
   error => {
-    let message = '网络错误，请稍后重试'
-    let errorData = null
-    
-    if (error.response) {
-      console.error('响应错误状态码:', error.response.status)
-      console.error('响应错误数据:', error.response.data)
-      
-      // 尝试从错误响应中获取更详细的错误信息
-      if (error.response.data) {
-        if (error.response.data.data) {
-          errorData = error.response.data.data
-          message = errorData || message
-        } else if (error.response.data.message) {
-          message = error.response.data.message
-        }
-      }
-      
-      switch (error.response.status) {
-        case 401:
-          message = message || '未授权，请重新登录'
-          // 可以在这里处理登出逻辑
-          break
-        case 403:
-          message = message || '拒绝访问'
-          break
-        case 404:
-          message = message || '请求的资源不存在'
-          break
-        case 500:
-          message = message || '服务器内部错误'
-          break
-        default:
-          message = message || `请求失败: ${error.response.status}`
-      }
-    } else {
-      console.error('请求错误:', error.message)
-    }
-    
-    ElMessage.error(message)
     console.error('响应错误:', error)
     
-    // 返回错误信息，但不中断处理流程，让组件自己处理错误
-    return {
-      error: true,
-      message: message,
-      data: errorData
+    // 网络错误处理
+    if (!error.response) {
+      ElMessage.error('网络错误，请检查您的网络连接')
+      return Promise.reject(error)
     }
+    
+    // 根据HTTP状态码处理不同的错误
+    const { status, statusText, data } = error.response
+    
+    switch (status) {
+      case 400:
+        ElMessage.error(`请求错误: ${data.message || statusText}`)
+        break
+      case 401:
+        ElMessage.error('未授权，请重新登录')
+        // 清除token并跳转到登录页
+        localStorage.removeItem('token')
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 1500)
+        break
+      case 403:
+        ElMessage.error('拒绝访问')
+        break
+      case 404:
+        ElMessage.error(`请求的资源不存在: ${error.config.url}`)
+        break
+      case 500:
+        ElMessage.error('服务器内部错误')
+        break
+      default:
+        ElMessage.error(`请求失败: ${statusText}`)
+    }
+    
+    return Promise.reject(error)
   }
 )
 

@@ -153,7 +153,7 @@ const handleRegister = async () => {
       }
       
       // 调用后端API
-      const response = await axios.post('http://localhost:8080/api/register', submitData)
+      const response = await axios.post('http://localhost:8083/api/register', submitData)
       
       // 处理响应
       if (response.data.code === 200) {

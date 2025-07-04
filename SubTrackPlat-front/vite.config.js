@@ -17,6 +17,7 @@ export default defineConfig({
   // ---------- 本地开发服务器 ----------
   server: {
     proxy: {
+      // 缺陷模块
       '/api/defects': {
         target: 'http://localhost:8080',
         changeOrigin: true,
@@ -32,6 +33,11 @@ export default defineConfig({
         target: 'http://localhost:8081',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/tasks/, '')
+      },
+      // 登录模块
+      '/api/login': {
+        target: 'http://localhost:8083',
+        changeOrigin: true
       }
     },
   },

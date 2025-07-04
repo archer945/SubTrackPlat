@@ -39,13 +39,20 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
+import { useUserStore } from '@/stores/userStore'
+import { usePermissionStore } from '@/stores/permissionStore'
 
 const router = useRouter()
+const route = useRoute()
 const loginFormRef = ref(null)
 const loading = ref(false)
+
+// Store
+const userStore = useUserStore()
+const permissionStore = usePermissionStore()
 
 // 存储当前正确的验证码值
 const currentCaptchaCode = ref('')
@@ -134,26 +141,33 @@ const handleLogin = async () => {
       }
       
       try {
-        const response = await axios.post('http://localhost:8080/api/login', submitData)
+        const response = await axios.post('http://localhost:8083/api/login', submitData)
         
         // 处理响应
         if (response.data.code === 200) {
+          const { token, userInfo } = response.data.data;
+          
+          // 保存用户信息到store和localStorage
+          userStore.setUserInfo(token, userInfo);
+          
           ElMessage.success(response.data.message || '登录成功')
           
           // 如果记住密码，可以将用户名和密码保存到localStorage
           if (loginForm.remember) {
             localStorage.setItem('username', loginForm.username)
-            localStorage.setItem('password', loginForm.password)
             // 注意：实际项目中不应该直接存储密码，这里仅作演示
             // 可以考虑使用加密方式或token机制
           } else {
             // 如果不记住密码，清除之前可能存储的信息
             localStorage.removeItem('username')
-            localStorage.removeItem('password')
           }
           
-          // 登录成功后跳转到首页或其他页面
-          router.push('/tasks')
+          // 加载用户权限菜单
+          await permissionStore.loadUserMenus();
+          
+          // 登录成功后跳转到首页或重定向地址
+          const redirect = route.query.redirect ? decodeURIComponent(route.query.redirect) : '/tasks';
+          router.push(redirect);
         } else {
           // 显示错误信息
           ElMessage.error(response.data.message || '登录失败')
@@ -201,7 +215,7 @@ const goToResetPassword = async () => {
       loading.value = true
       
       try {
-        const response = await axios.post('http://localhost:8080/api/reset-password?username=' + loginForm.username)
+        const response = await axios.post('http://localhost:8083/api/reset-password?username=' + loginForm.username)
 
         // 处理响应
         if (response.data.code === 200) {

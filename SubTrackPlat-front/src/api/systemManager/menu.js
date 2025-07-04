@@ -56,7 +56,23 @@ export function updateMenu(id, data) {
 // 删除菜单
 export function deleteMenu(id) {
   return request({
-    url: `/systemManager/menu/${id}`,
+    url: `/systemManager/systemManager/menu/${id}`,
     method: 'delete'
+  })
+} 
+
+// 获取当前用户的菜单
+export function getCurrentUserMenus() {
+  return request({
+    url: '/systemManager/systemManager/menu/user/menus',
+    method: 'get'
+  })
+}
+
+// 根据用户ID获取菜单
+export function getMenusByUserId(userId) {
+  return request({
+    url: `/systemManager/systemManager/menu/user/${userId}`,
+    method: 'get'
   })
 } 

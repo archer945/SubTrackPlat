@@ -19,6 +19,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.systemManager.security.annotation.RequiresPermission;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,24 +42,28 @@ public class UserController {
     private IUserService userService;
 
     @Operation(summary = "获取用户列表（条件+分页）")
+    @RequiresPermission("system:user:list")
     @GetMapping
     public JsonVO<PageDTO<UserVO>> queryUserList(@ParameterObject @Validated UserQuery userQuery) {
         return JsonVO.success(userService.listUser(userQuery));
     }
 
     @Operation(summary = "添加用户")
+    @RequiresPermission("system:user:add")
     @PostMapping
     public JsonVO<String> addUser(@Validated @RequestBody AddUserDTO addUserDTO) {
         return JsonVO.success(userService.saveUser(addUserDTO));
     }
 
     @Operation(summary = "更新用户")
+    @RequiresPermission("system:user:edit")
     @PutMapping("/{id}")
     public JsonVO<String> updateUser(@PathVariable Long id, @Validated @RequestBody UpdateUserDTO dto) {
         return JsonVO.success(userService.updateUser(id, dto));
     }
 
     @Operation(summary = "删除用户")
+    @RequiresPermission("system:user:remove")
     @DeleteMapping("/{id}")
     public JsonVO<String> removeUser(@PathVariable Long id) {
         return JsonVO.success(userService.removeUser(id));

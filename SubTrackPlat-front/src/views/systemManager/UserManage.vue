@@ -38,10 +38,10 @@
 
     <!-- 操作按钮区域 -->
     <div class="action-area">
-      <el-button type="primary" @click="handleAdd">新增</el-button>
-      <el-button type="danger" :disabled="selectedRows.length === 0" @click="handleBatchDelete">批量删除</el-button>
-      <el-button type="warning" @click="handleImport">导入</el-button>
-      <el-button type="info" @click="handleExport">导出</el-button>
+      <el-button type="primary" @click="handleAdd" v-permission="'system:user:add'">新增</el-button>
+      <el-button type="danger" :disabled="selectedRows.length === 0" @click="handleBatchDelete" v-permission="'system:user:delete'">批量删除</el-button>
+      <el-button type="warning" @click="handleImport" v-permission="'system:user:import'">导入</el-button>
+      <el-button type="info" @click="handleExport" v-permission="'system:user:export'">导出</el-button>
       <el-button @click="refreshTable">刷新</el-button>
     </div>
 
@@ -82,24 +82,34 @@
       <el-table-column label="操作" fixed="right" width="280">
         <template #default="scope">
           <div class="operation-buttons">
-            <el-button size="small" type="primary" plain @click.stop="handleEdit(scope.row)">
-              <el-icon><Edit /></el-icon>修改
-            </el-button>
-            <el-button size="small" type="danger" plain @click.stop="handleRemove(scope.row)">
-              <el-icon><Delete /></el-icon>删除
-            </el-button>
+            <Permission permission="system:user:edit">
+              <el-button size="small" type="primary" plain @click.stop="handleEdit(scope.row)">
+                <el-icon><Edit /></el-icon>修改
+              </el-button>
+            </Permission>
+            
+            <Permission permission="system:user:delete">
+              <el-button size="small" type="danger" plain @click.stop="handleRemove(scope.row)">
+                <el-icon><Delete /></el-icon>删除
+              </el-button>
+            </Permission>
+            
             <el-dropdown trigger="click" @command="(command) => handleCommand(command, scope.row)">
               <el-button size="small" type="info" plain>
                 更多<el-icon class="el-icon--right"><ArrowDown /></el-icon>
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item command="resetPwd">
-                    <el-icon><Key /></el-icon>重置密码
-                  </el-dropdown-item>
-                  <el-dropdown-item command="assignRole">
-                    <el-icon><UserFilled /></el-icon>分配角色
-                  </el-dropdown-item>
+                  <Permission permission="system:user:resetPwd">
+                    <el-dropdown-item command="resetPwd">
+                      <el-icon><Key /></el-icon>重置密码
+                    </el-dropdown-item>
+                  </Permission>
+                  <Permission permission="system:user:role">
+                    <el-dropdown-item command="assignRole">
+                      <el-icon><UserFilled /></el-icon>分配角色
+                    </el-dropdown-item>
+                  </Permission>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -279,11 +289,12 @@
 <script setup>
 import { ref, reactive, onMounted, onActivated } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Edit, Delete, ArrowDown, Key, UserFilled, Search, Refresh, UploadFilled } from '@element-plus/icons-vue'
+import { Search, Refresh, Edit, Delete, Key, UserFilled, ArrowDown, UploadFilled } from '@element-plus/icons-vue'
 import { getUserList, addUser, updateUser, deleteUser, resetUserPassword, getUserRoles, assignUserRoles, batchDeleteUsers, importUsers, exportUsers } from '@/api/systemManager/user'
 import { getDeptList, getDeptTree } from '@/api/systemManager/dept'
 import { getRoleList } from '@/api/systemManager/role'
 import ResetPasswordDialog from './ResetPasswordDialog.vue'
+import Permission from '@/components/Permission.vue'
 
 // 搜索表单
 const searchForm = reactive({
@@ -1025,12 +1036,15 @@ onMounted(() => {
 })
 
 // 组件被激活时刷新数据（从缓存中恢复时）
-onActivated(() => {
-  console.log('用户管理页面被激活，刷新数据')
-  fetchUserList()
-  fetchDeptTree()
-  fetchRoleList()
-})
+// 确保onActivated函数是导入并定义的
+if (typeof onActivated === 'function') {
+  onActivated(() => {
+    console.log('用户管理页面被激活，刷新数据')
+    fetchUserList()
+    fetchDeptTree()
+    fetchRoleList()
+  })
+}
 </script>
 
 <style scoped>

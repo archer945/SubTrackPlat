@@ -1,7 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.systemManager.mapper.MenuMapper">
-    <select id="countRoleMenuByMenuId" resultType="int">
+
+    <!-- 根据菜单ID统计关联的角色数量 -->
+    <select id="countRoleMenuByMenuId" parameterType="java.lang.Long" resultType="java.lang.Integer">
         SELECT COUNT(1) FROM role_menu WHERE menu_id = #{menuId}
+    </select>
+    
+    <!-- 查询系统所有菜单 -->
+    <select id="selectAllMenus" resultType="com.systemManager.entity.Menu">
+        SELECT * FROM menu ORDER BY parent_id, order_num
+    </select>
+    
+    <!-- 根据用户ID查询权限标识 -->
+    <select id="selectPermsByUserId" parameterType="java.lang.Long" resultType="java.lang.String">
+        SELECT DISTINCT m.perms
+        FROM user_role ur
+        LEFT JOIN role_menu rm ON ur.role_id = rm.role_id
+        LEFT JOIN menu m ON rm.menu_id = m.menu_id
+        WHERE ur.user_id = #{userId} AND m.perms IS NOT NULL AND m.perms != ''
+    </select>
+    
+    <!-- 根据角色ID查询权限标识 -->
+    <select id="selectPermsByRoleId" parameterType="java.lang.Long" resultType="java.lang.String">
+        SELECT DISTINCT m.perms
+        FROM role_menu rm
+        LEFT JOIN menu m ON rm.menu_id = m.menu_id
+        WHERE rm.role_id = #{roleId} AND m.perms IS NOT NULL AND m.perms != ''
+    </select>
+    
+    <!-- 根据用户ID查询菜单 -->
+    <select id="selectMenusByUserId" parameterType="java.lang.Long" resultType="com.systemManager.entity.Menu">
+        SELECT DISTINCT m.*
+        FROM user_role ur
+        LEFT JOIN role_menu rm ON ur.role_id = rm.role_id
+        LEFT JOIN menu m ON rm.menu_id = m.menu_id
+        WHERE ur.user_id = #{userId}
+        AND m.visible = 1
+        ORDER BY m.parent_id, m.order_num
+    </select>
+    
+    <!-- 根据角色ID查询菜单 -->
+    <select id="selectMenusByRoleId" parameterType="java.lang.Long" resultType="com.systemManager.entity.Menu">
+        SELECT DISTINCT m.*
+        FROM role_menu rm
+        LEFT JOIN menu m ON rm.menu_id = m.menu_id
+        WHERE rm.role_id = #{roleId}
+        ORDER BY m.parent_id, m.order_num
     </select>
 </mapper>
