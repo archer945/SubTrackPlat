@@ -141,6 +141,17 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         return id.toString();
     }
 
+    @Override
+    public List<DeptTreeVO> getDeptTree() {
+        // 查询所有部门
+        List<Dept> deptList = deptMapper.selectList(new LambdaQueryWrapper<Dept>()
+                .eq(Dept::getStatus, 1) // 只查询状态正常的部门
+                .orderByAsc(Dept::getParentId, Dept::getOrderNum));
+        
+        // 构建树形结构
+        return buildDeptTree(deptList);
+    }
+
     /**
      * 构建部门树形结构
      */

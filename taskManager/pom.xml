@@ -24,6 +24,23 @@
             <artifactId>common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.kingbase</groupId>
+            <artifactId>kingbase8</artifactId>
+            <version>8.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.4.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>

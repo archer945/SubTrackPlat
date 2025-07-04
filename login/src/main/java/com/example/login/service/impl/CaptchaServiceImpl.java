@@ -17,10 +17,10 @@ public class CaptchaServiceImpl implements CaptchaService {
     private CaptchaMapper captchaMapper;
 
     @Override
-    public Captcha generateCaptcha(Long userId) {
+    public Captcha generateCaptcha() {
         String code = UUID.randomUUID().toString().substring(0, 5);
         Captcha captcha = new Captcha();
-        captcha.setUserId(userId);
+//        captcha.setUserId(userId);
         captcha.setCaptchaCode(code);
         captcha.setCreateTime(LocalDateTime.now());
         captcha.setExpireTime(LocalDateTime.now().plusMinutes(3));
