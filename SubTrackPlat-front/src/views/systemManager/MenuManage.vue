@@ -260,47 +260,15 @@ const fetchMenuList = async () => {
     
     console.log('发送菜单列表请求参数:', params)
     const response = await getMenuList(params)
-    console.log('菜单列表原始响应:', JSON.stringify(response))
+    console.log('菜单列表原始响应:', response)
     
-    // 确保数据格式正确
-    if (response && response.records) {
+    // 处理返回的菜单数据
+    if (response && response.records && Array.isArray(response.records)) {
       tableData.value = processMenuData(response.records)
-      console.log('处理后的菜单数据:', JSON.stringify(tableData.value))
-    } else if (response && response.rows) {
-      // 兼容后端返回rows的情况
-      tableData.value = processMenuData(response.rows)
-      console.log('使用rows字段的菜单数据:', JSON.stringify(tableData.value))
-    } else if (response && response.data && response.data.rows) {
-      // 兼容后端返回data.rows的情况
-      tableData.value = processMenuData(response.data.rows)
-      console.log('使用data.rows字段的菜单数据:', JSON.stringify(tableData.value))
+      console.log('处理后的菜单数据:', tableData.value)
     } else {
-      // 尝试直接使用response，如果它是数组的话
-      if (Array.isArray(response)) {
-        tableData.value = processMenuData(response)
-        console.log('直接使用response作为数组:', JSON.stringify(tableData.value))
-      } else if (response && typeof response === 'object') {
-        // 尝试从response中提取可能的数据字段
-        const possibleDataFields = ['data', 'list', 'items', 'content'];
-        for (const field of possibleDataFields) {
-          if (response[field] && Array.isArray(response[field])) {
-            tableData.value = processMenuData(response[field]);
-            console.log(`使用response.${field}字段:`, JSON.stringify(tableData.value));
-            break;
-          } else if (response[field] && response[field].rows && Array.isArray(response[field].rows)) {
-            tableData.value = processMenuData(response[field].rows);
-            console.log(`使用response.${field}.rows字段:`, JSON.stringify(tableData.value));
-            break;
-          }
-        }
-        
-        if (tableData.value.length === 0) {
-          console.error('菜单数据格式不符合预期:', response)
-        }
-      } else {
-        console.error('菜单数据格式不符合预期:', response)
-        tableData.value = []
-      }
+      console.error('菜单数据格式不符合预期:', response)
+      tableData.value = []
     }
 
     // 如果没有数据，尝试初始化测试数据
@@ -354,8 +322,8 @@ const fetchMenuTree = async () => {
     const response = await getMenuList({ pageIndex: 1, pageSize: 500 })
     console.log('菜单树原始响应:', response)
     
-    // 确保数据格式正确
-    if (response && response.records) {
+    // 处理返回的菜单树数据
+    if (response && response.records && Array.isArray(response.records)) {
       menuOptions.value = [
         {
           menuId: 0,
@@ -364,76 +332,9 @@ const fetchMenuTree = async () => {
         }
       ]
       console.log('处理后的菜单树数据:', menuOptions.value)
-    } else if (response && response.rows) {
-      // 兼容后端返回rows的情况
-      menuOptions.value = [
-        {
-          menuId: 0,
-          menuName: '主目录',
-          children: processMenuData(response.rows)
-        }
-      ]
-      console.log('使用rows字段的菜单树数据:', menuOptions.value)
-    } else if (response && response.data && response.data.rows) {
-      // 兼容后端返回data.rows的情况
-      menuOptions.value = [
-        {
-          menuId: 0,
-          menuName: '主目录',
-          children: processMenuData(response.data.rows)
-        }
-      ]
-      console.log('使用data.rows字段的菜单树数据:', menuOptions.value)
     } else {
-      // 尝试直接使用response，如果它是数组的话
-      if (Array.isArray(response)) {
-        menuOptions.value = [
-          {
-            menuId: 0,
-            menuName: '主目录',
-            children: processMenuData(response)
-          }
-        ]
-        console.log('直接使用response作为数组构建树:', menuOptions.value)
-      } else if (response && typeof response === 'object') {
-        // 尝试从response中提取可能的数据字段
-        const possibleDataFields = ['data', 'list', 'items', 'content'];
-        for (const field of possibleDataFields) {
-          if (response[field] && Array.isArray(response[field])) {
-            menuOptions.value = [
-              {
-                menuId: 0,
-                menuName: '主目录',
-                children: processMenuData(response[field])
-              }
-            ];
-            console.log(`使用response.${field}字段构建树:`, menuOptions.value);
-            break;
-          } else if (response[field] && response[field].rows && Array.isArray(response[field].rows)) {
-            menuOptions.value = [
-              {
-                menuId: 0,
-                menuName: '主目录',
-                children: processMenuData(response[field].rows)
-              }
-            ];
-            console.log(`使用response.${field}.rows字段构建树:`, menuOptions.value);
-            break;
-          }
-        }
-        
-        if (menuOptions.value.length === 0) {
-          console.error('菜单树数据格式不符合预期:', response)
-          menuOptions.value = []
-        }
-      } else {
-        console.error('菜单树数据格式不符合预期:', response)
-        menuOptions.value = []
-      }
-    }
-
-    // 如果没有获取到菜单树数据，创建一个默认的空树
-    if (menuOptions.value.length === 0) {
+      console.error('菜单树数据格式不符合预期:', response)
+      // 如果没有获取到菜单树数据，创建一个默认的空树
       menuOptions.value = [
         {
           menuId: 0,
@@ -441,7 +342,6 @@ const fetchMenuTree = async () => {
           children: []
         }
       ]
-      console.warn('未获取到菜单树数据，使用默认空树')
     }
   } catch (error) {
     console.error('获取菜单树失败:', error)

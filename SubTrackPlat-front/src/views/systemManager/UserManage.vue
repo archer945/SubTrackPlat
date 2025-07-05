@@ -82,17 +82,17 @@
       <el-table-column label="操作" fixed="right" width="280">
         <template #default="scope">
           <div class="operation-buttons">
-            <Permission permission="system:user:edit">
+            <!-- <Permission permission="system:user:edit"> -->
               <el-button size="small" type="primary" plain @click.stop="handleEdit(scope.row)">
                 <el-icon><Edit /></el-icon>修改
               </el-button>
-            </Permission>
+            <!-- </Permission> -->
             
-            <Permission permission="system:user:delete">
+            <!-- <Permission permission="system:user:delete"> -->
               <el-button size="small" type="danger" plain @click.stop="handleRemove(scope.row)">
                 <el-icon><Delete /></el-icon>删除
               </el-button>
-            </Permission>
+            <!-- </Permission> -->
             
             <el-dropdown trigger="click" @command="(command) => handleCommand(command, scope.row)">
               <el-button size="small" type="info" plain>
@@ -100,16 +100,16 @@
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <Permission permission="system:user:resetPwd">
+                  <!-- <Permission permission="system:user:resetPwd"> -->
                     <el-dropdown-item command="resetPwd">
                       <el-icon><Key /></el-icon>重置密码
                     </el-dropdown-item>
-                  </Permission>
-                  <Permission permission="system:user:role">
+                  <!-- </Permission> -->
+                  <!-- <Permission permission="system:user:role"> -->
                     <el-dropdown-item command="assignRole">
                       <el-icon><UserFilled /></el-icon>分配角色
                     </el-dropdown-item>
-                  </Permission>
+                  <!-- </Permission> -->
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -435,9 +435,11 @@ const fetchUserList = async () => {
     const response = await getUserList(params)
     console.log('用户列表响应数据:', response)
     
+    
     // 确保状态字段是数字类型
     if (response.records && response.records.length > 0) {
       response.records.forEach(item => {
+
         // 处理状态字段
         if (item.status !== undefined && typeof item.status === 'string') {
           item.status = parseInt(item.status, 10)
@@ -456,12 +458,13 @@ const fetchUserList = async () => {
           item.deptName = '无部门'
         }
         
-                  console.log(`用户 ${item.username} 的状态:`, item.status, typeof item.status)
+        console.log(`用户 ${item.username} 的状态:`, item.status, typeof item.status)
       })
     }
     
     tableData.value = response.records || []
     total.value = response.total || 0
+
   } catch (error) {
     console.error('获取用户列表失败:', error)
     // 如果发生错误，至少显示空数据而不是崩溃

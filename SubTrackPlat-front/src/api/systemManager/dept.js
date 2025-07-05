@@ -16,7 +16,19 @@ export function getDeptList(params) {
     url: '/systemManager/systemManager/dept',
     method: 'get',
     params: newParams
-  })
+  }).then(response => {
+    // 转换响应数据格式，使其符合前端组件的预期
+    if (response && response.data && response.data.rows) {
+      return {
+        records: response.data.rows,
+        total: response.data.total,
+        pageSize: response.data.pageSize,
+        pageIndex: response.data.pageIndex,
+        pages: response.data.pages
+      };
+    }
+    return { records: [], total: 0 };
+  });
 }
 
 // 获取部门树
@@ -24,7 +36,13 @@ export function getDeptTree() {
   return request({
     url: '/systemManager/systemManager/dept/tree',
     method: 'get'
-  })
+  }).then(response => {
+    // 直接返回部门树数据
+    if (response && response.data) {
+      return response.data;
+    }
+    return [];
+  });
 }
 
 // 获取部门详情

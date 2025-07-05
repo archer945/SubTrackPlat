@@ -43,8 +43,8 @@ public class RoleMenu implements Serializable {
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
-    public RoleMenu(Long roleId, Long menuId) {
-        this.roleId = roleId;
-        this.menuId = menuId;
-    }
+    // public RoleMenu(Long roleId, Long menuId) {
+    //     this.roleId = roleId;
+    //     this.menuId = menuId;
+    // }
 }

@@ -2,7 +2,9 @@ package com.systemManager.controller;
 
 
 import com.common.domain.dto.PageDTO;
+import com.common.domain.dto.systemManager.DataScopeDTO;
 import com.common.domain.dto.systemManager.RoleDTO;
+import com.common.domain.dto.systemManager.RoleMenuDTO;
 import com.common.domain.query.systemManager.RoleQuery;
 import com.common.domain.vo.JsonVO;
 import com.common.domain.vo.systemManager.RoleVO;
@@ -62,21 +64,22 @@ public class RoleController {
         return JsonVO.success(roleService.removeRole(id));
     }
 
-//    @GetMapping("/menuIds/{roleId}")
-//    public JsonVO<List<Long>> getMenuIds(@PathVariable Long roleId) {
-//        return JsonVO.success(roleService.getMenuIdsByRoleId(roleId));
-//    }
-//
-//    @PutMapping("/dataScope")
-//    public JsonVO<Void> authDataScope(@RequestBody RoleDTO dto) {
-//        roleService.authDataScope(dto);
-//        return JsonVO.success();
-//    }
-//
-//    @PutMapping("/assignUsers")
-//    public JsonVO<Void> assignUsers(@RequestBody RoleUserDTO dto) {
-//        roleService.assignUsers(dto.getRoleId(), dto.getUserIds());
-//        return JsonVO.success();
-//    }
+    @GetMapping("/{roleId}/menus")
+    @Operation(summary = "获取角色菜单权限")
+    public JsonVO<List<Long>> getRoleMenus(@PathVariable Long roleId) {
+        return JsonVO.success(roleService.getRoleMenuIds(roleId));
+    }
+
+    @PutMapping("/{roleId}/menus")
+    @Operation(summary = "分配角色菜单权限")
+    public JsonVO<Boolean> assignRoleMenus(@PathVariable Long roleId, @Valid @RequestBody RoleMenuDTO dto) {
+        return JsonVO.success(roleService.assignRoleMenus(roleId, dto));
+    }
+
+    @PutMapping("/{roleId}/dataScope")
+    @Operation(summary = "更新角色数据权限")
+    public JsonVO<Boolean> updateDataScope(@PathVariable Long roleId, @Valid @RequestBody DataScopeDTO dto) {
+        return JsonVO.success(roleService.updateDataScope(roleId, dto));
+    }
 }
 

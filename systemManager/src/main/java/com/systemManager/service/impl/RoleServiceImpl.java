@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.domain.dto.PageDTO;
+import com.common.domain.dto.systemManager.DataScopeDTO;
 import com.common.domain.dto.systemManager.RoleDTO;
+import com.common.domain.dto.systemManager.RoleMenuDTO;
 import com.common.domain.query.systemManager.RoleQuery;
 import com.common.domain.vo.systemManager.RoleVO;
 import com.systemManager.entity.Role;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -126,6 +129,72 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
         return id.toString();
     }
+    
+    @Override
+    public List<Long> getRoleMenuIds(Long roleId) {
+        // 检查角色是否存在
+        Role role = roleMapper.selectById(roleId);
+        if (role == null) {
+            throw new IllegalArgumentException("角色不存在");
+        }
+        
+        // 查询角色菜单关联
+        List<RoleMenu> roleMenus = roleMenuMapper.selectList(
+            new LambdaQueryWrapper<RoleMenu>().eq(RoleMenu::getRoleId, roleId)
+        );
+        
+        // 提取菜单ID
+        return roleMenus.stream()
+            .map(RoleMenu::getMenuId)
+            .collect(Collectors.toList());
+    }
+    
+    @Override
+    @Transactional
+    public boolean assignRoleMenus(Long roleId, RoleMenuDTO dto) {
+        // 检查角色是否存在
+        Role role = roleMapper.selectById(roleId);
+        if (role == null) {
+            throw new IllegalArgumentException("角色不存在");
+        }
+        
+        try {
+            // 删除原有关联
+            roleMenuMapper.delete(
+                new LambdaQueryWrapper<RoleMenu>().eq(RoleMenu::getRoleId, roleId)
+            );
+            
+            // 批量插入新关联
+            insertRoleMenu(roleId, dto.getMenuIds());
+            
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("分配角色菜单权限失败: " + e.getMessage(), e);
+        }
+    }
+    
+    @Override
+    @Transactional
+    public boolean updateDataScope(Long roleId, DataScopeDTO dto) {
+        // 检查角色是否存在
+        Role role = roleMapper.selectById(roleId);
+        if (role == null) {
+            throw new IllegalArgumentException("角色不存在");
+        }
+        
+        try {
+            // 更新角色的数据范围
+            role.setDataScope(dto.getDataScope());
+            role.setUpdateTime(LocalDateTime.now());
+            roleMapper.updateById(role);
+            
+            //如果需要，可以在这里处理部门数据权限的关联
+            
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("更新角色数据权限失败: " + e.getMessage(), e);
+        }
+    }
 
     // 校验角色名称唯一性
     private void checkRoleNameUnique(String roleName) {
@@ -157,9 +226,31 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
     // 插入角色菜单关联
     private void insertRoleMenu(Long roleId, List<Long> menuIds) {
-        List<RoleMenu> list = menuIds.stream()
-                .map(menuId -> new RoleMenu(roleId, menuId))
-                .collect(Collectors.toList());
-        roleMenuMapper.insertBatch(list);
+        if (menuIds == null || menuIds.isEmpty()) {
+            return;
+        }
+        
+        List<RoleMenu> roleMenus = new ArrayList<>();
+        for (Long menuId : menuIds) {
+            RoleMenu roleMenu = new RoleMenu();
+            roleMenu.setRoleId(roleId);
+            roleMenu.setMenuId(menuId);
+            roleMenus.add(roleMenu);
+            
+            // 分批插入，避免一次插入过多数据
+            if (roleMenus.size() >= 100) {
+                for (RoleMenu rm : roleMenus) {
+                    roleMenuMapper.insert(rm);
+                }
+                roleMenus.clear();
+            }
+        }
+        
+        // 插入剩余数据
+        if (!roleMenus.isEmpty()) {
+            for (RoleMenu rm : roleMenus) {
+                roleMenuMapper.insert(rm);
+            }
+        }
     }
 }
