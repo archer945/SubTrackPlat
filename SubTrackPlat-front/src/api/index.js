@@ -73,13 +73,7 @@ request.interceptors.response.use(
           return item;
         });
         
-        return {
-          ...res,
-          data: {
-            ...res.data,
-            rows: records
-          }
-        };
+        return res;
       }
       
       // 处理菜单树数据
@@ -113,10 +107,7 @@ request.interceptors.response.use(
         // 处理顶层菜单
         const processedData = processChildren(res.data);
         
-        return {
-          ...res,
-          data: processedData
-        };
+        return res;
       }
       
       return res

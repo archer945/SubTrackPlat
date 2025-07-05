@@ -6,7 +6,19 @@ export function getUserList(params) {
     url: '/systemManager/systemManager/user',
     method: 'get',
     params
-  })
+  }).then(response => {
+    // 转换响应数据格式，使其符合前端组件的预期
+    if (response && response.data && response.data.rows) {
+      return {
+        records: response.data.rows,
+        total: response.data.total,
+        pageSize: response.data.pageSize,
+        pageIndex: response.data.pageIndex,
+        pages: response.data.pages
+      };
+    }
+    return { records: [], total: 0 };
+  });
 }
 
 // 获取用户详情

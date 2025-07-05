@@ -2,11 +2,15 @@ package com.systemManager.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.common.domain.dto.PageDTO;
+import com.common.domain.dto.systemManager.DataScopeDTO;
 import com.common.domain.dto.systemManager.RoleDTO;
+import com.common.domain.dto.systemManager.RoleMenuDTO;
 import com.common.domain.query.systemManager.RoleQuery;
 import com.common.domain.vo.systemManager.RoleVO;
 import com.systemManager.entity.Role;
 import jakarta.validation.Valid;
+
+import java.util.List;
 
 /**
  * <p>
@@ -25,4 +29,27 @@ public interface IRoleService extends IService<Role> {
     String updateRole(Long id, @Valid RoleDTO dto);
 
     String removeRole(Long id);
+    
+    /**
+     * 获取角色菜单权限ID列表
+     * @param roleId 角色ID
+     * @return 菜单ID列表
+     */
+    List<Long> getRoleMenuIds(Long roleId);
+    
+    /**
+     * 分配角色菜单权限
+     * @param roleId 角色ID
+     * @param dto 菜单权限DTO
+     * @return 是否成功
+     */
+    boolean assignRoleMenus(Long roleId, RoleMenuDTO dto);
+    
+    /**
+     * 更新角色数据权限
+     * @param roleId 角色ID
+     * @param dto 数据权限DTO
+     * @return 是否成功
+     */
+    boolean updateDataScope(Long roleId, DataScopeDTO dto);
 }

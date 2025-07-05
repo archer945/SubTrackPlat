@@ -610,12 +610,17 @@ const handleCurrentChange = (page) => {
   fetchRoleList()
 }
 
-// 添加处理下拉菜单命令的函数
+// 处理命令
 const handleCommand = (command, row) => {
-  if (command === 'assignPermission') {
-    handleAssignPermission(row)
-  } else if (command === 'assignDataScope') {
-    handleAssignDataScope(row)
+  switch (command) {
+    case 'assignPermission':
+      handleAssignPermission(row)
+      break
+    case 'assignDataScope':
+      handleAssignDataScope(row)
+      break
+    default:
+      break
   }
 }
 

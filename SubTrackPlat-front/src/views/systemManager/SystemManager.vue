@@ -14,27 +14,28 @@
             @select="handleMenuSelect"
         >
           <!-- 使用v-permission指令控制菜单项的显示 -->
-          <el-menu-item index="user" v-permission="'system:user:list'">
+          <!-- v-permission="'system:user:list'" -->
+          <el-menu-item index="user" >
             <el-icon><User /></el-icon>
             <span>用户管理</span>
           </el-menu-item>
 
-          <el-menu-item index="role" v-permission="'system:role:list'">
+          <el-menu-item index="role" >
             <el-icon><UserFilled /></el-icon>
             <span>角色管理</span>
           </el-menu-item>
 
-          <el-menu-item index="menu" v-permission="'system:menu:list'">
+          <el-menu-item index="menu">
             <el-icon><Menu /></el-icon>
             <span>菜单管理</span>
           </el-menu-item>
 
-          <el-menu-item index="dept" v-permission="'system:dept:list'">
+          <el-menu-item index="dept">
             <el-icon><OfficeBuilding /></el-icon>
             <span>部门管理</span>
           </el-menu-item>
 
-          <el-menu-item index="param" v-permission="'system:param:list'">
+          <el-menu-item index="param">
             <el-icon><Setting /></el-icon>
             <span>参数配置</span>
           </el-menu-item>
@@ -74,24 +75,24 @@ const handleMenuSelect = (index) => {
   activeMenu.value = index
   switch (index) {
     case 'user':
-      if (permissionStore.hasPermission('system:user:list')) {
+      //if (permissionStore.hasPermission('system:user:list')) {
         currentComponent.value = UserManage
-      }
+      //}
       break
     case 'role':
-      if (permissionStore.hasPermission('system:role:list')) {
+      //if (permissionStore.hasPermission('system:role:list')) {
         currentComponent.value = RoleManage
-      }
+      //}
       break
     case 'menu':
-      if (permissionStore.hasPermission('system:menu:list')) {
+      //if (permissionStore.hasPermission('system:menu:list')) {
         currentComponent.value = MenuManage
-      }
+      //}
       break
     case 'dept':
-      if (permissionStore.hasPermission('system:dept:list')) {
+      //if (permissionStore.hasPermission('system:dept:list')) {
         currentComponent.value = DeptManage
-      }
+      //}
       break
     case 'param':
       // 暂未实现参数配置
