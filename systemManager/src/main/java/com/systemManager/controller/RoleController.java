@@ -6,8 +6,10 @@ import com.common.domain.dto.systemManager.DataScopeDTO;
 import com.common.domain.dto.systemManager.RoleDTO;
 import com.common.domain.dto.systemManager.RoleMenuDTO;
 import com.common.domain.query.systemManager.RoleQuery;
+import com.common.domain.query.systemManager.UserQuery;
 import com.common.domain.vo.JsonVO;
 import com.common.domain.vo.systemManager.RoleVO;
+import com.common.domain.vo.systemManager.UserVO;
 import com.systemManager.service.IRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -80,6 +82,12 @@ public class RoleController {
     @Operation(summary = "更新角色数据权限")
     public JsonVO<Boolean> updateDataScope(@PathVariable Long roleId, @Valid @RequestBody DataScopeDTO dto) {
         return JsonVO.success(roleService.updateDataScope(roleId, dto));
+    }
+    
+    @GetMapping("/{roleId}/users")
+    @Operation(summary = "获取角色用户列表")
+    public JsonVO<PageDTO<UserVO>> getRoleUsers(@PathVariable Long roleId, @ParameterObject @Validated UserQuery query) {
+        return JsonVO.success(roleService.getRoleUsers(roleId, query));
     }
 }
 

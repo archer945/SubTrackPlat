@@ -8,11 +8,14 @@ import com.common.domain.dto.systemManager.DataScopeDTO;
 import com.common.domain.dto.systemManager.RoleDTO;
 import com.common.domain.dto.systemManager.RoleMenuDTO;
 import com.common.domain.query.systemManager.RoleQuery;
+import com.common.domain.query.systemManager.UserQuery;
 import com.common.domain.vo.systemManager.RoleVO;
+import com.common.domain.vo.systemManager.UserVO;
 import com.systemManager.entity.Role;
 import com.systemManager.entity.RoleMenu;
 import com.systemManager.mapper.RoleMapper;
 import com.systemManager.mapper.RoleMenuMapper;
+import com.systemManager.mapper.UserMapper;
 import com.systemManager.mapper.ms.RoleMsMapper;
 import com.systemManager.service.IRoleService;
 import jakarta.annotation.Resource;
@@ -45,6 +48,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
 
     @Resource
     private RoleMenuMapper roleMenuMapper;
+    
+    @Resource
+    private UserMapper userMapper;
 
     @Override
     public PageDTO<RoleVO> listRoles(RoleQuery query) {
@@ -193,6 +199,27 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
             return true;
         } catch (Exception e) {
             throw new RuntimeException("更新角色数据权限失败: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public PageDTO<UserVO> getRoleUsers(Long roleId, UserQuery query) {
+        // 检查角色是否存在
+        Role role = roleMapper.selectById(roleId);
+        if (role == null) {
+            throw new IllegalArgumentException("角色不存在");
+        }
+        
+        try {
+            // 分页对象
+            Page<UserVO> page = new Page<>(query.getPageIndex(), query.getPageSize());
+            
+            // 查询角色关联的用户
+            Page<UserVO> userPage = userMapper.selectUsersByRoleId(roleId, query, page);
+            
+            return PageDTO.create(userPage);
+        } catch (Exception e) {
+            throw new RuntimeException("获取角色用户列表失败: " + e.getMessage(), e);
         }
     }
 

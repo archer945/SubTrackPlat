@@ -49,6 +49,46 @@
         </where>
         ORDER BY u.user_id,u.create_time DESC
     </select>
+    
+    <select id="selectUsersByRoleId" resultMap="userResultMap">
+        SELECT
+        u.user_id,
+        u.username,
+        u.real_name,
+        u.tel,
+        u.email,
+        u.dept_id,
+        u.status,
+        d.dept_name,
+        u.remark,
+        u.create_time
+        FROM
+        "user" u
+        LEFT JOIN
+        dept d ON u.dept_id = d.dept_id
+        INNER JOIN
+        user_role ur ON u.user_id = ur.user_id
+        <where>
+            ur.role_id = #{roleId}
+            <if test="query.username != null and query.username != ''">
+                AND u.username LIKE CONCAT('%', #{query.username}, '%')
+            </if>
+            <if test="query.status != null and query.status != ''">
+                AND u.status = #{query.status}
+            </if>
+            <if test="query.tel != null and query.tel != ''">
+                AND u.tel = #{query.tel}
+            </if>
+            <if test="query.startTime != null">
+                AND u.create_time >= #{query.startTime}
+            </if>
+            <if test="query.endTime != null">
+                AND u.create_time &lt;= #{query.endTime}
+            </if>
+        </where>
+        ORDER BY u.user_id, u.create_time DESC
+    </select>
+    
     <select id="selectUserByUsername" resultType="java.lang.Boolean">
          SELECT
         COUNT(1) > 0

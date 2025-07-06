@@ -43,7 +43,6 @@ public class MenuDTO {
     private String perms;
 
     @Schema(description = "菜单图标", example = "/image", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "菜单图标不能为空")
     private String icon;
 
 }

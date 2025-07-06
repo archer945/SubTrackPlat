@@ -21,6 +21,15 @@ import java.util.List;
 public interface UserMapper extends BaseMapper<User> {
 
     Page<UserVO> selectUser(@Param("query") UserQuery query, Page<UserVO> page);
+    
+    /**
+     * 获取角色下的用户列表
+     * @param roleId 角色ID
+     * @param query 查询条件
+     * @param page 分页对象
+     * @return 用户列表
+     */
+    Page<UserVO> selectUsersByRoleId(@Param("roleId") Long roleId, @Param("query") UserQuery query, Page<UserVO> page);
 
     boolean selectUserByUsername(@NotBlank(message = "用户名不能为空") String username);
 

@@ -82,4 +82,28 @@ export function updateRoleDataScope(roleId, data) {
     method: 'put',
     data
   })
+}
+
+// 获取角色关联的用户列表
+export function getRoleUsers(roleId, params) {
+  // 确保params中包含pageIndex参数
+  const newParams = { pageIndex: 1, pageSize: 10, ...params };
+  
+  return request({
+    url: `/systemManager/systemManager/role/${roleId}/users`,
+    method: 'get',
+    params: newParams
+  }).then(response => {
+    // 转换响应数据格式，使其符合前端组件的预期
+    if (response && response.data && response.data.rows) {
+      return {
+        records: response.data.rows,
+        total: response.data.total,
+        pageSize: response.data.pageSize,
+        pageIndex: response.data.pageIndex,
+        pages: response.data.pages
+      };
+    }
+    return { records: [], total: 0 };
+  });
 } 

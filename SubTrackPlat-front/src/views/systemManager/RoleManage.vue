@@ -79,6 +79,9 @@
                   <el-dropdown-item command="assignDataScope">
                     <el-icon><DataLine /></el-icon>数据权限
                   </el-dropdown-item>
+                  <el-dropdown-item command="viewUsers">
+                    <el-icon><User /></el-icon>查看用户列表
+                  </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -200,14 +203,58 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 角色用户列表对话框 -->
+    <el-dialog v-model="userListDialogVisible" title="角色用户列表" width="800px">
+      <div class="user-list-header">
+        <div class="role-info">
+          <span class="label">角色名称：</span>
+          <span class="value">{{ selectedRole.roleName }}</span>
+        </div>
+        <div class="search-box">
+          <el-input v-model="userSearchForm.username" placeholder="请输入用户名" clearable @keyup.enter="searchRoleUsers" />
+          <el-button type="primary" @click="searchRoleUsers">搜索</el-button>
+        </div>
+      </div>
+
+      <!-- 用户列表表格 -->
+      <el-table :data="roleUserList" border style="width: 100%">
+        <el-table-column prop="userId" label="用户ID" width="80" />
+        <el-table-column prop="username" label="用户名" width="120" />
+        <el-table-column prop="realName" label="姓名" width="120" />
+        <el-table-column prop="email" label="邮箱" width="180" />
+        <el-table-column prop="phone" label="手机号" width="120" />
+        <el-table-column prop="deptName" label="部门" width="120" />
+        <el-table-column prop="status" label="状态" width="80">
+          <template #default="scope">
+            <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
+              {{ scope.row.status === 1 ? '正常' : '停用' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页区域 -->
+      <div class="pagination-container">
+        <el-pagination
+          :current-page="userCurrentPage"
+          :page-size="userPageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="userTotal"
+          @size-change="handleUserSizeChange"
+          @current-change="handleUserCurrentChange"
+        />
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, onActivated } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Edit, Delete, ArrowDown, Menu, DataLine } from '@element-plus/icons-vue'
-import { getRoleList, addRole, updateRole, deleteRole, getRoleMenus, assignRoleMenus, updateRoleDataScope } from '@/api/systemManager/role'
+import { Plus, Edit, Delete, ArrowDown, Menu, DataLine, User } from '@element-plus/icons-vue'
+import { getRoleList, addRole, updateRole, deleteRole, getRoleMenus, assignRoleMenus, updateRoleDataScope, getRoleUsers } from '@/api/systemManager/role'
 import { getMenuList } from '@/api/systemManager/menu'
 import { getDeptList } from '@/api/systemManager/dept'
 
@@ -274,6 +321,16 @@ const dataScopeDialogVisible = ref(false)
 const deptTreeRef = ref(null)
 const dataScopeForm = reactive({
   dataScope: '1'
+})
+
+// 角色用户列表相关
+const userListDialogVisible = ref(false)
+const roleUserList = ref([])
+const userCurrentPage = ref(1)
+const userPageSize = ref(10)
+const userTotal = ref(0)
+const userSearchForm = reactive({
+  username: ''
 })
 
 // 处理搜索
@@ -619,9 +676,66 @@ const handleCommand = (command, row) => {
     case 'assignDataScope':
       handleAssignDataScope(row)
       break
+    case 'viewUsers':
+      handleViewUsers(row)
+      break
     default:
       break
   }
+}
+
+// 处理查看用户列表
+const handleViewUsers = (row) => {
+  selectedRole.value = row
+  userCurrentPage.value = 1
+  userSearchForm.username = ''
+  userListDialogVisible.value = true
+  fetchRoleUsers()
+}
+
+// 获取角色用户列表
+const fetchRoleUsers = async () => {
+  try {
+    const params = {
+      pageIndex: userCurrentPage.value,
+      pageSize: userPageSize.value,
+      username: userSearchForm.username
+    }
+    
+    const response = await getRoleUsers(selectedRole.value.roleId, params)
+    console.log('角色用户列表原始响应:', response)
+    
+    if (response && response.records) {
+      roleUserList.value = response.records
+      userTotal.value = response.total || 0
+    } else {
+      console.error('角色用户列表数据格式不符合预期:', response)
+      roleUserList.value = []
+      userTotal.value = 0
+    }
+  } catch (error) {
+    console.error('获取角色用户列表失败:', error)
+    roleUserList.value = []
+    userTotal.value = 0
+  }
+}
+
+// 搜索角色用户
+const searchRoleUsers = () => {
+  userCurrentPage.value = 1
+  fetchRoleUsers()
+}
+
+// 处理用户列表分页大小变化
+const handleUserSizeChange = (size) => {
+  userPageSize.value = size
+  fetchRoleUsers()
+}
+
+// 处理用户列表页码变化
+const handleUserCurrentChange = (page) => {
+  userCurrentPage.value = page
+  fetchRoleUsers()
 }
 
 // 组件挂载时获取数据
@@ -675,5 +789,35 @@ onActivated(() => {
   margin-left: 0;
   margin-right: 0;
   margin-bottom: 5px;
+}
+
+.user-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.role-info {
+  display: flex;
+  align-items: center;
+}
+
+.role-info .label {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.role-info .value {
+  color: #409EFF;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
+}
+
+.search-box .el-input {
+  width: 200px;
 }
 </style> 

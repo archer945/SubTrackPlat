@@ -6,7 +6,9 @@ import com.common.domain.dto.systemManager.DataScopeDTO;
 import com.common.domain.dto.systemManager.RoleDTO;
 import com.common.domain.dto.systemManager.RoleMenuDTO;
 import com.common.domain.query.systemManager.RoleQuery;
+import com.common.domain.query.systemManager.UserQuery;
 import com.common.domain.vo.systemManager.RoleVO;
+import com.common.domain.vo.systemManager.UserVO;
 import com.systemManager.entity.Role;
 import jakarta.validation.Valid;
 
@@ -52,4 +54,12 @@ public interface IRoleService extends IService<Role> {
      * @return 是否成功
      */
     boolean updateDataScope(Long roleId, DataScopeDTO dto);
+    
+    /**
+     * 获取角色关联的用户列表
+     * @param roleId 角色ID
+     * @param query 查询条件
+     * @return 用户列表（分页）
+     */
+    PageDTO<UserVO> getRoleUsers(Long roleId, UserQuery query);
 }

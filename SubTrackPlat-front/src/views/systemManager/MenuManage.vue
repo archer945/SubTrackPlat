@@ -46,7 +46,7 @@
     >
       <el-table-column prop="menuId" label="菜单编号" width="130" />
       <el-table-column prop="menuName" label="菜单名称" width="160" />
-      <el-table-column prop="icon" label="图标" width="100">
+      <el-table-column prop="icon" label="图标" width="95">
         <template #default="scope">
           <el-icon v-if="scope.row.icon && isValidIcon(scope.row.icon)">
             <component :is="scope.row.icon" />
@@ -54,9 +54,10 @@
           <span v-else>--</span>
         </template>
       </el-table-column>
-      <el-table-column prop="orderNum" label="排序" width="80" />
+      <el-table-column prop="orderNum" label="排序" width="90" />
       <el-table-column prop="path" label="路由地址" width="200" />
-      <el-table-column prop="menuType" label="类型" width="100">
+      <el-table-column prop="perms" label="权限标识" width="200" />
+      <el-table-column prop="menuType" label="类型" width="120">
         <template #default="scope">
           <el-tag type="primary" v-if="scope.row.menuType === 'M'">目录</el-tag>
           <el-tag type="success" v-else-if="scope.row.menuType === 'C'">菜单</el-tag>
@@ -64,7 +65,7 @@
           <span v-else>--</span>
         </template>
       </el-table-column>
-      <el-table-column prop="visible" label="可见" width="80">
+      <el-table-column prop="visible" label="可见" width="120">
         <template #default="scope">
           <el-tag :type="scope.row.visible === 1 ? 'success' : 'info'">
             {{ scope.row.visible === 1 ? '显示' : '隐藏' }}
@@ -100,7 +101,7 @@
       v-model="dialogVisible"
       :title="dialogType === 'add' ? '新增菜单' : '编辑菜单'"
       width="700px"
-      @close="resetForm"
+      @close="dialogVisible = false"
     >
       <el-form
         ref="menuFormRef"
@@ -164,7 +165,7 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button @click="handleCancel">取消</el-button>
           <el-button type="primary" @click="submitForm">确定</el-button>
         </div>
       </template>
@@ -269,16 +270,16 @@ const fetchMenuList = async () => {
     } else {
       console.error('菜单数据格式不符合预期:', response)
       tableData.value = []
-    }
-
-    // 如果没有数据，尝试初始化测试数据
-    if (tableData.value.length === 0) {
-      console.warn('未获取到菜单数据，考虑初始化测试数据')
+      
+      // 如果没有数据，使用测试数据
+      console.warn('未获取到菜单数据，使用测试数据')
+      initTestData()
     }
   } catch (error) {
     console.error('获取菜单列表失败:', error)
-    // 如果发生错误，至少显示空数据而不是崩溃
-    tableData.value = []
+    // 如果发生错误，使用测试数据
+    console.warn('获取菜单列表失败，使用测试数据')
+    initTestData()
   }
 }
 
@@ -334,38 +335,146 @@ const fetchMenuTree = async () => {
       console.log('处理后的菜单树数据:', menuOptions.value)
     } else {
       console.error('菜单树数据格式不符合预期:', response)
-      // 如果没有获取到菜单树数据，创建一个默认的空树
+      // 如果没有获取到菜单树数据，使用测试数据
+      console.warn('未获取到菜单树数据，使用测试数据')
       menuOptions.value = [
         {
           menuId: 0,
           menuName: '主目录',
-          children: []
+          children: tableData.value.length > 0 ? tableData.value : initTestMenuData()
         }
       ]
     }
   } catch (error) {
     console.error('获取菜单树失败:', error)
-    ElMessage.warning('获取菜单树数据失败，请刷新重试')
+    ElMessage.warning('获取菜单树数据失败，使用测试数据')
     menuOptions.value = [
       {
         menuId: 0,
         menuName: '主目录',
-        children: []
+        children: tableData.value.length > 0 ? tableData.value : initTestMenuData()
       }
     ]
   }
 }
 
+// 初始化测试菜单数据（不更新表格，只返回数据）
+const initTestMenuData = () => {
+  return [
+    {
+      menuId: 1,
+      menuName: '系统管理',
+      parentId: 0,
+      orderNum: 1,
+      path: '/system',
+      component: null,
+      perms: null,
+      icon: 'Setting',
+      menuType: 'M',
+      visible: 1,
+      children: [
+        {
+          menuId: 2,
+          menuName: '用户管理',
+          parentId: 1,
+          orderNum: 1,
+          path: 'user',
+          component: 'system/user/index',
+          perms: 'system:user:list',
+          icon: 'User',
+          menuType: 'C',
+          visible: 1,
+          children: [
+            {
+              menuId: 7,
+              menuName: '用户查询',
+              parentId: 2,
+              orderNum: 1,
+              path: null,
+              component: null,
+              perms: 'system:user:query',
+              icon: null,
+              menuType: 'F',
+              visible: 1,
+              children: null
+            }
+          ]
+        },
+        {
+          menuId: 3,
+          menuName: '角色管理',
+          parentId: 1,
+          orderNum: 2,
+          path: 'role',
+          component: 'system/role/index',
+          perms: 'system:role:list',
+          icon: 'UserFilled',
+          menuType: 'C',
+          visible: 1,
+          children: null
+        }
+      ]
+    }
+  ]
+}
+
+// 初始化测试数据
+const initTestData = () => {
+  tableData.value = initTestMenuData()
+  
+  // 同时更新菜单树
+  menuOptions.value = [
+    {
+      menuId: 0,
+      menuName: '主目录',
+      children: tableData.value
+    }
+  ]
+  
+  ElMessage.success('已初始化测试数据')
+}
+
+// 验证图标是否有效
+const isValidIcon = (iconName) => {
+  if (!iconName || typeof iconName !== 'string') return false
+  
+  // 检查是否包含无效字符，如斜杠
+  if (iconName.includes('/') || iconName.includes('\\')) return false
+  
+  // 检查是否为已导入的图标组件
+  const validIcons = [
+    'User', 'Setting', 'Menu', 'Document', 'Grid', 'List',
+    'Edit', 'Delete', 'Plus', 'MenuIcon'
+  ]
+  
+  return validIcons.includes(iconName)
+}
+
+// 组件挂载时获取数据
+onMounted(() => {
+  fetchMenuList()
+  fetchMenuTree()
+})
+
+// 组件被激活时刷新数据（从缓存中恢复时）
+onActivated(() => {
+  console.log('菜单管理页面被激活，刷新数据')
+  fetchMenuList()
+  fetchMenuTree()
+})
+
 // 处理新增
 const handleAdd = () => {
   dialogType.value = 'add'
   menuForm.parentId = 0
+  resetForm() // 新增时重置表单
   dialogVisible.value = true
 }
 
 // 处理新增子菜单
 const handleAddChild = (row) => {
   dialogType.value = 'add'
+  resetForm() // 先重置表单
   menuForm.parentId = row.menuId
   
   // 根据父菜单类型设置默认的子菜单类型
@@ -474,6 +583,13 @@ const submitForm = () => {
 // 重置表单
 const resetForm = () => {
   menuFormRef.value?.resetFields()
+  
+  // 如果是编辑模式，不应该完全重置表单
+  if (dialogType.value === 'edit') {
+    return; // 编辑模式下不重置，保留当前数据
+  }
+  
+  // 只在新增模式下重置所有字段
   Object.keys(menuForm).forEach(key => {
     if (key === 'orderNum') {
       menuForm[key] = 0
@@ -489,106 +605,6 @@ const resetForm = () => {
   })
 }
 
-// 初始化测试数据
-const initTestData = () => {
-  tableData.value = [
-    {
-      menuId: 1,
-      menuName: '系统管理',
-      parentId: 0,
-      orderNum: 1,
-      path: '/system',
-      component: null,
-      perms: null,
-      icon: 'Setting',
-      menuType: 'M',
-      visible: 1,
-      children: [
-        {
-          menuId: 2,
-          menuName: '用户管理',
-          parentId: 1,
-          orderNum: 1,
-          path: 'user',
-          component: 'system/user/index',
-          perms: 'system:user:list',
-          icon: 'User',
-          menuType: 'C',
-          visible: 1,
-          children: [
-            {
-              menuId: 7,
-              menuName: '用户查询',
-              parentId: 2,
-              orderNum: 1,
-              path: null,
-              component: null,
-              perms: 'system:user:query',
-              icon: null,
-              menuType: 'F',
-              visible: 1,
-              children: null
-            }
-          ]
-        },
-        {
-          menuId: 3,
-          menuName: '角色管理',
-          parentId: 1,
-          orderNum: 2,
-          path: 'role',
-          component: 'system/role/index',
-          perms: 'system:role:list',
-          icon: 'UserFilled',
-          menuType: 'C',
-          visible: 1,
-          children: null
-        }
-      ]
-    }
-  ]
-  
-  // 同时更新菜单树
-  menuOptions.value = [
-    {
-      menuId: 0,
-      menuName: '主目录',
-      children: tableData.value
-    }
-  ]
-  
-  ElMessage.success('已初始化测试数据')
-}
-
-// 组件挂载时获取数据
-onMounted(() => {
-  fetchMenuList()
-  fetchMenuTree()
-})
-
-// 组件被激活时刷新数据（从缓存中恢复时）
-onActivated(() => {
-  console.log('菜单管理页面被激活，刷新数据')
-  fetchMenuList()
-  fetchMenuTree()
-})
-
-// 验证图标是否有效
-const isValidIcon = (iconName) => {
-  if (!iconName || typeof iconName !== 'string') return false
-  
-  // 检查是否包含无效字符，如斜杠
-  if (iconName.includes('/') || iconName.includes('\\')) return false
-  
-  // 检查是否为已导入的图标组件
-  const validIcons = [
-    'User', 'Setting', 'Menu', 'Document', 'Grid', 'List',
-    'Edit', 'Delete', 'Plus', 'MenuIcon'
-  ]
-  
-  return validIcons.includes(iconName)
-}
-
 // 有效图标选项
 const validIconOptions = [
   { label: '用户', value: 'User' },
@@ -598,6 +614,14 @@ const validIconOptions = [
   { label: '表格', value: 'Grid' },
   { label: '列表', value: 'List' }
 ]
+
+// 处理取消
+const handleCancel = () => {
+  dialogVisible.value = false
+  if (dialogType.value === 'add') {
+    resetForm() // 只在新增模式下重置表单
+  }
+}
 </script>
 
 <style scoped>
