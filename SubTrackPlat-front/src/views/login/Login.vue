@@ -2,16 +2,16 @@
   <div class="login-container" :style="backgroundStyle">
     <div class="login-box">
       <h2>地铁隧道巡线大数据仿真和分析平台</h2>
-      
+
       <el-form :model="loginForm" :rules="rules" ref="loginFormRef" label-position="top">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="loginForm.username" prefix-icon="el-icon-user" placeholder="请输入用户名"></el-input>
         </el-form-item>
-        
+
         <el-form-item label="密码" prop="password">
           <el-input v-model="loginForm.password" type="password" prefix-icon="el-icon-lock" placeholder="请输入密码" show-password></el-input>
         </el-form-item>
-        
+
         <el-form-item label="验证码" prop="captcha">
           <div class="captcha-container">
             <el-input v-model="loginForm.captcha" placeholder="请输入验证码"></el-input>
@@ -20,7 +20,7 @@
             </div>
           </div>
         </el-form-item>
-        
+
         <el-form-item>
           <div class="login-options">
             <el-checkbox v-model="loginForm.remember">记住密码</el-checkbox>
@@ -28,7 +28,7 @@
             <el-button type="text" @click="goToResetPassword">忘记密码</el-button>
           </div>
         </el-form-item>
-        
+
         <el-form-item>
           <el-button type="primary" class="login-button" @click="handleLogin">登录</el-button>
         </el-form-item>
@@ -39,20 +39,13 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
-import { useUserStore } from '@/stores/userStore'
-import { usePermissionStore } from '@/stores/permissionStore'
 
 const router = useRouter()
-const route = useRoute()
 const loginFormRef = ref(null)
 const loading = ref(false)
-
-// Store
-const userStore = useUserStore()
-const permissionStore = usePermissionStore()
 
 // 存储当前正确的验证码值
 const currentCaptchaCode = ref('')
@@ -118,10 +111,10 @@ const refreshCaptcha = () => {
 // 登录处理
 const handleLogin = async () => {
   if (!loginFormRef.value) return
-  
+
   try {
     const valid = await loginFormRef.value.validate()
-    
+
     if (valid) {
       // 显示加载状态
       loading.value = true
@@ -139,35 +132,28 @@ const handleLogin = async () => {
         username: loginForm.username,
         password: loginForm.password,
       }
-      
+
       try {
         const response = await axios.post('http://localhost:8083/api/login', submitData)
-        
+
         // 处理响应
         if (response.data.code === 200) {
-          const { token, userInfo } = response.data.data;
-          
-          // 保存用户信息到store和localStorage
-          userStore.setUserInfo(token, userInfo);
-          
           ElMessage.success(response.data.message || '登录成功')
-          
+
           // 如果记住密码，可以将用户名和密码保存到localStorage
           if (loginForm.remember) {
             localStorage.setItem('username', loginForm.username)
+            localStorage.setItem('password', loginForm.password)
             // 注意：实际项目中不应该直接存储密码，这里仅作演示
             // 可以考虑使用加密方式或token机制
           } else {
             // 如果不记住密码，清除之前可能存储的信息
             localStorage.removeItem('username')
+            localStorage.removeItem('password')
           }
-          
-          // 加载用户权限菜单
-          await permissionStore.loadUserMenus();
-          
-          // 登录成功后跳转到首页或重定向地址
-          const redirect = route.query.redirect ? decodeURIComponent(route.query.redirect) : '/tasks';
-          router.push(redirect);
+
+          // 登录成功后跳转到首页或其他页面
+          router.push('/tasks')
         } else {
           // 显示错误信息
           ElMessage.error(response.data.message || '登录失败')
@@ -209,11 +195,11 @@ const goToRegister = () => {
 }
 
 const goToResetPassword = async () => {
-  try {    
+  try {
     if (loginForm.username) {
       // 显示加载状态
       loading.value = true
-      
+
       try {
         const response = await axios.post('http://localhost:8083/api/reset-password?username=' + loginForm.username)
 
@@ -262,7 +248,7 @@ onMounted(() => {
     loginForm.password = savedPassword
     loginForm.remember = true
   }
-  
+
   // 初始化验证码
   refreshCaptcha()
 })
