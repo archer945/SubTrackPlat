@@ -2,38 +2,38 @@
   <div class="register-container" :style="backgroundStyle">
     <div class="register-box">
       <h2>用户注册</h2>
-      
+
       <el-form :model="registerForm" :rules="rules" ref="registerFormRef" label-position="top">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="registerForm.username" prefix-icon="el-icon-user" placeholder="请输入用户名"></el-input>
         </el-form-item>
-        
+
         <el-form-item label="密码" prop="password">
           <el-input v-model="registerForm.password" type="password" prefix-icon="el-icon-lock" placeholder="请输入密码" show-password></el-input>
         </el-form-item>
-        
+
         <el-form-item label="确认密码" prop="confirmPassword">
           <el-input v-model="registerForm.confirmPassword" type="password" prefix-icon="el-icon-lock" placeholder="请再次输入密码" show-password></el-input>
         </el-form-item>
-        
+
         <el-form-item label="真实姓名" prop="realName">
           <el-input v-model="registerForm.realName" prefix-icon="el-icon-user" placeholder="请输入真实姓名"></el-input>
         </el-form-item>
-        
+
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="registerForm.email" prefix-icon="el-icon-message" placeholder="请输入邮箱"></el-input>
         </el-form-item>
-        
+
         <el-form-item label="电话" prop="phone">
           <el-input v-model="registerForm.phone" prefix-icon="el-icon-phone" placeholder="请输入电话号码"></el-input>
         </el-form-item>
-        
+
         <el-form-item>
           <div class="register-options">
             <el-button type="text" @click="goToLogin">返回登录</el-button>
           </div>
         </el-form-item>
-        
+
         <el-form-item>
           <el-button type="primary" class="register-button" @click="handleRegister">注册</el-button>
         </el-form-item>
@@ -134,15 +134,15 @@ const backgroundStyle = {
 // 注册处理
 const handleRegister = async () => {
   if (!registerFormRef.value) return
-  
+
   try {
     // 表单验证
     const valid = await registerFormRef.value.validate()
-    
+
     if (valid) {
       // 显示加载状态
       loading.value = true
-      
+
       // 准备提交的数据（移除确认密码字段）
       const submitData = {
         username: registerForm.username,
@@ -151,10 +151,10 @@ const handleRegister = async () => {
         email: registerForm.email,
         tel: registerForm.phone
       }
-      
+
       // 调用后端API
       const response = await axios.post('http://localhost:8083/api/register', submitData)
-      
+
       // 处理响应
       if (response.data.code === 200) {
         ElMessage.success(response.data.message || '注册成功，请登录')
