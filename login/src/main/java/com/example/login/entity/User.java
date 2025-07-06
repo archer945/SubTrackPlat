@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @Getter
 @Setter
-@TableName(value = "user", schema = "public")
+@TableName(value = "user", schema = "sub_track_plat")
 public class User {
     private Long userId;
     private String username;
