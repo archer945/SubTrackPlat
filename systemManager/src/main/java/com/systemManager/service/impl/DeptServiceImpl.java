@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.domain.dto.PageDTO;
 import com.common.domain.dto.systemManager.DeptDTO;
+import com.common.domain.dto.systemManager.DeptUserDTO;
 import com.common.domain.query.systemManager.DeptQuery;
 import com.common.domain.vo.systemManager.DeptTreeVO;
+import com.common.domain.vo.systemManager.UserVO;
 import com.systemManager.entity.Dept;
 import com.systemManager.mapper.DeptMapper;
 import com.systemManager.mapper.ms.DeptMsMapper;
@@ -150,6 +152,63 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept> implements ID
         
         // 构建树形结构
         return buildDeptTree(deptList);
+    }
+    
+    @Override
+    public Long getDeptUserCount(Long deptId) {
+        if (deptId == null) {
+            throw new IllegalArgumentException("部门ID不能为空");
+        }
+        // 检查部门是否存在
+        Dept dept = deptMapper.selectById(deptId);
+        if (dept == null) {
+            throw new IllegalArgumentException("部门不存在");
+        }
+        
+        // 查询部门人员数量
+        return deptMapper.countDeptUserById(deptId);
+    }
+    
+    @Override
+    public PageDTO<UserVO> getDeptUsers(Long deptId, Integer pageIndex, Integer pageSize, String username) {
+        if (deptId == null) {
+            throw new IllegalArgumentException("部门ID不能为空");
+        }
+        // 检查部门是否存在
+        Dept dept = deptMapper.selectById(deptId);
+        if (dept == null) {
+            throw new IllegalArgumentException("部门不存在");
+        }
+        
+        // 设置分页信息
+        Page<UserVO> page = new Page<>(pageIndex, pageSize);
+        // 查询部门人员列表
+        page = deptMapper.selectUsersByDeptId(deptId, username, page);
+        
+        // 构建返回结果
+        PageDTO<UserVO> pageDTO = new PageDTO<>();
+        pageDTO.setPageIndex(page.getCurrent());
+        pageDTO.setPageSize(page.getSize());
+        pageDTO.setTotal(page.getTotal());
+        pageDTO.setPages(page.getPages());
+        pageDTO.setRows(page.getRecords());
+        
+        return pageDTO;
+    }
+    
+    @Override
+    public DeptUserDTO getDeptUserInfo(Long deptId) {
+        if (deptId == null) {
+            throw new IllegalArgumentException("部门ID不能为空");
+        }
+        // 检查部门是否存在
+        Dept dept = deptMapper.selectById(deptId);
+        if (dept == null) {
+            throw new IllegalArgumentException("部门不存在");
+        }
+        
+        // 查询部门人员信息
+        return deptMapper.getDeptUserInfo(deptId);
     }
 
     /**

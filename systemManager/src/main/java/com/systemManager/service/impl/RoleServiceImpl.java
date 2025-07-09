@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.common.domain.dto.PageDTO;
 import com.common.domain.dto.systemManager.DataScopeDTO;
+import com.common.domain.dto.systemManager.RoleCopyDTO;
 import com.common.domain.dto.systemManager.RoleDTO;
 import com.common.domain.dto.systemManager.RoleMenuDTO;
 import com.common.domain.query.systemManager.RoleQuery;
@@ -279,5 +280,56 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
                 roleMenuMapper.insert(rm);
             }
         }
+    }
+    
+    @Override
+    @Transactional
+    public String copyRole(Long sourceRoleId, RoleCopyDTO dto) {
+        // 1. 检查源角色是否存在
+        Role sourceRole = roleMapper.selectById(sourceRoleId);
+        if (sourceRole == null) {
+            throw new IllegalArgumentException("源角色不存在");
+        }
+        
+        // 2. 校验新角色名称和编码唯一性
+        checkRoleNameUnique(dto.getRoleName());
+        checkRoleCodeUnique(dto.getRoleCode());
+        
+        // 3. 创建新角色
+        Role newRole = new Role();
+        newRole.setRoleName(dto.getRoleName());
+        newRole.setRoleCode(dto.getRoleCode());
+        newRole.setStatus(Integer.valueOf(dto.getStatus()));
+        newRole.setDescription(dto.getDescription());
+        newRole.setDataScope(dto.getDataScope());
+        newRole.setCreateTime(LocalDateTime.now());
+        newRole.setUpdateTime(LocalDateTime.now());
+        
+        // 4. 插入新角色
+        if (roleMapper.insert(newRole) != 1) {
+            throw new RuntimeException("复制角色失败：创建新角色失败");
+        }
+        
+        // 5. 如果需要复制菜单权限，则复制源角色的菜单权限
+        if (dto.getCopyPermissions()) {
+            try {
+                // 获取源角色的菜单权限
+                List<Long> menuIds = getRoleMenuIds(sourceRoleId);
+                if (menuIds != null && !menuIds.isEmpty()) {
+                    // 插入新角色的菜单权限
+                    insertRoleMenu(newRole.getRoleId(), menuIds);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("复制角色菜单权限失败：" + e.getMessage(), e);
+            }
+        }
+        
+        // 6. 如果需要复制数据权限，则复制源角色的数据权限设置
+        if (dto.getCopyDataScope()) {
+            // 由于数据权限已经在创建角色时设置，这里不需要额外操作
+            // 如果有其他与数据权限相关的设置（如部门权限），可以在此处复制
+        }
+        
+        return newRole.getRoleId().toString();
     }
 }

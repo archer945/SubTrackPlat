@@ -3,6 +3,7 @@ package com.systemManager.controller;
 
 import com.common.domain.dto.PageDTO;
 import com.common.domain.dto.systemManager.DataScopeDTO;
+import com.common.domain.dto.systemManager.RoleCopyDTO;
 import com.common.domain.dto.systemManager.RoleDTO;
 import com.common.domain.dto.systemManager.RoleMenuDTO;
 import com.common.domain.query.systemManager.RoleQuery;
@@ -88,6 +89,12 @@ public class RoleController {
     @Operation(summary = "获取角色用户列表")
     public JsonVO<PageDTO<UserVO>> getRoleUsers(@PathVariable Long roleId, @ParameterObject @Validated UserQuery query) {
         return JsonVO.success(roleService.getRoleUsers(roleId, query));
+    }
+    
+    @PostMapping("/copy/{sourceRoleId}")
+    @Operation(summary = "复制角色")
+    public JsonVO<String> copyRole(@PathVariable Long sourceRoleId, @Valid @RequestBody RoleCopyDTO dto) {
+        return JsonVO.success(roleService.copyRole(sourceRoleId, dto));
     }
 }
 
