@@ -24,4 +24,6 @@ public interface ImageService {
 
 
     List<DefectImage> batchUploadImages(Long defectId, List<MultipartFile> files);
+
+
 }

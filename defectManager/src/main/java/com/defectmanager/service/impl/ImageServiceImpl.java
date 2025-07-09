@@ -1,5 +1,7 @@
 package com.defectmanager.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.defectmanager.entity.Defect;
 import com.defectmanager.entity.DefectImage;
 import com.defectmanager.mapper.DefectImageMapper;
 import com.defectmanager.mapper.DefectMapper;
@@ -17,7 +19,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-public class ImageServiceImpl implements ImageService {
+public class ImageServiceImpl extends ServiceImpl<DefectImageMapper, DefectImage> implements ImageService  {
     @Autowired
     private AliOSSUtils ossUtils;
     @Autowired
@@ -78,5 +80,6 @@ public class ImageServiceImpl implements ImageService {
     public List<DefectImage> getImagesByDefectId(Long defectId) {
         return imageMapper.selectByDefectId(defectId);
     }
+
 
 }

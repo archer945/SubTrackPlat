@@ -94,7 +94,7 @@
       <!-- 任务名称（可点击跳转） -->
       <el-table-column label="任务ID">
         <template #default="scope">
-          <el-link type="primary" @click="openPreview(scope.row)">
+          <el-link type="primary" @click="viewTaskDetail(scope.row)">
             {{ scope.row.taskId }}
           </el-link>
         </template>
@@ -256,8 +256,13 @@ import { getDefectList, exportDefects, DefectStatusEnum, deleteDefect, updateDef
 import { ElMessage, ElMessageBox } from 'element-plus'
 import DefectDetail from '@/components/defect/DefectDetail.vue'
 import { Picture, Loading } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
 
 const title = '缺陷管理'
+const router = useRouter()
+const viewTaskDetail = (taskId) => {
+  router.push(`/tasks/${taskId}`)
+}
 
 // 新增：控制编辑状态对话框的显示
 const editDialogVisible = ref(false);

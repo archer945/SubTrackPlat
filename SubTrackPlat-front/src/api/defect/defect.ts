@@ -99,6 +99,7 @@ export function addDefect(data: Defect) {
     return axios.post<Defect>('/api/defects/add', data)
 }
 
+
 /** 删除缺陷 */
 export function deleteDefect(id: number) {
     return axios.delete<boolean>(`/api/defects/${id}`)
@@ -163,3 +164,4 @@ export function uploadDefectImages(defectId: number, files: File[]) {
         headers: { 'Content-Type': 'multipart/form-data' },
     })
 }
+

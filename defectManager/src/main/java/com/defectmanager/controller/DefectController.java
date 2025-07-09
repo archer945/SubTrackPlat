@@ -50,6 +50,8 @@ public class DefectController {
         return JsonVO.success(defect1);
     }
 
+
+
     @DeleteMapping("/{id}")
     @ApiOperation("删除缺陷")
     public JsonVO<Boolean> delete(@PathVariable Long id) {
