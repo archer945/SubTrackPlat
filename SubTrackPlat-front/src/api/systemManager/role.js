@@ -63,7 +63,37 @@ export function getRoleMenus(roleId) {
   return request({
     url: `/systemManager/systemManager/role/${roleId}/menus`,
     method: 'get'
-  })
+  }).then(response => {
+    // 打印原始响应以便调试
+    console.log('getRoleMenus原始响应:', response);
+    
+    // 确保返回的是数组
+    if (response && Array.isArray(response.data)) {
+      return response.data;
+    }
+    
+    // 尝试不同的数据结构解析
+    if (response && response.data && Array.isArray(response.data.menuIds)) {
+      return response.data.menuIds;
+    }
+    
+    // 尝试从data.data中获取
+    if (response && response.data && response.data.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+    
+    // 检查是否直接包含id属性的对象数组
+    if (response && response.data && Array.isArray(response.data)) {
+      // 提取所有id字段
+      const ids = response.data
+        .filter(item => item && (item.menuId || item.id))
+        .map(item => item.menuId || item.id);
+      return ids;
+    }
+    
+    console.warn('角色菜单权限数据格式异常:', response);
+    return [];
+  });
 }
 
 // 分配角色菜单权限
@@ -106,4 +136,13 @@ export function getRoleUsers(roleId, params) {
     }
     return { records: [], total: 0 };
   });
+} 
+
+// 复制角色
+export function copyRole(sourceRoleId, data) {
+  return request({
+    url: `/systemManager/systemManager/role/copy/${sourceRoleId}`,
+    method: 'post',
+    data
+  })
 } 

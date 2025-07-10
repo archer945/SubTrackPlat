@@ -44,11 +44,29 @@
     >
       <el-table-column type="selection" width="55" />
       <el-table-column prop="deptId" label="部门编号" width="120" />
-      <el-table-column prop="deptName" label="部门名称" width="180" />
-      <el-table-column prop="deptCode" label="部门编码" width="180" />
-      <el-table-column prop="orderNum" label="排序" width="100" />
-      <el-table-column prop="leader" label="负责人" width="120" />
-      <el-table-column prop="tel" label="联系电话" width="150" />
+      <el-table-column prop="deptName" label="部门名称" width="160" />
+      <el-table-column prop="deptCode" label="部门编码" width="160" />
+      <el-table-column prop="orderNum" label="排序" width="90" />
+      <el-table-column prop="leader" label="负责人" width="90" />
+      <el-table-column prop="tel" label="联系电话" width="130" />
+      <el-table-column label="人员数量" width="100">
+        <template #default="scope">
+          <el-tooltip
+            effect="dark"
+            content="点击查看部门人员"
+            placement="top"
+          >
+            <el-button
+              type="info"
+              plain
+              size="small"
+              @click.stop="showDeptUsers(scope.row)"
+            >
+              {{ scope.row.userCount || '0' }}
+            </el-button>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="scope">
           <el-tag :type="getStatusType(scope.row.status)">
@@ -140,6 +158,60 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 部门人员对话框 -->
+    <el-dialog
+      v-model="userDialogVisible"
+      :title="`${selectedDept?.deptName || '部门'}人员列表`"
+      width="800px"
+    >
+      <div class="user-list-header">
+        <div class="dept-info">
+          <span class="label">部门名称：</span>
+          <span class="value">{{ selectedDept?.deptName }}</span>
+        </div>
+        <div class="search-box">
+          <el-input
+            v-model="userSearchForm.username"
+            placeholder="请输入用户名"
+            clearable
+            @keyup.enter="searchDeptUsers"
+            id="deptUserSearch"
+            name="deptUserSearch"
+          />
+          <el-button type="primary" @click="searchDeptUsers">搜索</el-button>
+        </div>
+      </div>
+
+      <!-- 用户列表表格 -->
+      <el-table :data="deptUserList" border style="width: 100%">
+        <el-table-column prop="userId" label="用户ID" width="80" />
+        <el-table-column prop="username" label="用户名" width="120" />
+        <el-table-column prop="realName" label="姓名" width="120" />
+        <el-table-column prop="email" label="邮箱" width="180" />
+        <el-table-column prop="tel" label="手机号" width="120" />
+        <el-table-column prop="status" label="状态" width="80">
+          <template #default="scope">
+            <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
+              {{ scope.row.status === 1 ? '正常' : '停用' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页区域 -->
+      <div class="pagination-container">
+        <el-pagination
+          :current-page="userCurrentPage"
+          :page-size="userPageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="userTotal"
+          @size-change="handleUserSizeChange"
+          @current-change="handleUserCurrentChange"
+        />
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -147,7 +219,7 @@
 import { ref, reactive, onMounted, onActivated } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Edit, Delete } from '@element-plus/icons-vue'
-import { getDeptList, addDept, updateDept, deleteDept, getDeptTree } from '@/api/systemManager/dept'
+import { getDeptList, addDept, updateDept, deleteDept, getDeptTree, getDeptUserCount, getDeptUsers } from '@/api/systemManager/dept'
 
 // 搜索表单
 const searchForm = reactive({
@@ -202,6 +274,17 @@ const deptRules = {
   ]
 }
 
+// 部门人员对话框相关
+const userDialogVisible = ref(false)
+const selectedDept = ref(null)
+const userSearchForm = reactive({
+  username: ''
+})
+const deptUserList = ref([])
+const userCurrentPage = ref(1)
+const userPageSize = ref(10)
+const userTotal = ref(0)
+
 // 处理搜索
 const handleSearch = () => {
   fetchDeptList()
@@ -232,19 +315,27 @@ const fetchDeptList = async () => {
     // 确保数据格式正确
     if (response && response.records) {
       tableData.value = processDeptData(response.records)
+      // 获取每个部门的人员数量
+      await fetchDeptUserCounts(tableData.value)
       console.log('处理后的部门数据:', JSON.stringify(tableData.value))
     } else if (response && response.rows) {
       // 兼容后端返回rows的情况
       tableData.value = processDeptData(response.rows)
+      // 获取每个部门的人员数量
+      await fetchDeptUserCounts(tableData.value)
       console.log('使用rows字段的部门数据:', JSON.stringify(tableData.value))
     } else if (response && response.data && response.data.rows) {
       // 兼容后端返回data.rows的情况
       tableData.value = processDeptData(response.data.rows)
+      // 获取每个部门的人员数量
+      await fetchDeptUserCounts(tableData.value)
       console.log('使用data.rows字段的部门数据:', JSON.stringify(tableData.value))
     } else {
       // 尝试直接使用response，如果它是数组的话
       if (Array.isArray(response)) {
         tableData.value = processDeptData(response)
+        // 获取每个部门的人员数量
+        await fetchDeptUserCounts(tableData.value)
         console.log('直接使用response作为数组:', JSON.stringify(tableData.value))
       } else if (response && typeof response === 'object') {
         // 尝试从response中提取可能的数据字段
@@ -619,6 +710,90 @@ const getStatusText = (status) => {
   }
 }
 
+// 显示部门人员
+const showDeptUsers = (dept) => {
+  selectedDept.value = dept
+  fetchDeptUsers(dept)
+}
+
+// 处理部门人员列表
+const fetchDeptUsers = async (dept) => {
+  try {
+    userSearchForm.username = ''
+    userCurrentPage.value = 1
+    userPageSize.value = 10
+    
+    // 显示对话框
+    userDialogVisible.value = true
+    
+    // 获取部门人员列表
+    await searchDeptUsers()
+  } catch (error) {
+    console.error('获取部门人员列表失败:', error)
+    ElMessage.error('获取部门人员列表失败')
+  }
+}
+
+const searchDeptUsers = async () => {
+  try {
+    const params = {
+      pageIndex: userCurrentPage.value,
+      pageSize: userPageSize.value,
+      username: userSearchForm.username
+    }
+    
+    const response = await getDeptUsers(selectedDept.value.deptId, params)
+    if (response && response.records) {
+      deptUserList.value = response.records
+      userTotal.value = response.total || 0
+    } else {
+      deptUserList.value = []
+      userTotal.value = 0
+      console.warn('部门人员列表数据格式不符合预期:', response)
+    }
+  } catch (error) {
+    console.error('获取部门人员列表失败:', error)
+    deptUserList.value = []
+    userTotal.value = 0
+    ElMessage.error('获取部门人员列表失败')
+  }
+}
+
+const handleUserSizeChange = (val) => {
+  userPageSize.value = val
+  searchDeptUsers()
+}
+
+const handleUserCurrentChange = (val) => {
+  userCurrentPage.value = val
+  searchDeptUsers()
+}
+
+// 递归获取部门人员数量
+const fetchDeptUserCounts = async (depts) => {
+  if (!depts || !Array.isArray(depts)) return
+  
+  // 使用Promise.all并行获取所有部门的人员数量
+  const promises = depts.map(async (dept) => {
+    try {
+      // 获取当前部门的人员数量
+      const count = await getDeptUserCount(dept.deptId)
+      dept.userCount = count
+      
+      // 递归获取子部门的人员数量
+      if (dept.children && dept.children.length > 0) {
+        await fetchDeptUserCounts(dept.children)
+      }
+    } catch (error) {
+      console.error(`获取部门 ${dept.deptName} 人员数量失败:`, error)
+      dept.userCount = 0
+    }
+  })
+  
+  // 等待所有请求完成
+  await Promise.all(promises)
+}
+
 // 组件挂载时获取数据
 onMounted(() => {
   fetchDeptList()
@@ -677,5 +852,41 @@ onActivated(() => {
 .empty-data p:first-child {
   font-size: 16px;
   font-weight: bold;
+}
+
+.user-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.dept-info {
+  display: flex;
+  align-items: center;
+}
+
+.dept-info .label {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.dept-info .value {
+  color: #409EFF;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
+}
+
+.search-box .el-input {
+  width: 200px;
+}
+
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style> 

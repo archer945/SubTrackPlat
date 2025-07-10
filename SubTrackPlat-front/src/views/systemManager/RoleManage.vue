@@ -4,13 +4,13 @@
     <div class="search-area">
       <el-form :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="角色名称">
-          <el-input v-model="searchForm.roleName" placeholder="请输入角色名称" clearable />
+          <el-input v-model="searchForm.roleName" placeholder="请输入角色名称" clearable id="searchRoleName" />
         </el-form-item>
         <el-form-item label="角色编码">
-          <el-input v-model="searchForm.roleCode" placeholder="请输入角色编码" clearable />
+          <el-input v-model="searchForm.roleCode" placeholder="请输入角色编码" clearable id="searchRoleCode" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="角色状态" clearable  style="width: 120px">
+          <el-select v-model="searchForm.status" placeholder="角色状态" clearable style="width: 120px" id="searchStatus">
             <el-option label="正常" :value="1" />
             <el-option label="停用" :value="0" />
           </el-select>
@@ -82,6 +82,9 @@
                   <el-dropdown-item command="viewUsers">
                     <el-icon><User /></el-icon>查看用户列表
                   </el-dropdown-item>
+                  <el-dropdown-item command="copyRole">
+                    <el-icon><CopyDocument /></el-icon>复制角色
+                  </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -117,26 +120,26 @@
         label-width="100px"
       >
         <el-form-item label="角色名称" prop="roleName">
-          <el-input v-model="roleForm.roleName" placeholder="请输入角色名称" />
+          <el-input v-model="roleForm.roleName" placeholder="请输入角色名称" id="roleName" />
         </el-form-item>
         <el-form-item label="角色编码" prop="roleCode">
-          <el-input v-model="roleForm.roleCode" placeholder="请输入角色编码" />
+          <el-input v-model="roleForm.roleCode" placeholder="请输入角色编码" id="roleCode" />
         </el-form-item>
         <el-form-item label="数据范围" prop="dataScope">
-          <el-select v-model="roleForm.dataScope" placeholder="请选择数据范围">
+          <el-select v-model="roleForm.dataScope" placeholder="请选择数据范围" id="dataScope">
             <el-option label="全部数据权限" value="1" />
             <el-option label="本部门数据权限" value="2" />
             <el-option label="仅本人数据权限" value="3" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-radio-group v-model="roleForm.status">
-            <el-radio :label="1">正常</el-radio>
-            <el-radio :label="0">停用</el-radio>
+          <el-radio-group v-model="roleForm.status" id="status">
+            <el-radio :value="1">正常</el-radio>
+            <el-radio :value="0">停用</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="描述" prop="description">
-          <el-input v-model="roleForm.description" type="textarea" placeholder="请输入角色描述" />
+          <el-input v-model="roleForm.description" type="textarea" placeholder="请输入角色描述" id="description" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -148,20 +151,25 @@
     </el-dialog>
 
     <!-- 分配权限对话框 -->
-    <el-dialog v-model="permDialogVisible" title="分配权限" width="500px">
+    <el-dialog v-model="permDialogVisible" title="分配权限" width="600px">
       <el-form label-width="80px">
         <el-form-item label="角色名称">
-          <el-input v-model="selectedRole.roleName" disabled />
+          <el-input v-model="selectedRole.roleName" disabled id="permRoleName" />
         </el-form-item>
+        
         <el-form-item label="菜单权限">
-          <el-tree
-            ref="menuTreeRef"
-            :data="menuOptions"
-            show-checkbox
-            node-key="id"
-            :props="{ label: 'label', children: 'children' }"
-            default-expand-all
-          />
+          <div class="menu-tree-container">
+            <el-tree
+              ref="menuTreeRef"
+              :data="menuOptions"
+              show-checkbox
+              node-key="id"
+              :props="{ label: 'label', children: 'children' }"
+              :check-strictly="true"
+              default-expand-all
+              @check="handleTreeCheck"
+            />
+          </div>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -176,10 +184,10 @@
     <el-dialog v-model="dataScopeDialogVisible" title="分配数据权限" width="500px">
       <el-form label-width="100px" :model="dataScopeForm">
         <el-form-item label="角色名称">
-          <el-input v-model="selectedRole.roleName" disabled />
+          <el-input v-model="selectedRole.roleName" disabled id="dataScopeRoleName" />
         </el-form-item>
         <el-form-item label="数据范围" prop="dataScope">
-          <el-select v-model="dataScopeForm.dataScope" placeholder="请选择数据范围">
+          <el-select v-model="dataScopeForm.dataScope" placeholder="请选择数据范围" id="dataScopeSelect">
             <el-option label="全部数据权限" value="1" />
             <el-option label="本部门数据权限" value="2" />
             <el-option label="仅本人数据权限" value="3" />
@@ -212,7 +220,7 @@
           <span class="value">{{ selectedRole.roleName }}</span>
         </div>
         <div class="search-box">
-          <el-input v-model="userSearchForm.username" placeholder="请输入用户名" clearable @keyup.enter="searchRoleUsers" />
+          <el-input v-model="userSearchForm.username" placeholder="请输入用户名" clearable @keyup.enter="searchRoleUsers" id="searchUsername" />
           <el-button type="primary" @click="searchRoleUsers">搜索</el-button>
         </div>
       </div>
@@ -247,14 +255,72 @@
         />
       </div>
     </el-dialog>
+
+    <!-- 复制角色对话框 -->
+    <el-dialog 
+      v-model="copyRoleDialogVisible" 
+      title="复制角色" 
+      width="500px"
+      @close="resetCopyRoleForm"
+    >
+      <el-form
+        ref="copyRoleFormRef"
+        :model="copyRoleForm"
+        :rules="copyRoleRules"
+        label-width="100px"
+      >
+        <el-form-item label="源角色">
+          <el-input v-model="selectedRole.roleName" disabled id="sourceRole" name="sourceRole" />
+          <div class="copy-role-help">
+            <el-alert type="info" :closable="false" show-icon>
+              将复制此角色的所有权限和数据范围设置
+            </el-alert>
+          </div>
+        </el-form-item>
+        <el-form-item label="新角色名称" prop="roleName">
+          <el-input v-model="copyRoleForm.roleName" placeholder="请输入新角色名称" id="newRoleName" name="newRoleName" />
+        </el-form-item>
+        <el-form-item label="新角色编码" prop="roleCode">
+          <el-input v-model="copyRoleForm.roleCode" placeholder="请输入新角色编码" id="newRoleCode" name="newRoleCode" />
+        </el-form-item>
+        <el-form-item label="数据范围" prop="dataScope">
+          <el-select v-model="copyRoleForm.dataScope" placeholder="请选择数据范围" id="newDataScope" name="newDataScope">
+            <el-option label="全部数据权限" value="1" />
+            <el-option label="本部门数据权限" value="2" />
+            <el-option label="仅本人数据权限" value="3" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-radio-group v-model="copyRoleForm.status" id="newStatus" name="newStatus">
+            <el-radio :value="1">正常</el-radio>
+            <el-radio :value="0">停用</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="copyRoleForm.description" type="textarea" placeholder="请输入角色描述" id="newDescription" name="newDescription" />
+        </el-form-item>
+        <el-form-item label="复制选项">
+          <div class="copy-options">
+            <el-checkbox v-model="copyRoleForm.copyPermissions" id="copyPermissions" name="copyPermissions">复制菜单权限</el-checkbox>
+            <el-checkbox v-model="copyRoleForm.copyDataScope" id="copyDataScope" name="copyDataScope">复制数据权限设置</el-checkbox>
+          </div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="copyRoleDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitCopyRole">确定</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, onActivated } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Edit, Delete, ArrowDown, Menu, DataLine, User } from '@element-plus/icons-vue'
-import { getRoleList, addRole, updateRole, deleteRole, getRoleMenus, assignRoleMenus, updateRoleDataScope, getRoleUsers } from '@/api/systemManager/role'
+import { Plus, Edit, Delete, ArrowDown, Menu, DataLine, User, CopyDocument } from '@element-plus/icons-vue'
+import { getRoleList, addRole, updateRole, deleteRole, getRoleMenus, assignRoleMenus, updateRoleDataScope, getRoleUsers, copyRole } from '@/api/systemManager/role'
 import { getMenuList } from '@/api/systemManager/menu'
 import { getDeptList } from '@/api/systemManager/dept'
 
@@ -333,6 +399,60 @@ const userSearchForm = reactive({
   username: ''
 })
 
+// 复制角色相关
+const copyRoleDialogVisible = ref(false)
+const copyRoleFormRef = ref(null)
+const copyRoleForm = reactive({
+  roleId: '', // 源角色ID
+  roleName: '', // 新角色名称
+  roleCode: '', // 新角色编码
+  dataScope: '1', // 新数据范围
+  status: 1, // 新状态
+  description: '', // 新描述
+  copyPermissions: true, // 是否复制权限
+  copyDataScope: true // 是否复制数据权限
+})
+const copyRoleRules = {
+  roleName: [
+    { required: true, message: '请输入新角色名称', trigger: 'blur' },
+    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+  ],
+  roleCode: [
+    { required: true, message: '请输入新角色编码', trigger: 'blur' },
+    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+  ],
+  dataScope: [
+    { required: true, message: '请选择数据范围', trigger: 'change' }
+  ]
+}
+
+// 重置表单
+const resetForm = () => {
+  roleFormRef.value?.resetFields()
+  Object.keys(roleForm).forEach(key => {
+    if (key !== 'status' && key !== 'dataScope') {
+      roleForm[key] = ''
+    } else if (key === 'status') {
+      roleForm[key] = 1
+    } else {
+      roleForm[key] = '1'
+    }
+  })
+}
+
+// 重置复制角色表单
+const resetCopyRoleForm = () => {
+  copyRoleFormRef.value?.resetFields()
+  copyRoleForm.roleId = ''
+  copyRoleForm.roleName = ''
+  copyRoleForm.roleCode = ''
+  copyRoleForm.dataScope = '1'
+  copyRoleForm.status = 1
+  copyRoleForm.description = ''
+  copyRoleForm.copyPermissions = true
+  copyRoleForm.copyDataScope = true
+}
+
 // 处理搜索
 const handleSearch = () => {
   currentPage.value = 1
@@ -401,19 +521,35 @@ const fetchMenuTree = async () => {
     
     // 确保数据格式正确
     if (response && response.records) {
+      // 构建菜单树结构
       menuOptions.value = response.records.map(menu => ({
-        id: menu.menuId,
+        id: menu.menuId,  // 确保这里使用正确的ID字段
         label: menu.menuName,
         children: menu.children ? menu.children.map(child => ({
-          id: child.menuId,
+          id: child.menuId,  // 确保这里使用正确的ID字段
           label: child.menuName,
           children: child.children ? child.children.map(grandChild => ({
-            id: grandChild.menuId,
+            id: grandChild.menuId,  // 确保这里使用正确的ID字段
             label: grandChild.menuName
           })) : []
         })) : []
       }))
-      console.log('角色管理-处理后的菜单树数据:', menuOptions.value)
+      
+      // 打印处理后的菜单树结构，用于调试
+      console.log('角色管理-处理后的菜单树数据:', JSON.stringify(menuOptions.value, null, 2))
+      
+      // 打印所有菜单ID，用于调试
+      const allMenuIds = [];
+      const extractMenuIds = (menus) => {
+        menus.forEach(menu => {
+          allMenuIds.push(menu.id);
+          if (menu.children && menu.children.length > 0) {
+            extractMenuIds(menu.children);
+          }
+        });
+      };
+      extractMenuIds(menuOptions.value);
+      console.log('角色管理-所有菜单ID:', allMenuIds);
     } else {
       console.error('角色管理-菜单树数据格式不符合预期:', response)
       menuOptions.value = []
@@ -534,13 +670,39 @@ const handleAssignPermission = async (row) => {
   try {
     // 获取角色已分配的菜单权限
     const menuIds = await getRoleMenus(row.roleId)
+    
+    // 记录原始菜单ID数组
+    console.log('服务器返回的菜单ID:', menuIds)
+    
+    // 打开对话框
     permDialogVisible.value = true
+    
     // 在对话框打开后设置选中节点
     setTimeout(() => {
-      menuTreeRef.value?.setCheckedKeys(menuIds || [])
+      // 确保先清空当前选中状态
+      menuTreeRef.value?.setCheckedKeys([])
+      
+      // 转换菜单ID为字符串类型（el-tree期望的类型）
+      const menuIdArray = (Array.isArray(menuIds) ? menuIds : [])
+        .map(id => typeof id === 'number' ? id.toString() : id)
+        .filter(id => id) // 过滤掉falsy值
+      
+      console.log('处理后的菜单ID数组:', menuIdArray)
+      
+      // 确保树节点全部加载完成后再设置选中状态
+      if (menuIdArray && menuIdArray.length > 0) {
+        // 设置选中节点
+        menuTreeRef.value?.setCheckedKeys([])
+        
+        // 延迟设置选中状态，确保树节点已完全渲染
+        setTimeout(() => {
+          menuTreeRef.value?.setCheckedKeys(menuIdArray)
+        }, 50)
+      }
     }, 100)
   } catch (error) {
     console.error('获取角色菜单权限失败:', error)
+    ElMessage.error('获取角色菜单权限失败')
   }
 }
 
@@ -549,6 +711,23 @@ const handleAssignDataScope = (row) => {
   selectedRole.value = row
   dataScopeForm.dataScope = row.dataScope
   dataScopeDialogVisible.value = true
+}
+
+// 处理复制角色
+const handleCopyRole = (row) => {
+  selectedRole.value = row
+  copyRoleForm.roleId = row.roleId
+  // 初始化新角色名称为"复制 - 原角色名称"
+  copyRoleForm.roleName = `复制 - ${row.roleName}` 
+  // 初始化新角色编码为"copy_原角色编码"
+  copyRoleForm.roleCode = `copy_${row.roleCode}` 
+  // 复制原角色的数据范围
+  copyRoleForm.dataScope = row.dataScope || '1'
+  // 默认状态为正常
+  copyRoleForm.status = 1
+  // 复制原角色的描述
+  copyRoleForm.description = row.description ? `${row.description} (复制)` : ''
+  copyRoleDialogVisible.value = true
 }
 
 // 提交表单
@@ -585,32 +764,34 @@ const submitForm = () => {
   })
 }
 
-// 重置表单
-const resetForm = () => {
-  roleFormRef.value?.resetFields()
-  Object.keys(roleForm).forEach(key => {
-    if (key !== 'status' && key !== 'dataScope') {
-      roleForm[key] = ''
-    } else if (key === 'status') {
-      roleForm[key] = 1
-    } else {
-      roleForm[key] = '1'
-    }
-  })
-}
-
 // 提交权限分配
 const submitPermAssign = async () => {
-  const checkedKeys = menuTreeRef.value.getCheckedKeys()
-  const halfCheckedKeys = menuTreeRef.value.getHalfCheckedKeys()
-  const allKeys = [...checkedKeys, ...halfCheckedKeys]
+  // 获取所有选中的节点（由于check-strictly为true，不需要处理半选中节点）
+  const checkedKeys = menuTreeRef.value?.getCheckedKeys() || []
+  
+  // 将字符串ID转换为数字ID
+  const menuIds = checkedKeys.map(id => {
+    // 如果ID是字符串且可以转换为数字，则转换
+    if (typeof id === 'string' && !isNaN(Number(id))) {
+      return Number(id)
+    }
+    return id
+  })
+  
+  console.log('提交权限 - 选中的菜单ID:', menuIds)
+  
+  if (menuIds.length === 0) {
+    ElMessage.warning('请至少选择一个菜单权限')
+    return
+  }
   
   try {
-    const response = await assignRoleMenus(selectedRole.value.roleId, allKeys)
+    const response = await assignRoleMenus(selectedRole.value.roleId, menuIds)
     
     // 检查响应是否包含错误信息
     if (response && response.error) {
       console.error('分配权限失败:', response)
+      ElMessage.error('分配权限失败: ' + (response.message || '未知错误'))
       return
     }
     
@@ -622,6 +803,7 @@ const submitPermAssign = async () => {
     await fetchMenuTree()
   } catch (error) {
     console.error('分配权限失败:', error)
+    ElMessage.error('分配权限失败: ' + (error.message || '未知错误'))
   }
 }
 
@@ -655,6 +837,43 @@ const submitDataScopeAssign = async () => {
   }
 }
 
+// 提交复制角色
+const submitCopyRole = () => {
+  copyRoleFormRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        ElMessage.info('正在复制角色和权限，请稍候...')
+        
+        // 使用专门的复制角色API
+        const response = await copyRole(copyRoleForm.roleId, {
+          roleName: copyRoleForm.roleName,
+          roleCode: copyRoleForm.roleCode,
+          dataScope: copyRoleForm.dataScope,
+          status: copyRoleForm.status,
+          description: copyRoleForm.description,
+          copyPermissions: copyRoleForm.copyPermissions, // 是否复制权限
+          copyDataScope: copyRoleForm.copyDataScope // 是否复制数据权限
+        })
+        
+        if (response && response.error) {
+          console.error('复制角色失败:', response)
+          ElMessage.error('复制角色失败: ' + (response.message || '未知错误'))
+          return
+        }
+        
+        ElMessage.success('角色复制成功')
+        copyRoleDialogVisible.value = false
+        
+        // 立即刷新数据
+        await fetchRoleList()
+      } catch (error) {
+        console.error('复制角色失败:', error)
+        ElMessage.error('复制角色失败: ' + (error.message || '未知错误'))
+      }
+    }
+  })
+}
+
 // 处理分页大小变化
 const handleSizeChange = (size) => {
   pageSize.value = size
@@ -678,6 +897,9 @@ const handleCommand = (command, row) => {
       break
     case 'viewUsers':
       handleViewUsers(row)
+      break
+    case 'copyRole':
+      handleCopyRole(row)
       break
     default:
       break
@@ -736,6 +958,12 @@ const handleUserSizeChange = (size) => {
 const handleUserCurrentChange = (page) => {
   userCurrentPage.value = page
   fetchRoleUsers()
+}
+
+// 处理树节点选中状态变化
+const handleTreeCheck = (data, checkedInfo) => {
+  console.log('节点选中状态变化:', data)
+  console.log('当前选中节点:', menuTreeRef.value?.getCheckedKeys())
 }
 
 // 组件挂载时获取数据
@@ -819,5 +1047,22 @@ onActivated(() => {
 
 .search-box .el-input {
   width: 200px;
+}
+
+.menu-tree-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.copy-role-help {
+  margin-top: 10px;
+}
+
+.copy-options {
+  display: flex;
+  gap: 20px;
 }
 </style> 

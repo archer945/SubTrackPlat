@@ -53,6 +53,42 @@ export function getDeptDetail(id) {
   })
 }
 
+// 获取部门人员数量
+export function getDeptUserCount(deptId) {
+  return request({
+    url: `/systemManager/systemManager/dept/${deptId}/user/count`,
+    method: 'get'
+  }).then(response => {
+    if (response && response.data !== undefined) {
+      return response.data;
+    }
+    return 0;
+  });
+}
+
+// 获取部门人员列表
+export function getDeptUsers(deptId, params) {
+  const newParams = { pageIndex: 1, pageSize: 10, ...params };
+  
+  return request({
+    url: `/systemManager/systemManager/dept/${deptId}/users`,
+    method: 'get',
+    params: newParams
+  }).then(response => {
+    // 转换响应数据格式
+    if (response && response.data && response.data.rows) {
+      return {
+        records: response.data.rows,
+        total: response.data.total,
+        pageSize: response.data.pageSize,
+        pageIndex: response.data.pageIndex,
+        pages: response.data.pages
+      };
+    }
+    return { records: [], total: 0 };
+  });
+}
+
 // 新增部门
 export function addDept(data) {
   // 确保status是数字类型

@@ -13,6 +13,28 @@
         <result property="email" column="email"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
+    
+    <resultMap id="UserResultMap" type="com.common.domain.vo.systemManager.UserVO">
+        <id property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="realName" column="real_name"/>
+        <result property="tel" column="tel"/>
+        <result property="email" column="email"/>
+        <result property="status" column="status"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    
+    <resultMap id="DeptUserMap" type="com.common.domain.dto.systemManager.DeptUserDTO">
+        <id property="deptId" column="dept_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="userCount" column="user_count"/>
+        <collection property="userIds" ofType="java.lang.Long" javaType="java.util.ArrayList">
+            <result column="user_id"/>
+        </collection>
+    </resultMap>
 
     <sql id="selectDeptVo">
         SELECT d.dept_id, d.dept_name,d.parent_id,d.order_num,d.status,d.create_time
@@ -57,5 +79,37 @@
 
     <select id="selectByDeptName" resultType="com.systemManager.entity.Dept">
         SELECT * FROM dept WHERE dept_name = #{deptName} LIMIT 1
+    </select>
+    
+    <select id="countDeptUserById" resultType="long">
+        SELECT COUNT(1) FROM "user" WHERE dept_id = #{deptId} AND status = 1
+    </select>
+    
+    <select id="selectUsersByDeptId" resultMap="UserResultMap">
+        SELECT u.user_id, u.username, u.real_name, u.tel, u.email, u.status, u.dept_id, 
+               u.remark, u.create_time, d.dept_name
+        FROM "user" u
+        LEFT JOIN dept d ON u.dept_id = d.dept_id
+        WHERE u.dept_id = #{deptId} AND u.status = 1
+        <if test="username != null and username != ''">
+            AND (u.username LIKE CONCAT('%', #{username}, '%') OR u.real_name LIKE CONCAT('%', #{username}, '%'))
+        </if>
+        ORDER BY u.create_time DESC
+    </select>
+    
+    <select id="getDeptUserInfo" resultMap="DeptUserMap">
+        SELECT 
+            d.dept_id, 
+            d.dept_name, 
+            COUNT(u.user_id) as user_count,
+            u.user_id
+        FROM 
+            dept d
+        LEFT JOIN 
+            "user" u ON d.dept_id = u.dept_id AND u.status = 1
+        WHERE 
+            d.dept_id = #{deptId}
+        GROUP BY 
+            d.dept_id, d.dept_name, u.user_id
     </select>
 </mapper>

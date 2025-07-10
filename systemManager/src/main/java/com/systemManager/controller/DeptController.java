@@ -3,9 +3,11 @@ package com.systemManager.controller;
 
 import com.common.domain.dto.PageDTO;
 import com.common.domain.dto.systemManager.DeptDTO;
+import com.common.domain.dto.systemManager.DeptUserDTO;
 import com.common.domain.query.systemManager.DeptQuery;
 import com.common.domain.vo.JsonVO;
 import com.common.domain.vo.systemManager.DeptTreeVO;
+import com.common.domain.vo.systemManager.UserVO;
 import com.systemManager.service.IDeptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -60,6 +62,28 @@ public class DeptController {
     @GetMapping("/tree")
     public JsonVO<List<DeptTreeVO>> getDeptTree() {
         return JsonVO.success(deptService.getDeptTree());
+    }
+    
+    @Operation(summary = "获取部门人员数量")
+    @GetMapping("/{deptId}/user/count")
+    public JsonVO<Long> getDeptUserCount(@PathVariable Long deptId) {
+        return JsonVO.success(deptService.getDeptUserCount(deptId));
+    }
+    
+    @Operation(summary = "获取部门人员列表")
+    @GetMapping("/{deptId}/users")
+    public JsonVO<PageDTO<UserVO>> getDeptUsers(
+            @PathVariable Long deptId,
+            @RequestParam(defaultValue = "1") Integer pageIndex,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) String username) {
+        return JsonVO.success(deptService.getDeptUsers(deptId, pageIndex, pageSize, username));
+    }
+    
+    @Operation(summary = "获取部门人员统计信息")
+    @GetMapping("/{deptId}/user-info")
+    public JsonVO<DeptUserDTO> getDeptUserInfo(@PathVariable Long deptId) {
+        return JsonVO.success(deptService.getDeptUserInfo(deptId));
     }
 }
 

@@ -3,6 +3,7 @@ package com.systemManager.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.common.domain.dto.PageDTO;
 import com.common.domain.dto.systemManager.DataScopeDTO;
+import com.common.domain.dto.systemManager.RoleCopyDTO;
 import com.common.domain.dto.systemManager.RoleDTO;
 import com.common.domain.dto.systemManager.RoleMenuDTO;
 import com.common.domain.query.systemManager.RoleQuery;
@@ -62,4 +63,12 @@ public interface IRoleService extends IService<Role> {
      * @return 用户列表（分页）
      */
     PageDTO<UserVO> getRoleUsers(Long roleId, UserQuery query);
+    
+    /**
+     * 复制角色
+     * @param sourceRoleId 源角色ID
+     * @param dto 目标角色信息
+     * @return 新角色ID
+     */
+    String copyRole(Long sourceRoleId, @Valid RoleCopyDTO dto);
 }
