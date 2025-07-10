@@ -8,14 +8,41 @@ const props = defineProps<{ defect?: any; id?: string | number }>()
 const loading = ref(false)
 const detail = ref<any | null>(props.defect ?? null)
 
+
+/**
+ * 缺陷类型选项
+ */
+const defectTypeOptions = [
+  { label: '结构裂缝', value: 'STRUCTURAL_CRACK' },
+  { label: '渗水', value: 'LEAKAGE' },
+  { label: '设备故障', value: 'EQUIPMENT_FAILURE' },
+  { label: '照明问题', value: 'LIGHTING_ISSUE' },
+  { label: '脱落', value: 'DETACHMENT' },
+  { label: '腐蚀', value: 'CORROSION' },
+  { label: '渗漏', value: 'SEEPAGE' },
+  { label: '设备异常', value: 'EQUIPMENT_ABNORMALITY' }
+]
+
+
+/**
+ * 严重程度中文映射
+ */
+const severityLabelMap: Record<string, string> = {
+  LOW: '低',
+  MIDDLE: '中',
+  MEDIUM: '中',
+  HIGH: '高',
+  CRITICAL: '严重'
+}
+
 function normalize(src: any) {
   if (!src) return null
   return {
     ...src,
-    defectType: src.type,
+    defectType: defectTypeOptions.find((v) => v.value === src.type)?.label || '未知类型',
     taskName: src.taskName ?? src.title,
     distance: src.location,
-    level: src.severity,
+    level: severityLabelMap[src.severity] || '未知',
     defectLength: src.defectLength,
     area: src.defectArea,
     count: src.defectCount,
