@@ -5,9 +5,14 @@ import SystemManager from '@/views/systemManager/SystemManager.vue'
 import Login from '@/views/login/Login.vue'
 import TaskList from '@/views/task/TaskList.vue'
 import { usePermissionStore } from '@/stores/permissionStore'
+import { ElMessage } from 'element-plus';
+import { useUserStore } from '@/stores/userStore';
 
 // 路由白名单，不需要权限验证的路由
-const whiteList = ['/login', '/register', '/404', '/403', '/system', '/defects', '/tasks'];
+const whiteList = ['/login', '/register', '/404', '/403'];
+
+// 普通用户可访问的路由（已登录即可访问，无需额外权限）
+const commonRoutes = ['/tasks', '/tasks/list', '/defects'];
 
 // 基础路由
 const constantRoutes = [
@@ -111,14 +116,30 @@ router.beforeEach(async (to, from, next) => {
   }
   
   // 检查是否有token
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   if (!token) {
     // 没有token，重定向到登录页
     return next(`/login?redirect=${encodeURIComponent(to.fullPath)}`);
   }
   
-  // 获取权限store
+  // 普通路由直接放行（任务、缺陷等页面任何已登录用户都能访问）
+  if (commonRoutes.some(route => to.path.startsWith(route))) {
+    return next();
+  }
+  
+  // 获取用户信息和权限store
+  const userStore = useUserStore();
   const permissionStore = usePermissionStore();
+  
+  // 特殊路径权限控制（例如系统管理页面仅管理员可访问）
+  if (to.path === '/system') {
+    // 判断是否为管理员
+    if (userStore.username !== 'admin') {
+      // 不是管理员，重定向到403页面
+      ElMessage.error('您没有权限访问系统管理页面');
+      return next('/403');
+    }
+  }
   
   // 检查是否已加载权限数据
   if (permissionStore.permissions.length === 0) {
@@ -127,15 +148,18 @@ router.beforeEach(async (to, from, next) => {
       const success = await permissionStore.loadUserMenus();
       if (!success) {
         // 加载失败，跳转到登录页
-        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         return next(`/login?redirect=${encodeURIComponent(to.fullPath)}`);
       }
       
-      // 添加动态路由
-      addRoutes(permissionStore.routes);
-      
-      // 重新导航到当前路由（确保能匹配到新添加的路由）
-      return next({ ...to, replace: true });
+      // 如果是管理员才需要添加动态路由
+      if (userStore.username === 'admin') {
+        // 添加动态路由
+        addRoutes(permissionStore.routes);
+        
+        // 重新导航到当前路由（确保能匹配到新添加的路由）
+        return next({ ...to, replace: true });
+      }
     } catch (error) {
       console.error('路由守卫处理异常', error);
       return next('/login');

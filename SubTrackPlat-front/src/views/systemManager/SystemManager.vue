@@ -35,10 +35,6 @@
             <span>部门管理</span>
           </el-menu-item>
 
-          <el-menu-item index="param">
-            <el-icon><Setting /></el-icon>
-            <span>参数配置</span>
-          </el-menu-item>
         </el-menu>
       </div>
 

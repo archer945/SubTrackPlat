@@ -10,9 +10,10 @@ const request = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
   config => {
-    // 从localStorage获取token
-    const token = localStorage.getItem('token')
+    // 从sessionStorage获取token
+    const token = sessionStorage.getItem('token')
     if (token) {
+      // 设置请求头中的Authorization
       config.headers['Authorization'] = `Bearer ${token}`
     }
     
@@ -136,19 +137,35 @@ request.interceptors.response.use(
       case 401:
         ElMessage.error('未授权，请重新登录')
         // 清除token并跳转到登录页
-        localStorage.removeItem('token')
+        sessionStorage.removeItem('token')
         setTimeout(() => {
           window.location.href = '/login'
         }, 1500)
         break
       case 403:
-        ElMessage.error('拒绝访问')
+        ElMessage.error('拒绝访问：没有操作权限')
+        // 跳转到403页面
+        setTimeout(() => {
+          window.location.href = '/403'
+        }, 1000)
         break
       case 404:
         ElMessage.error(`请求的资源不存在: ${error.config.url}`)
         break
       case 500:
-        ElMessage.error('服务器内部错误')
+        // 检查是否是权限相关的错误
+        if (data && data.message && 
+            (data.message.includes('权限') || 
+             data.message.includes('没有访问') || 
+             data.message.includes('没有权限'))) {
+          ElMessage.error('没有操作权限')
+          // 跳转到403页面
+          setTimeout(() => {
+            window.location.href = '/403'
+          }, 1000)
+        } else {
+          ElMessage.error('服务器内部错误')
+        }
         break
       default:
         ElMessage.error(`请求失败: ${statusText}`)
