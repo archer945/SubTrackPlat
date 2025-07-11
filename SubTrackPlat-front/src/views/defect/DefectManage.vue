@@ -83,7 +83,6 @@
     <!-- 操作栏 -->
     <div class="action-bar">
       <el-button type="success" @click="handleExport">导出数据</el-button>
-      <el-button type="primary" @click="handleAdd">新增</el-button>
       <el-button @click="handleRefresh">刷新</el-button>
     </div>
 

@@ -7,7 +7,7 @@
     >
       <template #extra>
         <el-button @click="goBack">返回上一页</el-button>
-        <el-button type="primary" @click="$router.push('/tasks')">返回首页</el-button>
+        <el-button type="primary" @click="$router.push('/dashboard')">返回首页</el-button>
       </template>
     </el-result>
   </div>

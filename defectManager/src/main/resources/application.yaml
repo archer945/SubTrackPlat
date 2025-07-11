@@ -6,9 +6,7 @@ spring:
     username: system
     password: kingbase8
     driver-class-name: com.kingbase8.Driver
-    hikari:
-      connection-timeout: 30000
-      maximum-pool-size: 20
+    type: com.alibaba.druid.pool.DruidDataSource
   application:
     name: defectManager
 
