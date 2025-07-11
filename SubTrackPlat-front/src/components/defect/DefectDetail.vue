@@ -46,7 +46,7 @@ function normalize(src: any) {
     defectLength: src.defectLength,
     area: src.defectArea,
     count: src.defectCount,
-    suggestion: src.description,
+    suggestion: src.suggestion,
     images: src.images ?? (src.imageUrl ? [{ imageUrl: src.imageUrl, thumbnailUrl: src.thumbnailUrl }] : []),
   }
 }
