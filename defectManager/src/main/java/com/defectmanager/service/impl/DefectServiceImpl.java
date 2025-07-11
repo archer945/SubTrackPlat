@@ -69,6 +69,7 @@ public class DefectServiceImpl implements DefectService {
             d.setImages(images != null ? images : new ArrayList<>());
         });
 
+
         return defectPage;
     }
 
@@ -113,8 +114,8 @@ public class DefectServiceImpl implements DefectService {
         return wrapper;
     }
     /*
-    * 添加缺陷信息
-    * */
+     * 添加缺陷信息
+     * */
 
     @Override
     public Defect add(Defect defect) {
@@ -134,8 +135,8 @@ public class DefectServiceImpl implements DefectService {
     }
 
     /*
-    * 删除缺陷
-    * */
+     * 删除缺陷
+     * */
     @Override
     public Boolean deleteDefect(Long id) {
 
@@ -159,8 +160,8 @@ public class DefectServiceImpl implements DefectService {
     }
 
     /*
-    * 状态修改
-    * */
+     * 状态修改
+     * */
     @Override
     @Transactional
     public boolean updateStatus(Long id, DefectStatusEnum newStatus, Long operatorId) {
@@ -205,6 +206,7 @@ public class DefectServiceImpl implements DefectService {
             case CONFIRMED:
                 defect.setConfirmBy(operatorId);
                 defect.setConfirmTime(LocalDateTime.now());
+                defect.setIsValid(true);
                 break;
             case PROCESSING:
                 defect.setHandleBy(operatorId);
@@ -224,8 +226,8 @@ public class DefectServiceImpl implements DefectService {
     }
 
     /*
-    * 根据id获取图片信息
-    * */
+     * 根据id获取图片信息
+     * */
 
     @Override
     public Defect getById(Long id) {

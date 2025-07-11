@@ -257,6 +257,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import DefectDetail from '@/components/defect/DefectDetail.vue'
 import { Picture, Loading } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore'
+
+const userStore = useUserStore()
 
 const title = '缺陷管理'
 const router = useRouter()
@@ -479,7 +482,12 @@ async function confirmUpdateStatus() {
     return;
   }
   try {
-    await updateDefectStatus(editingDefect.value.id, selectedStatus.value);
+    const userId = userStore.userInfo?.userId
+    if (!userId) {
+      ElMessage.error('未获取到当前登录用户ID，请重新登录')
+      return
+    }
+    await updateDefectStatus(editingDefect.value.id, selectedStatus.value, userId)
     ElMessage.success('状态更新成功');
     editDialogVisible.value = false; // 关闭对话框
     fetchData(); // 刷新数据
