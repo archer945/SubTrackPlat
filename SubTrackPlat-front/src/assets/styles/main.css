@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 自定义字体 */
+@font-face {
+  font-family: 'Digital';
+  src: url('../assets/fonts/digital.ttf');
+}
+
+/* 图表容器响应式 */
+.chart-container {
+  @apply w-full h-[400px] lg:h-[500px];
+}

@@ -1,13 +1,36 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="h-full">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 移除冗余的favicon设置，保留一个统一的设置 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>智能巡线车平台</title>
+    <!-- 统一的favicon设置 -->
+    <link rel="icon" href="./src/assets/imgs/aespadirtywork.jpg" />
+    <!-- iOS设备 -->
+    <link rel="apple-touch-icon" href="./src/assets/imgs/aespadirtywork.jpg" />
+    <!-- Android设备 -->
+    <link rel="shortcut icon" href="./src/assets/imgs/aespadirtywork.jpg" />
+    <meta name="description" content="地铁隧道巡线大数据仿真和分析平台" />
+    <meta name="theme-color" content="#000824" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+      }
+      #app {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
   </head>
-  <body>
-    <div id="app"></div>
+  <body class="h-full m-0 p-0">
+    <div id="app" class="w-full h-full"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

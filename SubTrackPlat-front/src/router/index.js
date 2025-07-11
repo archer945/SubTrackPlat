@@ -12,10 +12,16 @@ import { useUserStore } from '@/stores/userStore';
 const whiteList = ['/login', '/register', '/404', '/403'];
 
 // 普通用户可访问的路由（已登录即可访问，无需额外权限）
-const commonRoutes = ['/tasks', '/tasks/list', '/defects'];
+const commonRoutes = ['/tasks', '/tasks/list', '/defects', '/dashboard'];
 
 // 基础路由
 const constantRoutes = [
+  {
+    path: '/dashboard',
+    name: 'DashBoard',
+    component: () => import('@/views/dashboard/DashBoard.vue'),
+    props: true
+  },
   {
     path: '/defects',
     name: 'DefectManage',

@@ -11,35 +11,57 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'), // ❗ 让 @ 指向 src
+      '@utils': path.resolve(__dirname, './src/utils') // 推荐添加utils专用别名
     },
   },
-
+  
   // ---------- 本地开发服务器 ----------
   server: {
+    host: '0.0.0.0',
+    port: 5173,
+    hmr: true,
+    // 确保SPA应用能正常工作
     proxy: {
-      // 缺陷模块
+      // API代理
+      '/dashboard/defect-overview': {
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+      },
+      '/dashboard/defect-stats': {
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+      },
+      '/dashboard/inspectSummary': {
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+      },
+      '/dashboard/inspectTrend': {
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+      },
+      '/dashboard/inspection-tasks': {
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+      },
+      // 其他API代理保持不变
       '/api/defects': {
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
-      // 系统管理模块
       '/api/systemManager': {
         target: 'http://localhost:8082',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/systemManager/, '')
       },
-      // 任务模块
       '/api/tasks': {
         target: 'http://localhost:8081',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/tasks/, '')
       },
-      // 登录模块
       '/api/login': {
         target: 'http://localhost:8083',
         changeOrigin: true
       }
-    },
+    }
   },
-
 })

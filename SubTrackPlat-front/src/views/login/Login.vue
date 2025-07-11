@@ -175,8 +175,8 @@ const handleLogin = async () => {
             localStorage.removeItem('password')
           }
 
-          // 登录成功后跳转到首页或其他页面
-          router.push('/tasks')
+          // 登录成功后跳转到dashboard页面
+          router.push('/dashboard')
         } else {
           // 显示错误信息
           ElMessage.error(response.data.message || '登录失败')

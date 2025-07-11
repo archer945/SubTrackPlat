@@ -7,6 +7,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import { createPinia } from 'pinia'
 import permissionDirective from '@/directives/permission'
+import './style.css'
 
 // 创建应用实例
 const app = createApp(App)
