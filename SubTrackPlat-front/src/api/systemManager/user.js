@@ -113,3 +113,43 @@ export function exportUsers(params) {
     responseType: 'blob'
   })
 } 
+
+// 获取用户登录日志
+export function getUserLoginLogs(params) {
+  return request({
+    url: '/systemManager/systemManager/user/loginLog',
+    method: 'get',
+    params
+  }).then(response => {
+    if (response && response.data) {
+      return {
+        records: response.data.rows || [],
+        total: response.data.total || 0,
+        pageSize: response.data.pageSize,
+        pageIndex: response.data.pageIndex,
+        pages: response.data.pages
+      };
+    }
+    return { records: [], total: 0 };
+  });
+}
+
+// 获取指定用户的登录日志
+export function getUserLoginLogsByUserId(userId, params) {
+  return request({
+    url: `/systemManager/systemManager/user/${userId}/loginLog`,
+    method: 'get',
+    params
+  }).then(response => {
+    if (response && response.data) {
+      return {
+        records: response.data.rows || [],
+        total: response.data.total || 0,
+        pageSize: response.data.pageSize,
+        pageIndex: response.data.pageIndex,
+        pages: response.data.pages
+      };
+    }
+    return { records: [], total: 0 };
+  });
+} 

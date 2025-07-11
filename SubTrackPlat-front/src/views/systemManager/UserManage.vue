@@ -110,6 +110,9 @@
                       <el-icon><UserFilled /></el-icon>分配角色
                     </el-dropdown-item>
                   <!-- </Permission> -->
+                  <el-dropdown-item command="viewLoginLog">
+                    <el-icon><Document /></el-icon>查看登录日志
+                  </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -214,6 +217,13 @@
         </div>
       </template>
     </el-dialog>
+    
+    <!-- 登录日志对话框 -->
+    <LoginLogDialog
+      :visible="loginLogDialogVisible"
+      @update:visible="loginLogDialogVisible = $event"
+      :userId="selectedUser.userId"
+    />
 
     <!-- 重置密码对话框 -->
     <reset-password-dialog
@@ -289,12 +299,13 @@
 <script setup>
 import { ref, reactive, onMounted, onActivated } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Edit, Delete, Key, UserFilled, ArrowDown, UploadFilled } from '@element-plus/icons-vue'
+import { Search, Refresh, Edit, Delete, Key, UserFilled, ArrowDown, UploadFilled, Document } from '@element-plus/icons-vue'
 import { getUserList, addUser, updateUser, deleteUser, resetUserPassword, getUserRoles, assignUserRoles, batchDeleteUsers, importUsers, exportUsers } from '@/api/systemManager/user'
 import { getDeptList, getDeptTree } from '@/api/systemManager/dept'
 import { getRoleList } from '@/api/systemManager/role'
 import ResetPasswordDialog from './ResetPasswordDialog.vue'
 import Permission from '@/components/Permission.vue'
+import LoginLogDialog from './LoginLogDialog.vue'
 
 // 搜索表单
 const searchForm = reactive({
@@ -391,6 +402,9 @@ const importResult = ref({
   failCount: 0,
   errorMessages: []
 })
+
+// 登录日志对话框
+const loginLogDialogVisible = ref(false)
 
 // 处理搜索
 const handleSearch = () => {
@@ -743,6 +757,12 @@ const handleAssignRole = async (row) => {
   }
 }
 
+// 处理查看登录日志
+const handleViewLoginLog = (row) => {
+  selectedUser.value = row
+  loginLogDialogVisible.value = true
+}
+
 // 提交表单
 const submitForm = () => {
   userFormRef.value.validate(async (valid) => {
@@ -854,6 +874,8 @@ const handleCommand = (command, row) => {
     handleResetPwd(row)
   } else if (command === 'assignRole') {
     handleAssignRole(row)
+  } else if (command === 'viewLoginLog') {
+    handleViewLoginLog(row)
   }
 }
 
