@@ -67,6 +67,8 @@ public class LoginController {
         result.put("code", 200);
         result.put("message", "登录成功");
         result.put("token", token);
+        result.put("userId", user.getUserId());
+        result.put("username", user.getUsername());
         return result;
     }
 

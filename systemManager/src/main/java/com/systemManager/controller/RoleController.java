@@ -11,6 +11,7 @@ import com.common.domain.query.systemManager.UserQuery;
 import com.common.domain.vo.JsonVO;
 import com.common.domain.vo.systemManager.RoleVO;
 import com.common.domain.vo.systemManager.UserVO;
+import com.systemManager.security.annotation.RequiresPermission;
 import com.systemManager.service.IRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,12 +41,14 @@ public class RoleController {
 
     @GetMapping
     @Operation(summary = "获取角色列表（条件+分页）")
+    @RequiresPermission("system:role:list")
     public JsonVO<PageDTO<RoleVO>> list(@ParameterObject @Validated RoleQuery query) {
         return JsonVO.success(roleService.listRoles(query));
     }
 
     @PostMapping
     @Operation(summary = "添加角色")
+    @RequiresPermission("system:role:add")
     public JsonVO<String> addRole(@Valid @RequestBody RoleDTO dto) {
         return JsonVO.success(roleService.saveRole(dto));
     }
@@ -57,12 +60,14 @@ public class RoleController {
 
     @PutMapping("/{id}")
     @Operation(summary = "更新角色")
+    @RequiresPermission("system:role:edit")
     public JsonVO<String> updateRole(@PathVariable Long id, @Valid @RequestBody RoleDTO dto) {
         return JsonVO.success( roleService.updateRole(id, dto));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除角色")
+    @RequiresPermission("system:role:remove")
     public JsonVO<String> removeRole(@PathVariable Long id) {
         return JsonVO.success(roleService.removeRole(id));
     }

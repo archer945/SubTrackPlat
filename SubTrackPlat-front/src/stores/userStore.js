@@ -7,8 +7,8 @@ import { resetRouter } from '@/router'
 export const useUserStore = defineStore('user', {
   state: () => ({
     userCache: new Map(),
-    token: localStorage.getItem('token') || '',
-    userInfo: JSON.parse(localStorage.getItem('userInfo') || '{}'),
+    token: sessionStorage.getItem('token') || '',
+    userInfo: JSON.parse(sessionStorage.getItem('userInfo') || '{}'),
   }),
   getters: {
     isLoggedIn: (state) => !!state.token,
@@ -31,9 +31,11 @@ export const useUserStore = defineStore('user', {
       this.token = token;
       this.userInfo = userInfo;
       
-      // 保存到本地存储
-      localStorage.setItem('token', token);
-      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+      // 保存到会话存储（关闭浏览器即清除）
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
+      
+      // 记住密码功能可以保留在localStorage（如果需要）
     },
     
     // 退出登录
@@ -47,9 +49,9 @@ export const useUserStore = defineStore('user', {
       this.userInfo = {};
       this.userCache.clear();
       
-      // 清除本地存储
-      localStorage.removeItem('token');
-      localStorage.removeItem('userInfo');
+      // 清除会话存储
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('userInfo');
       
       // 重置路由
       resetRouter();

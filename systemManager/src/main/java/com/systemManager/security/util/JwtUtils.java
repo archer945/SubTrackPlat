@@ -3,9 +3,13 @@ package com.systemManager.security.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Value;
+import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jws;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,11 +20,10 @@ import java.util.Map;
 @Component
 public class JwtUtils {
 
-    @Value("${jwt.secret:subtrackplat_secret_key}")
-    private String secret;
-
-    @Value("${jwt.expiration:86400}")
-    private long expiration;
+    // 使用与login模块相同的固定密钥
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60;
+    private static final String SECRET = "subtrackplat_secret_key_must_be_at_least_32_chars_long_for_security";
+    private static final Key SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
     /**
      * 从token中获取用户名
@@ -29,7 +32,26 @@ public class JwtUtils {
      * @return 用户名
      */
     public String getUsernameFromToken(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
+        return parseToken(token).getBody().getSubject();
+    }
+
+    /**
+     * 从token中获取用户ID
+     *
+     * @param token JWT令牌
+     * @return 用户ID
+     */
+    public Long getUserIdFromToken(String token) {
+        final Claims claims = parseToken(token).getBody();
+        Object userId = claims.get("userId");
+        if (userId != null) {
+            if (userId instanceof Integer) {
+                return ((Integer) userId).longValue();
+            } else if (userId instanceof Long) {
+                return (Long) userId;
+            }
+        }
+        return null;
     }
 
     /**
@@ -39,7 +61,7 @@ public class JwtUtils {
      * @return 过期时间
      */
     public Date getExpirationDateFromToken(String token) {
-        return getClaimFromToken(token, Claims::getExpiration);
+        return parseToken(token).getBody().getExpiration();
     }
 
     /**
@@ -50,21 +72,21 @@ public class JwtUtils {
      * @return 声明值
      */
     public <T> T getClaimFromToken(String token, java.util.function.Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaimsFromToken(token);
+        final Claims claims = parseToken(token).getBody();
         return claimsResolver.apply(claims);
     }
 
     /**
-     * 获取token中的所有声明
+     * 解析token
      *
      * @param token JWT令牌
-     * @return 所有声明
+     * @return Claims包装器
      */
-    private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(token)
-                .getBody();
+    private Jws<Claims> parseToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY)
+                .build()
+                .parseClaimsJws(token);
     }
 
     /**
@@ -98,14 +120,14 @@ public class JwtUtils {
      */
     private String doGenerateToken(Map<String, Object> claims, String subject) {
         final Date createdDate = new Date();
-        final Date expirationDate = new Date(createdDate.getTime() + expiration * 1000);
+        final Date expirationDate = new Date(createdDate.getTime() + EXPIRATION_TIME);
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(createdDate)
                 .setExpiration(expirationDate)
-                .signWith(SignatureAlgorithm.HS512, secret)
+                .signWith(SECRET_KEY)
                 .compact();
     }
 
@@ -118,6 +140,7 @@ public class JwtUtils {
     public Boolean validateToken(String token) {
         try {
             // 验证token是否过期
+            parseToken(token);
             return !isTokenExpired(token);
         } catch (Exception e) {
             return false;

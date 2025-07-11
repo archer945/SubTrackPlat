@@ -274,7 +274,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     @Override
     public List<UserMenuVO> getUserMenus(Long userId) {
         // 判断是否为管理员
-        boolean isAdmin = userId != null && userId == 11L; // 假设ID为1的用户是管理员
+        boolean isAdmin = SecurityUtils.isAdmin() || (userId != null && userId == 11L); // 假设ID为11的用户是管理员
+
         
         // 获取菜单列表
         List<Menu> menus;

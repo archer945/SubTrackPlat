@@ -6,7 +6,8 @@
       sub-title="抱歉，您没有访问该页面的权限"
     >
       <template #extra>
-        <el-button type="primary" @click="$router.push('/')">返回首页</el-button>
+        <el-button @click="goBack">返回上一页</el-button>
+        <el-button type="primary" @click="$router.push('/tasks')">返回首页</el-button>
       </template>
     </el-result>
   </div>
@@ -14,6 +15,14 @@
 
 <script setup>
 // 403权限不足页面
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+// 返回上一页
+const goBack = () => {
+  router.go(-1);
+};
 </script>
 
 <style scoped>

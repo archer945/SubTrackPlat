@@ -1,6 +1,7 @@
 // src/stores/permissionStore.js
 import { defineStore } from 'pinia'
 import { getCurrentUserMenus } from '@/api/systemManager/menu'
+import { useUserStore } from './userStore'
 
 export const usePermissionStore = defineStore('permission', {
   state: () => ({
@@ -20,7 +21,12 @@ export const usePermissionStore = defineStore('permission', {
     // 获取权限标识列表
     getPermissions: (state) => state.permissions,
     // 获取动态路由
-    getRoutes: (state) => state.routes
+    getRoutes: (state) => state.routes,
+    // 检查是否是管理员
+    isAdmin: () => {
+      const userStore = useUserStore();
+      return userStore.username === 'admin';
+    }
   },
 
   actions: {
@@ -29,20 +35,40 @@ export const usePermissionStore = defineStore('permission', {
       try {
         this.loading = true;
         
-        // 在非测试模式下或测试模式下没有找到权限信息时，正常请求API
-        const res = await getCurrentUserMenus();
-        if (res.data) {
-          // 设置菜单
-          this.menus = res.data;
-          // 提取权限标识
-          this.permissions = this.extractPermissions(res.data);
-          // 生成路由配置
-          this.routes = this.generateRoutes(res.data);
+        const userStore = useUserStore();
+        // 如果是普通用户，提供默认权限
+        if (userStore.username !== 'admin') {
+          // 为普通用户设置基本权限
+          this.permissions = ['task:view', 'defect:view'];
+          this.menus = []; // 普通用户不需要加载特殊菜单
           return true;
         }
-        return false;
+        
+        // 管理员用户加载全部权限菜单
+        try {
+          const res = await getCurrentUserMenus();
+          if (res.data) {
+            // 设置菜单
+            this.menus = res.data;
+            // 提取权限标识
+            this.permissions = this.extractPermissions(res.data);
+            // 生成路由配置
+            this.routes = this.generateRoutes(res.data);
+            return true;
+          }
+          return false;
+        } catch (error) {
+          // 如果API调用失败，但是管理员，至少给予基础权限
+          if (userStore.username === 'admin') {
+            this.permissions = ['*:*:*']; // 管理员拥有所有权限
+            console.warn('管理员权限加载失败，使用默认权限');
+            return true;
+          }
+          console.error('加载用户菜单失败', error);
+          return false;
+        }
       } catch (error) {
-        console.error('加载用户菜单失败', error);
+        console.error('权限处理错误', error);
         return false;
       } finally {
         this.loading = false;

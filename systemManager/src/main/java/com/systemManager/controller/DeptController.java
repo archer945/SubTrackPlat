@@ -8,6 +8,7 @@ import com.common.domain.query.systemManager.DeptQuery;
 import com.common.domain.vo.JsonVO;
 import com.common.domain.vo.systemManager.DeptTreeVO;
 import com.common.domain.vo.systemManager.UserVO;
+import com.systemManager.security.annotation.RequiresPermission;
 import com.systemManager.service.IDeptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,24 +37,28 @@ public class DeptController {
 
     @Operation(summary = "获取部门列表（条件+分页）")
     @GetMapping
+    @RequiresPermission("system:dept:list")
     public JsonVO<PageDTO<DeptTreeVO>> queryDeptList(@ParameterObject @Validated DeptQuery deptQuery) {
         return JsonVO.success(deptService.listDept(deptQuery));
     }
 
     @Operation(summary = "添加部门")
     @PostMapping
+    @RequiresPermission("system:dept:add")
     public JsonVO<String> addDept(@Validated @RequestBody DeptDTO dto) {
         return JsonVO.success(deptService.saveDept(dto));
     }
 
     @Operation(summary = "更新部门")
     @PutMapping("/{id}")
+    @RequiresPermission("system:dept:edit")
     public JsonVO<String> updateDept(@PathVariable Long id, @Validated @RequestBody DeptDTO dto) {
         return JsonVO.success(deptService.updateDept(id, dto));
     }
 
     @Operation(summary = "删除部门")
     @DeleteMapping("/{id}")
+    @RequiresPermission("system:dept:remove")
     public JsonVO<String> removeDept(@PathVariable Long id) {
         return JsonVO.success(deptService.removeDept(id));
     }

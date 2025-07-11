@@ -42,10 +42,14 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
+import { useUserStore } from '@/stores/userStore'
+import { usePermissionStore } from '@/stores/permissionStore'
 
 const router = useRouter()
 const loginFormRef = ref(null)
 const loading = ref(false)
+const userStore = useUserStore()
+const permissionStore = usePermissionStore()
 
 // 存储当前正确的验证码值
 const currentCaptchaCode = ref('')
@@ -140,12 +144,31 @@ const handleLogin = async () => {
         if (response.data.code === 200) {
           ElMessage.success(response.data.message || '登录成功')
 
+          // 获取并存储token
+          const token = response.data.token
+          if (!token) {
+            ElMessage.error('登录返回的token为空')
+            refreshCaptcha()
+            return
+          }
+
+          // 构建用户信息对象
+          const userInfo = {
+            userId: response.data.userId || '',
+            username: loginForm.username,
+            realName: response.data.realName || loginForm.username
+          }
+
+          // 使用userStore存储用户信息
+          userStore.setUserInfo(token, userInfo)
+
+          // 加载用户权限
+          await permissionStore.loadUserMenus()
+
           // 如果记住密码，可以将用户名和密码保存到localStorage
           if (loginForm.remember) {
             localStorage.setItem('username', loginForm.username)
             localStorage.setItem('password', loginForm.password)
-            // 注意：实际项目中不应该直接存储密码，这里仅作演示
-            // 可以考虑使用加密方式或token机制
           } else {
             // 如果不记住密码，清除之前可能存储的信息
             localStorage.removeItem('username')
@@ -239,12 +262,17 @@ const goToResetPassword = async () => {
   }
 }
 
-// 页面加载时检查是否有保存的用户名
+// 页面加载时检查是否有保存的用户名，并清除可能存在的token
 onMounted(() => {
+  // 先清除token，确保用户需要重新登录
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('userInfo');
+  
+  // 检查记住密码功能
   const savedUsername = localStorage.getItem('username')
   const savedPassword = localStorage.getItem('password')
   if (savedUsername) {
-    // loginForm.username = savedUsername
+    loginForm.username = savedUsername
     loginForm.password = savedPassword
     loginForm.remember = true
   }
