@@ -54,17 +54,17 @@
       @row-click="handleRowClick"
       highlight-current-row
     >
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="userId" label="用户编号" width="80" />
-      <el-table-column prop="username" label="用户名" width="120" />
-      <el-table-column prop="realName" label="用户昵称" width="120" />
-      <el-table-column label="部门" width="120">
+      <el-table-column type="selection" width="70" />
+      <el-table-column prop="userId" label="用户编号" width="100" />
+      <el-table-column prop="username" label="用户名" width="140" />
+      <el-table-column prop="realName" label="用户昵称" width="140" />
+      <el-table-column label="部门" width="140">
         <template #default="scope">
           {{ scope.row.deptName || '无部门' }}
         </template>
       </el-table-column>
-      <el-table-column prop="tel" label="手机号码" width="120" />
-      <el-table-column prop="status" label="状态" width="80" align="center">
+      <el-table-column prop="tel" label="手机号码" width="140" />
+      <el-table-column prop="status" label="状态" width="135" align="center">
         <template #default="scope">
           <el-tag
             :type="getStatusType(scope.row.status)"
@@ -74,12 +74,12 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" width="180">
+      <el-table-column label="创建时间" width="200">
         <template #default="scope">
           {{ formatDateTime(scope.row.createTime || scope.row.creatTime) }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" fixed="right" width="280">
+      <el-table-column label="操作" fixed="right" width="300">
         <template #default="scope">
           <div class="operation-buttons">
             <!-- <Permission permission="system:user:edit"> -->

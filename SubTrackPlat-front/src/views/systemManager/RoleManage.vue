@@ -231,7 +231,7 @@
         <el-table-column prop="username" label="用户名" width="120" />
         <el-table-column prop="realName" label="姓名" width="120" />
         <el-table-column prop="email" label="邮箱" width="180" />
-        <el-table-column prop="phone" label="手机号" width="120" />
+        <el-table-column prop="tel" label="手机号" width="120" />
         <el-table-column prop="deptName" label="部门" width="120" />
         <el-table-column prop="status" label="状态" width="80">
           <template #default="scope">

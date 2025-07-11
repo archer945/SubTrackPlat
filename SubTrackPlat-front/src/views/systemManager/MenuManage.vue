@@ -45,7 +45,7 @@
       highlight-current-row
     >
       <el-table-column prop="menuId" label="菜单编号" width="130" />
-      <el-table-column prop="menuName" label="菜单名称" width="160" />
+      <el-table-column prop="menuName" label="菜单名称" width="155" />
       <el-table-column prop="icon" label="图标" width="95">
         <template #default="scope">
           <el-icon v-if="scope.row.icon && isValidIcon(scope.row.icon)">
@@ -55,7 +55,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="orderNum" label="排序" width="90" />
-      <el-table-column prop="path" label="路由地址" width="200" />
+      <el-table-column prop="path" label="路由地址" width="195" />
       <el-table-column prop="perms" label="权限标识" width="200" />
       <el-table-column prop="menuType" label="类型" width="120">
         <template #default="scope">
