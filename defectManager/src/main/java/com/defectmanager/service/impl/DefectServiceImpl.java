@@ -206,6 +206,7 @@ public class DefectServiceImpl implements DefectService {
             case CONFIRMED:
                 defect.setConfirmBy(operatorId);
                 defect.setConfirmTime(LocalDateTime.now());
+                defect.setIsValid(true);
                 break;
             case PROCESSING:
                 defect.setHandleBy(operatorId);
