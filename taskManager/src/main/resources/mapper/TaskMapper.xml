@@ -59,11 +59,20 @@
             <if test="status != null and status != ''">
                 AND status = CAST(#{status} AS sub_track_plat.inspect_task_status_enum)
             </if>
-            <if test="plannedStart != null">
-                AND planned_start &gt;= #{plannedStart}
+            <!-- 创建时间范围查询 -->
+            <if test="createTimeStart != null and createTimeStart != ''">
+                AND create_time &gt;= TO_TIMESTAMP(#{createTimeStart}, 'YYYY-MM-DD')
             </if>
-            <if test="plannedEnd != null">
-                AND planned_end &lt;= #{plannedEnd}
+            <if test="createTimeEnd != null and createTimeEnd != ''">
+                AND create_time &lt;= TO_TIMESTAMP(#{createTimeEnd}, 'YYYY-MM-DD') + INTERVAL '1 day'
+            </if>
+            <!-- 计划开始时间查询 -->
+            <if test="plannedStart != null and plannedStart != ''">
+                AND planned_start &gt;= TO_TIMESTAMP(#{plannedStart}, 'YYYY-MM-DD')
+            </if>
+            <!-- 计划结束时间查询 -->
+            <if test="plannedEnd != null and plannedEnd != ''">
+                AND planned_end &lt;= TO_TIMESTAMP(#{plannedEnd}, 'YYYY-MM-DD') + INTERVAL '1 day'
             </if>
         </where>
         ORDER BY planned_start DESC

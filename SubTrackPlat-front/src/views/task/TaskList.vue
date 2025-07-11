@@ -35,12 +35,33 @@
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
-              v-model="searchForm.createTimeRange"
-              type="daterange"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              value-format="YYYY-MM-DD"
-              style="width: 240px"
+            v-model="searchForm.createTimeRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="YYYY-MM-DD"
+            style="width: 240px"
+          />
+        </el-form-item>
+        
+        <!-- 将计划时间拆分为计划开始时间和计划结束时间 -->
+        <el-form-item label="计划开始时间">
+          <el-date-picker
+            v-model="searchForm.plannedStartTime"
+            type="date"
+            placeholder="选择日期"
+            value-format="YYYY-MM-DD"
+            style="width: 140px"
+          />
+        </el-form-item>
+        <el-form-item label="计划结束时间">
+          <el-date-picker
+            v-model="searchForm.plannedEndTime"
+            type="date"
+            placeholder="选择日期"
+            value-format="YYYY-MM-DD"
+            style="width: 140px"
           />
         </el-form-item>
         <el-form-item label="任务类型">
@@ -95,19 +116,19 @@
       <el-table-column prop="lineName" label="线路" />
       <el-table-column prop="creatorName" label="创建人" />
       <el-table-column prop="executorName" label="执行人" />
-      <el-table-column label="最后执行时间">
+      <el-table-column label="计划开始时间">
         <template #default="scope">
-          {{ formatTime(scope.row.actualStart) }}
+          {{ formatTime(scope.row.plannedStart) }}
         </template>
       </el-table-column>
-      <el-table-column label="巡视完成时间">
+      <el-table-column label="计划结束时间">
         <template #default="scope">
-          {{ formatTime(scope.row.actualEnd) }}
+          {{ formatTime(scope.row.plannedEnd) }}
         </template>
       </el-table-column>
-      <el-table-column label="数据上传时间">
+      <el-table-column label="创建时间">
         <template #default="scope">
-          {{ formatTime(scope.row.updateTime) }}
+          {{ formatTime(scope.row.createTime) }}
         </template>
       </el-table-column>
       <el-table-column label="操作" width="100">
@@ -154,7 +175,9 @@ const fetchData = async () => {
     priority: searchForm.value.priority,
     status: searchForm.value.status,
     createTimeStart: searchForm.value.createTimeRange?.[0] || '',
-    createTimeEnd: searchForm.value.createTimeRange?.[1] || ''
+    createTimeEnd: searchForm.value.createTimeRange?.[1] || '',
+    plannedStart: searchForm.value.plannedStartTime || '',
+    plannedEnd: searchForm.value.plannedEndTime || ''
   }
   try {
     const { list, total: totalCount } = await taskStore.loadTasks(params)
@@ -173,7 +196,9 @@ const searchForm = ref({
   status: '',
   createTimeRange: [],
   taskType: '',
-  priority: ''
+  priority: '',
+  plannedStartTime: '',
+  plannedEndTime: ''
 })
 const taskList = ref([])
 const pageNum = ref(1)
@@ -197,7 +222,9 @@ const handleReset = () => {
     status: '',
     createTimeRange: [],
     taskType: '',
-    priority: ''
+    priority: '',
+    plannedStartTime: '',
+    plannedEndTime: ''
   }
   fetchData()
 }
@@ -217,7 +244,9 @@ const exportData = () => {
   const params = {
     ...searchForm.value,
     createTimeStart: searchForm.value.createTimeRange?.[0] || '',
-    createTimeEnd: searchForm.value.createTimeRange?.[1] || ''
+    createTimeEnd: searchForm.value.createTimeRange?.[1] || '',
+    plannedStart: searchForm.value.plannedStartTime || '',
+    plannedEnd: searchForm.value.plannedEndTime || ''
   }
 
   exportTasks(params)

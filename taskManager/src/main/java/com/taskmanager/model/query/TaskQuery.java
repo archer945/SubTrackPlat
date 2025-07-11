@@ -18,6 +18,11 @@ public class TaskQuery {
     private String creatorName; // 创建人
     private String priority; // 任务优先级
 
-    private LocalDateTime plannedStart; // 计划开始时间
-    private LocalDateTime plannedEnd; // 计划结束时间
+    // 创建时间范围查询
+    private String createTimeStart; // 创建时间开始
+    private String createTimeEnd; // 创建时间结束
+    
+    // 计划时间查询
+    private String plannedStart; // 计划开始时间
+    private String plannedEnd; // 计划结束时间
 }
