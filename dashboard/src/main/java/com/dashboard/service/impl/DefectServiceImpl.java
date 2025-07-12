@@ -29,10 +29,13 @@ public class DefectServiceImpl implements DefectService {
                 .sum();
 
         // 计算各类型占比
-        if (total > 0) {
-            for (DefectTypeDTO dto : defectTypes) {
+        for (DefectTypeDTO dto : defectTypes) {
+            if (total > 0) {
                 double ratio = formatPercent(dto.getCount(), total);
                 dto.setRatio(ratio);
+            } else {
+                // 总数为0时，设置占比为0
+                dto.setRatio(0.0);
             }
         }
 
@@ -94,17 +97,28 @@ public class DefectServiceImpl implements DefectService {
             }
 
             private Double formatPercent(Integer part, Integer total) {
+                if (total == null || total == 0) {
+                    return 0.0; // 避免除以零
+                }
                 return Double.parseDouble(String.format("%.2f", part * 100.0 / total));
             }
 
             private <T> List<T> calculateRatios(List<T> stats, Integer total) {
-                if (stats != null && total > 0) {
+                if (stats != null) {
                     stats.forEach(s -> {
                         try {
                             Method setRatio = s.getClass().getMethod("setRatio", Double.class);
                             Method getCount = s.getClass().getMethod("getCount");
                             Integer count = (Integer) getCount.invoke(s);
-                            setRatio.invoke(s, formatPercent(count, total));
+                            
+                            // 处理total为0或null的情况
+                            Double ratio;
+                            if (total == null || total == 0) {
+                                ratio = 0.0;
+                            } else {
+                                ratio = formatPercent(count, total);
+                            }
+                            setRatio.invoke(s, ratio);
                         } catch (Exception e) {
                             throw new RuntimeException("统计DTO必须包含count和ratio字段", e);
                         }
