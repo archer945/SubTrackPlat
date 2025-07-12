@@ -10,4 +10,9 @@ class LoginApplicationTests {
     void contextLoads() {
     }
 
+    @Test
+    void testMainMethod() {
+        // 测试main方法
+        LoginApplication.main(new String[]{});
+    }
 }
