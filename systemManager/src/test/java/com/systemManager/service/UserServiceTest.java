@@ -340,27 +340,27 @@ class UserServiceTest {
         // 准备测试数据
         Long userId = 1L;
         UpdateUserDTO dto = new UpdateUserDTO();
-        dto.setStatus(String.valueOf(0));  // 禁用状态
+        dto.setStatus("0");  // 禁用状态
+        dto.setDeptId(1L);  // 设置部门ID，避免空指针异常
         
         User existingUser = new User();
         existingUser.setUserId(userId);
         existingUser.setUsername("admin");
         
-        User updatedUser = new User();
-        updatedUser.setUserId(userId);
-        updatedUser.setUsername("admin");
-        updatedUser.setStatus(Integer.valueOf(0));
-        
         // 模拟依赖方法的行为
         when(userMapper.selectById(userId)).thenReturn(existingUser);
-        when(msMapper.dtoToDo(dto)).thenAnswer(invocation -> {
+        when(deptMapper.exists(any())).thenReturn(true);
+        
+        // 使用doAnswer来模拟dtoToDo方法的行为，确保返回完整的User对象
+        doAnswer(invocation -> {
             UpdateUserDTO userDTO = invocation.getArgument(0);
             User user = new User();
             user.setUserId(userId);
             user.setUsername("admin");
             user.setStatus(Integer.valueOf(userDTO.getStatus()));
+            user.setDeptId(userDTO.getDeptId());
             return user;
-        });
+        }).when(msMapper).dtoToDo(any(UpdateUserDTO.class));
         
         // 执行测试并验证异常
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
