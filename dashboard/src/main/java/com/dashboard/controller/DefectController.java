@@ -27,15 +27,17 @@ public class DefectController {
     @GetMapping("/defectOverview")
     @ApiOperation("获取缺陷类型及对应数量")
     public JsonVO<List<DefectTypeDTO>> getDefectType () {
-
-        if (defectService.getDefectType() == null) {
+        // 先获取数据，避免重复调用service方法
+        List<DefectTypeDTO> defectTypes = defectService.getDefectType();
+        if (defectTypes == null) {
             return JsonVO.fail(null);
         }
-        return JsonVO.success(defectService.getDefectType());
+        return JsonVO.success(defectTypes);
     }
+    
     @GetMapping("/defect-stats")
     public JsonVO<DefectStatsDTO> getDefectStats() {
-            return JsonVO.success(defectService.getDefectStats());
-        }
+        return JsonVO.success(defectService.getDefectStats());
     }
+}
 

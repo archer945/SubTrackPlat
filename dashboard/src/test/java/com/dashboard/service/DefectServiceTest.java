@@ -62,6 +62,44 @@ class DefectServiceTest {
     }
     
     @Test
+    void testGetDefectType_EmptyList() {
+        // 模拟依赖方法的行为，返回空列表
+        when(defectMapper.getDefectType()).thenReturn(new ArrayList<>());
+        
+        // 执行测试
+        List<DefectTypeDTO> result = defectService.getDefectType();
+        
+        // 验证结果
+        assertNotNull(result);
+        assertEquals(0, result.size());
+        verify(defectMapper).getDefectType();
+    }
+    
+    @Test
+    void testGetDefectType_ZeroCount() {
+        // 准备测试数据 - 所有缺陷数量为0
+        List<DefectTypeDTO> defectTypes = new ArrayList<>();
+        DefectTypeDTO type = new DefectTypeDTO();
+        type.setType("结构裂缝");
+        type.setCount(0);
+        defectTypes.add(type);
+        
+        // 模拟依赖方法的行为
+        when(defectMapper.getDefectType()).thenReturn(defectTypes);
+        
+        // 执行测试
+        List<DefectTypeDTO> result = defectService.getDefectType();
+        
+        // 验证结果
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("结构裂缝", result.get(0).getType());
+        assertEquals(0.0, result.get(0).getRatio()); // 总数为0时，比例也为0
+        
+        verify(defectMapper).getDefectType();
+    }
+    
+    @Test
     void testGetDefectStats() {
         // 准备测试数据
         DefectValidityCountDTO validityCount = new DefectValidityCountDTO();
@@ -87,6 +125,41 @@ class DefectServiceTest {
         assertEquals(20, result.getFalseReportDefects());
         assertEquals(80.0, result.getConfirmedValidRate());
         assertEquals(20.0, result.getFalseReportRate());
+        
+        verify(defectMapper).countDefectValidity();
+        verify(defectMapper).countByType();
+        verify(defectMapper).countBySeverity();
+        verify(defectMapper).countByStatus();
+        verify(defectMapper).countByValidity();
+        verify(defectMapper).countRecentTrend();
+    }
+    
+    @Test
+    void testGetDefectStats_ZeroTotal() {
+        // 准备测试数据 - 总数为0
+        DefectValidityCountDTO validityCount = new DefectValidityCountDTO();
+        validityCount.setTotal(0);
+        validityCount.setValid(0);
+        validityCount.setFalseReport(0);
+        
+        // 模拟依赖方法的行为
+        when(defectMapper.countDefectValidity()).thenReturn(validityCount);
+        when(defectMapper.countByType()).thenReturn(new ArrayList<>());
+        when(defectMapper.countBySeverity()).thenReturn(new ArrayList<>());
+        when(defectMapper.countByStatus()).thenReturn(new ArrayList<>());
+        when(defectMapper.countByValidity()).thenReturn(new ArrayList<>());
+        when(defectMapper.countRecentTrend()).thenReturn(new ArrayList<>());
+        
+        // 执行测试
+        DefectStatsDTO result = defectService.getDefectStats();
+        
+        // 验证结果
+        assertNotNull(result);
+        assertEquals(0, result.getTotalDefects());
+        assertEquals(0, result.getConfirmedValidDefects());
+        assertEquals(0, result.getFalseReportDefects());
+        assertEquals(0.0, result.getConfirmedValidRate());
+        assertEquals(0.0, result.getFalseReportRate());
         
         verify(defectMapper).countDefectValidity();
         verify(defectMapper).countByType();
@@ -123,6 +196,86 @@ class DefectServiceTest {
                 assertTrue(e.getCause() instanceof ArithmeticException);
             }
             
+        } catch (Exception e) {
+            fail("测试私有方法失败: " + e.getMessage());
+        }
+    }
+    
+    @Test
+    void testCalculateRatios() {
+        // 准备测试数据
+        List<DefectTypeDTO> defectTypes = new ArrayList<>();
+        DefectTypeDTO type1 = new DefectTypeDTO();
+        type1.setType("结构裂缝");
+        type1.setCount(30);
+        DefectTypeDTO type2 = new DefectTypeDTO();
+        type2.setType("渗水");
+        type2.setCount(70);
+        defectTypes.add(type1);
+        defectTypes.add(type2);
+        
+        try {
+            // 通过反射调用私有方法
+            java.lang.reflect.Method calculateRatiosMethod = DefectServiceImpl.class.getDeclaredMethod(
+                    "calculateRatios", List.class, Integer.class);
+            calculateRatiosMethod.setAccessible(true);
+            
+            // 执行测试
+            @SuppressWarnings("unchecked")
+            List<DefectTypeDTO> result = (List<DefectTypeDTO>) calculateRatiosMethod.invoke(defectService, defectTypes, 100);
+            
+            // 验证结果
+            assertNotNull(result);
+            assertEquals(2, result.size());
+            assertEquals(30.0, result.get(0).getRatio());
+            assertEquals(70.0, result.get(1).getRatio());
+        } catch (Exception e) {
+            fail("测试私有方法失败: " + e.getMessage());
+        }
+    }
+    
+    @Test
+    void testCalculateRatios_NullList() {
+        try {
+            // 通过反射调用私有方法
+            java.lang.reflect.Method calculateRatiosMethod = DefectServiceImpl.class.getDeclaredMethod(
+                    "calculateRatios", List.class, Integer.class);
+            calculateRatiosMethod.setAccessible(true);
+            
+            // 执行测试
+            @SuppressWarnings("unchecked")
+            List<DefectTypeDTO> result = (List<DefectTypeDTO>) calculateRatiosMethod.invoke(defectService, null, 100);
+            
+            // 验证结果 - 对于null输入，应返回null或空列表
+            assertNull(result);
+        } catch (Exception e) {
+            fail("测试私有方法失败: " + e.getMessage());
+        }
+    }
+    
+    @Test
+    void testCalculateRatios_ZeroTotal() {
+        // 准备测试数据
+        List<DefectTypeDTO> defectTypes = new ArrayList<>();
+        DefectTypeDTO type = new DefectTypeDTO();
+        type.setType("结构裂缝");
+        type.setCount(30);
+        defectTypes.add(type);
+        
+        try {
+            // 通过反射调用私有方法
+            java.lang.reflect.Method calculateRatiosMethod = DefectServiceImpl.class.getDeclaredMethod(
+                    "calculateRatios", List.class, Integer.class);
+            calculateRatiosMethod.setAccessible(true);
+            
+            // 执行测试 - 总数为0
+            @SuppressWarnings("unchecked")
+            List<DefectTypeDTO> result = (List<DefectTypeDTO>) calculateRatiosMethod.invoke(defectService, defectTypes, 0);
+            
+            // 验证结果
+            assertNotNull(result);
+            assertEquals(1, result.size());
+            assertNotNull(result.get(0).getRatio()); // 比例应该不为null，即使可能是0
         } catch (Exception e) {
             fail("测试私有方法失败: " + e.getMessage());
         }
