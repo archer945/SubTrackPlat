@@ -84,6 +84,7 @@
     <div class="action-bar">
       <el-button type="success" @click="handleExport">导出数据</el-button>
       <el-button @click="handleRefresh">刷新</el-button>
+      <el-button type="primary" @click="goToSystemManage">系统管理</el-button>
     </div>
 
     <!-- 表格数据 -->
@@ -264,6 +265,11 @@ const title = '缺陷管理'
 const router = useRouter()
 const viewTaskDetail = (taskId) => {
   router.push(`/tasks/${taskId}`)
+}
+
+// 跳转到系统管理页面
+const goToSystemManage = () => {
+  router.push('/system')
 }
 
 // 新增：控制编辑状态对话框的显示
