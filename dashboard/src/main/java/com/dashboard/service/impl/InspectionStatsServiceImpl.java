@@ -82,6 +82,9 @@ public class InspectionStatsServiceImpl implements InspectionStatsService {
     public <T extends InspectionTypeStats> List<T> calculateRatios(List<T> stats, int total) {
         if (total > 0) {
             stats.forEach(s -> s.setRatio(s.getCount() * 100.0 / total));
+        } else {
+            // 当total为0时，设置ratio为0.0而不是保持为null
+            stats.forEach(s -> s.setRatio(0.0));
         }
         return stats;
     }

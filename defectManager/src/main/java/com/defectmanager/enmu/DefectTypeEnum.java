@@ -25,7 +25,7 @@ public enum DefectTypeEnum {
 
     public static DefectTypeEnum fromDbValue(String dbValue) {
         for (DefectTypeEnum type : values()) {
-            if (type.name().equals(dbValue)) {
+            if (type.getDbValue().equals(dbValue)) {
                 return type;
             }
         }

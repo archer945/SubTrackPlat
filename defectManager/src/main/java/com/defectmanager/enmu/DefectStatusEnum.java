@@ -24,7 +24,7 @@ public enum DefectStatusEnum {
 
     public static DefectStatusEnum fromDbValue(String dbValue) {
         for (DefectStatusEnum status : values()) {
-            if (status.name().equals(dbValue)) {
+            if (status.getDbValue().equals(dbValue)) {
                 return status;
             }
         }
